@@ -1,7 +1,14 @@
 #ifndef LINLIB_H
 #define LINLIB_H
 #include <SDL2/SDL.h>
+#include <iomanip>
 #include <iostream>
+#include <limits>
+#include <math.h>
+
+// #define INT_MAX numeric_limits<int>::max()
+// #define INT_MIN numeric_limits<int>::min()
+
 using namespace std;
 
 #define X 0
@@ -17,12 +24,16 @@ class Vector {
 
 public:
   float x, y, z, w;
+  int texture_x, texture_y;
 
-  Vector(float _x = 0, float _y = 0, float _z = 0, float _w = 1) {
+  Vector(float _x = 0, float _y = 0, float _z = 0, float _w = 1,
+         int _texture_x = 0, int _texture_y = 0) {
     x = _x;
     y = _y;
     z = _z;
     w = _w;
+    texture_x = _texture_x;
+    texture_y = _texture_y;
   }
 
   /** Returns the value at the given index (or axis)*/
@@ -91,11 +102,15 @@ class Pixel : public SDL_Point {
 
 public:
   Vector source;
+  int texture_x, texture_y;
 
-  Pixel(float _x = 0, float _y = 0, Vector _source = Vector()) {
+  Pixel(float _x = 0, float _y = 0, Vector _source = Vector(),
+        int _texture_x = 0, int _texture_y = 0) {
     x = _x;
     y = _y;
     source = _source;
+    texture_x = _texture_x;
+    texture_y = _texture_y;
   }
 
   /** Returns the value a the given axis*/
@@ -109,9 +124,17 @@ Pixel operator+(Pixel &p1, Pixel &p2);
 Pixel operator-(Pixel &p1, Pixel &p2);
 
 /** Returns the pixel multyplied by a scalar (source also multyplied) */
-Pixel operator*(Pixel p, float a);
+Pixel operator*(Pixel &p, float a);
 
 /** Prints the pixel */
 ostream &operator<<(ostream &os, Pixel &p);
+
+/** Returns interpolation of the pixels according to the given ratio */
+Pixel interpolate(Pixel &p1, Pixel &p2, float ratio);
+
+/** Returns an array in which the first value is the minimum of all y values and
+ * the second value is the maximum of all y values */
+void get_extremum(Pixel *pixels, int len, int *extremum,
+                  int lower_bound = INT_MIN, int upper_bound = INT_MAX);
 
 #endif

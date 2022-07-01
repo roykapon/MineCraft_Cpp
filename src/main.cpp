@@ -4,7 +4,7 @@
 #include <sstream>
 
 #define SPEED 0.01f
-#define DELAY 10
+#define DELAY 30
 
 using namespace std;
 
@@ -12,11 +12,12 @@ int game() {
   Vector pos = Vector(0, 0, -10);
   Camera camera = Camera(pos, 0, 0);
 
-  Vector v1 = Vector(0, 0, 4);
-  Vector v2 = Vector(1, 0, 4);
-  Vector v3 = Vector(0, 1, 4);
+  Vector v1 = Vector(0, 0, 4, 1, 0, 0);
+  Vector v2 = Vector(1, 0, 4, 1, 255, 0);
+  Vector v3 = Vector(0, 1, 4, 1, 0, 255);
 
   Face face = Face(v1, v2, v3);
+  // Pixel projected[3];
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -72,26 +73,25 @@ int game() {
         break;
       }
     }
-    // cout << "horizontal: " << camera.horizontal
-    //      << ", vertical: " << camera.vertical << endl;
-
     camera.update();
-    Pixel *projected = camera.project(face);
 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    int x1, y1, x2, y2;
-    for (int i = 0; i < 3; i++) {
-      x1 = projected[i][X];
-      y1 = projected[i][Y];
-      x2 = projected[(i + 1) % 3][X];
-      y2 = projected[(i + 1) % 3][Y];
 
-      SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-    }
+    camera.render(face, renderer);
 
-    free(projected);
+    // camera.project(face, projected);
+
+    // int x1, y1, x2, y2;
+    // for (int i = 0; i < 3; i++) {
+    //   x1 = projected[i][X];
+    //   y1 = projected[i][Y];
+    //   x2 = projected[(i + 1) % 3][X];
+    //   y2 = projected[(i + 1) % 3][Y];
+
+    //   SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+    // }
 
     SDL_RenderPresent(renderer);
 
@@ -107,7 +107,15 @@ int game() {
 
 int main(int argv, char **args) {
   game();
-  // Vector pos = Vector(0, 0, 0);
+  // Vector source1 = Vector(0, 0, 0);
+  // Vector source2 = Vector(100, 100, 0);
+
+  // Pixel p1 = Pixel(99, 0, source1);
+  // Pixel p2 = Pixel(0, 0, source2);
+
+  // Pixel p3 = interpolate(p1, p2, 0.5);
+  // cout << p3;
+
   // Camera camera = Camera(pos, 0, 0);
 
   // Vector v1 = Vector(0, 0, 2);

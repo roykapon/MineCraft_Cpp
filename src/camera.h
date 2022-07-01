@@ -45,16 +45,25 @@ public:
   /** Update the camera (currently only world)*/
   void update();
 
-  /** Returns the projected pixel of a point in the camera */
-  Pixel project(Vector &v);
-
-  /** Returns the projected pixels of a face in the camera */
-  Pixel *project(Face &face);
-
   /** given x coordinate, returnd the x index of the pixel*/
   int pixel_x(float x);
 
   /** given y coordinate, returnd the y index of the pixel*/
   int pixel_y(float y);
+
+  /** Returns the projected pixels of a face in the camera */
+  void project(Face &face, Pixel *projected);
+
+  /** Returns the projected pixel of a point in the camera */
+  void project(Vector &v, Pixel *p);
+
+  /** Renders the face onto the camera */
+  void render(Face &face, SDL_Renderer *renderer);
+
+  /** Given a list of edges, updates the pixture */
+  void paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer);
+
+  void save_line(Pixel *line, Pixel *edges, int *extremum,
+                 SDL_Renderer *renderer);
 };
 #endif

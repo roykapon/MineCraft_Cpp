@@ -1,7 +1,4 @@
 #include "linlib.h"
-#include <cmath>
-#include <iomanip>
-#include <iostream>
 
 using namespace std;
 
@@ -188,6 +185,8 @@ Pixel operator+(Pixel &p1, Pixel &p2) {
   res.x = p1.x + p2.x;
   res.y = p1.y + p2.y;
   res.source = p1.source + p2.source;
+  res.texture_x = p1.texture_x + p2.texture_x;
+  res.texture_y = p1.texture_y + p2.texture_y;
   return res;
 }
 
@@ -196,6 +195,8 @@ Pixel operator-(Pixel &p1, Pixel &p2) {
   res.x = p1.x - p2.x;
   res.y = p1.y - p2.y;
   res.source = p1.source - p2.source;
+  res.texture_x = p1.texture_x - p2.texture_x;
+  res.texture_y = p1.texture_y - p2.texture_y;
   return res;
 }
 
@@ -204,10 +205,28 @@ Pixel operator*(Pixel &p, float a) {
   res.x = p.x * a;
   res.y = p.y * a;
   res.source = p.source * a;
+  res.texture_x = p.texture_x * a;
+  res.texture_y = p.texture_y * a;
   return res;
 }
 
 ostream &operator<<(ostream &os, Pixel &p) {
   os << "x = " << p.x << ", y = " << p.y << ", source = " << p.source << '\n';
   return os;
+}
+
+Pixel interpolate(Pixel &p1, Pixel &p2, float ratio) {
+  Pixel frac_1 = p1 * ratio;
+  Pixel frac_2 = p2 * (1 - ratio);
+  return frac_1 + frac_2;
+}
+
+void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
+                  int upper_bound) {
+  Pixel *p;
+  for (int i = 0; i < len; i++) {
+    p = &pixels[i];
+    extremum[0] = max(min(extremum[0], p->y), lower_bound);
+    extremum[1] = min(max(extremum[1], p->y), upper_bound);
+  }
 }
