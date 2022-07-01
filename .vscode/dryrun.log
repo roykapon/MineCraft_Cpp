@@ -1,0 +1,6 @@
+make.exe --dry-run --always-make --keep-going --print-directory
+make: Entering directory 'g:/My Drive/Projects/MineCraft_Cpp'
+make: Leaving directory 'g:/My Drive/Projects/MineCraft_Cpp'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
