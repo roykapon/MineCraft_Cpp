@@ -150,10 +150,16 @@ void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
   for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
     Pixel left = edges[2 * (y - extremum[0]) + 0];
     Pixel right = edges[2 * (y - extremum[0]) + 1];
-    // handle edge case
-    if (right.x == left.x) {
-      SDL_SetRenderDrawColor(renderer, left.texture_x, left.texture_y, 0, 255);
-      SDL_RenderDrawPoint(renderer, left.x, y);
+    // handle edge cases
+    if (max(left.x, 0) > min(right.x, width - 1)) {
+      continue;
+    }
+    if (max(left.x, 0) == min(right.x, width - 1)) {
+      if (picture_colored[right.y * width + max(left.x, 0)] == right.x) {
+        SDL_SetRenderDrawColor(renderer, left.texture_x, left.texture_y, 0,
+                               255);
+        SDL_RenderDrawPoint(renderer, left.x, y);
+      }
       continue;
     }
     double diff = right.x - left.x;
@@ -165,6 +171,7 @@ void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
       // paint the pixel
       SDL_SetRenderDrawColor(renderer, texture_x, texture_y, 0, 255);
       SDL_RenderDrawPoint(renderer, x, y);
+      // set the pixel colored
       picture_colored[y * width + x] =
           bound(right.x + 1, width, picture_colored[y * width + x]);
       x = get_next_x(x + 1, y);
