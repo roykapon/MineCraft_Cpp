@@ -4,7 +4,7 @@ using namespace std;
 
 // =========================== Vector ===========================
 
-float &Vector::operator[](int index) {
+double Vector::operator[](int index) const {
   switch (index) {
   case X:
     return x;
@@ -20,7 +20,23 @@ float &Vector::operator[](int index) {
   }
 }
 
-Vector operator+(Vector &v1, Vector &v2) {
+double &Vector::operator[](int index) {
+  switch (index) {
+  case X:
+    return x;
+  case Y:
+    return y;
+  case Z:
+    return z;
+  case W:
+    return w;
+  default:
+    cout << "Invalid index: " << index;
+    return x;
+  }
+}
+
+Vector operator+(const Vector &v1, const Vector &v2) {
   Vector res;
   for (int axis = 0; axis < AXES; axis++) {
     res[axis] = v1[axis] + v2[axis];
@@ -28,7 +44,7 @@ Vector operator+(Vector &v1, Vector &v2) {
   return res;
 }
 
-Vector operator-(Vector &v1, Vector &v2) {
+Vector operator-(const Vector &v1, const Vector &v2) {
   Vector res;
   for (int axis = 0; axis < AXES; axis++) {
     res[axis] = v1[axis] - v2[axis];
@@ -36,7 +52,7 @@ Vector operator-(Vector &v1, Vector &v2) {
   return res;
 }
 
-Vector operator*(Vector &v1, float a) {
+Vector operator*(const Vector &v1, double a) {
   Vector res;
   for (int axis = 0; axis < AXES; axis++) {
     res[axis] = v1[axis] * a;
@@ -44,18 +60,33 @@ Vector operator*(Vector &v1, float a) {
   return res;
 }
 
-float operator*(Vector &v1, Vector &v2) {
-  float sum = 0.0f;
+double operator*(const Vector &v1, const Vector &v2) {
+  double sum = 0.0f;
   for (int axis = 0; axis < AXES; axis++) {
     sum += v1[axis] * v2[axis];
   }
   return sum;
 }
 
-ostream &operator<<(ostream &os, Vector &v) {
+ostream &operator<<(ostream &os, const Vector &v) {
   os << "(x = " << v.x << ", y = " << v.y << ", z = " << v.z << ", w = " << v.w
      << ")\n";
   return os;
+}
+
+size_t Vector_hash::operator()(const Vector &key) const {
+  return hash<string>()(to_string(key.x) + to_string(key.y) + to_string(key.z));
+}
+
+double norm(const Vector &v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
+
+double distance(const Vector &v1, const Vector &v2) {
+  Vector diff = v1 - v2;
+  return norm(diff);
+}
+
+bool Vector::operator==(const Vector &b2) const {
+  return x == b2.x && (y == b2.y && z == b2.z);
 }
 
 // =========================== Matrix ===========================
@@ -78,7 +109,7 @@ Matrix operator-(Matrix &M1, Matrix &M2) {
   return res;
 }
 
-Matrix operator*(Matrix &M, float a) {
+Matrix operator*(Matrix &M, double a) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     res[i] = M[i] * a;
@@ -89,7 +120,7 @@ Matrix operator*(Matrix &M, float a) {
 Vector operator*(Matrix &M, Vector &v) {
   Vector res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
-    float sum = 0.0f;
+    double sum = 0.0f;
     for (int j = 0; j < EXTENDED_AXES; j++) {
       sum += v[j] * M[i][j];
     }
@@ -101,7 +132,7 @@ Vector operator*(Matrix &M, Vector &v) {
 Vector operator*(Vector &v, Matrix &M) {
   Vector res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
-    float sum = 0.0f;
+    double sum = 0.0f;
     for (int j = 0; j < EXTENDED_AXES; j++) {
       sum += M[j][i] * v[j];
     }
@@ -114,7 +145,7 @@ Matrix operator*(Matrix &M1, Matrix &M2) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     for (int j = 0; j < EXTENDED_AXES; j++) {
-      float sum = 0;
+      double sum = 0;
       for (int t = 0; t < EXTENDED_AXES; t++) {
         sum += M1[i][t] * M2[t][j];
       }
@@ -134,7 +165,7 @@ ostream &operator<<(ostream &os, Matrix &M) {
   return os;
 };
 
-Matrix Matrix::rotate(int axis, float angle) {
+Matrix Matrix::rotate(int axis, double angle) {
   Matrix res;
   res.vectors[3] = Vector(0, 0, 0, 1);
   switch (axis) {
@@ -174,6 +205,10 @@ int &Pixel::operator[](int index) {
     return x;
   case Y:
     return y;
+  case TEXTURE_X:
+    return texture_x;
+  case TEXTURE_Y:
+    return texture_y;
   default:
     cout << "Invalid index: " << index;
     return x;
@@ -200,7 +235,7 @@ Pixel operator-(Pixel &p1, Pixel &p2) {
   return res;
 }
 
-Pixel operator*(Pixel &p, float a) {
+Pixel operator*(Pixel &p, double a) {
   Pixel res;
   res.x = p.x * a;
   res.y = p.y * a;
@@ -215,14 +250,19 @@ ostream &operator<<(ostream &os, Pixel &p) {
   return os;
 }
 
-Pixel interpolate(Pixel &p1, Pixel &p2, float ratio) {
-  Pixel frac_1 = p1 * ratio;
-  Pixel frac_2 = p2 * (1 - ratio);
-  return frac_1 + frac_2;
+Pixel interpolate(Pixel &p1, Pixel &p2, double ratio) {
+  Pixel res;
+  for (int axis = 0; axis < PIXEL_AXES; axis++) {
+    res[axis] =
+        round(((double)p1[axis]) * ratio + ((double)p2[axis]) * (1 - ratio));
+  }
+  return res;
 }
 
 void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
                   int upper_bound) {
+  extremum[0] = INT_MAX;
+  extremum[1] = INT_MIN;
   Pixel *p;
   for (int i = 0; i < len; i++) {
     p = &pixels[i];

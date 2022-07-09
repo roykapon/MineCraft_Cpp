@@ -7,6 +7,8 @@
 #define TEXTURE_WIDTH 10
 #define TEXTURE_HEIGHT 10
 
+#define TEXTURE_RES 255
+
 class Face {
 
 public:
@@ -34,7 +36,16 @@ public:
   }
 
   /** Returns the vertex at the given index */
+  const Vector &operator[](int index) const;
+
+  /** Returns a mutable reference to the vertex at the given index */
   Vector &operator[](int index);
 };
 
+/** Returns the shifted face by the given position */
+Face operator+(const Face &face, const Vector &pos);
+
+/** Returns the minimal distance of the vertices of the face from the given
+ * point */
+double mindist(const Face &face, const Vector &pos);
 #endif

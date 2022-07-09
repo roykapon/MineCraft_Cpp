@@ -51,7 +51,7 @@ main(int argc, char *argv[])
     for (dpy = 0; dpy < num_displays; dpy++) {
         const int num_modes = SDL_GetNumDisplayModes(dpy);
         SDL_Rect rect = { 0, 0, 0, 0 };
-        float ddpi, hdpi, vdpi;
+        double ddpi, hdpi, vdpi;
         int m;
 
         SDL_GetDisplayBounds(dpy, &rect);

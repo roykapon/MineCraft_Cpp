@@ -41,8 +41,8 @@ static int buttons = 0;
 
 static SDL_bool wheel_x_active = SDL_FALSE;
 static SDL_bool wheel_y_active = SDL_FALSE;
-static float wheel_x = SCREEN_WIDTH * 0.5f;
-static float wheel_y = SCREEN_HEIGHT * 0.5f;
+static double wheel_x = SCREEN_WIDTH * 0.5f;
+static double wheel_y = SCREEN_HEIGHT * 0.5f;
 
 static SDL_bool done = SDL_FALSE;
 

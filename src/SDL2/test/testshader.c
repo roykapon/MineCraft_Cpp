@@ -97,7 +97,7 @@ static ShaderData shaders[NUM_SHADERS] = {
 "{\n"
 "    vec4 color;\n"
 "    vec2 delta;\n"
-"    float dist;\n"
+"    double dist;\n"
 "\n"
 "    delta = vec2(0.5, 0.5) - v_texCoord;\n"
 "    dist = dot(delta, delta);\n"
@@ -306,7 +306,7 @@ power_of_two(int input)
 }
 
 GLuint
-SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord)
+SDL_GL_LoadTexture(SDL_Surface * surface, GLdouble * texcoord)
 {
     GLuint texture;
     int w, h;
@@ -319,8 +319,8 @@ SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord)
     h = power_of_two(surface->h);
     texcoord[0] = 0.0f;         /* Min X */
     texcoord[1] = 0.0f;         /* Min Y */
-    texcoord[2] = (GLfloat) surface->w / w;     /* Max X */
-    texcoord[3] = (GLfloat) surface->h / h;     /* Max Y */
+    texcoord[2] = (GLdouble) surface->w / w;     /* Max X */
+    texcoord[3] = (GLdouble) surface->h / h;     /* Max Y */
 
     image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN     /* OpenGL RGBA masks */
@@ -384,7 +384,7 @@ void InitGL(int Width, int Height)                    /* We call this right afte
 }
 
 /* The main drawing function. */
-void DrawGLScene(SDL_Window *window, GLuint texture, GLfloat * texcoord)
+void DrawGLScene(SDL_Window *window, GLuint texture, GLdouble * texcoord)
 {
     /* Texture coordinate lookup, to make it simple */
     enum {
@@ -450,7 +450,7 @@ int main(int argc, char **argv)
     SDL_Window *window;
     SDL_Surface *surface;
     GLuint texture;
-    GLfloat texcoords[4];
+    GLdouble texcoords[4];
 
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);

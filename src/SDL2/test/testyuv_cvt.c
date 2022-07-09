@@ -15,7 +15,7 @@
 #include "testyuv_cvt.h"
 
 
-static float clip3(float x, float y, float z)
+static double clip3(double x, double y, double z)
 {
     return ((z < x) ? x : ((z > y) ? y : z));
 }
@@ -34,7 +34,7 @@ static void RGBtoYUV(Uint8 * rgb, int *yuv, SDL_YUV_CONVERSION_MODE mode, int mo
         // Y =                   SDL_floor(2^(M-8) * (219*(L-Z)/S + 16) + 0.5);
         // U = clip3(0, (2^M)-1, SDL_floor(2^(M-8) * (112*(B-L) / ((1-Kb)*S) + 128) + 0.5));
         // V = clip3(0, (2^M)-1, SDL_floor(2^(M-8) * (112*(R-L) / ((1-Kr)*S) + 128) + 0.5));
-        float S, Z, R, G, B, L, Kr, Kb, Y, U, V;
+        double S, Z, R, G, B, L, Kr, Kb, Y, U, V;
 
         if (mode == SDL_YUV_CONVERSION_BT709) {
             /* BT.709 */

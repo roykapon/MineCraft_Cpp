@@ -1,13 +1,16 @@
 #ifndef LINLIB_H
 #define LINLIB_H
 #include <SDL2/SDL.h>
+#include <bits/stdc++.h>
 #include <iomanip>
 #include <iostream>
-#include <limits>
+#include <limits.h>
 #include <math.h>
 
 // #define INT_MAX numeric_limits<int>::max()
 // #define INT_MIN numeric_limits<int>::min()
+#define DOUBLE_MAX numeric_limits<double>::max()
+#define DOUBLE_MIN numeric_limits<double>::min()
 
 using namespace std;
 
@@ -15,7 +18,10 @@ using namespace std;
 #define Y 1
 #define Z 2
 #define W 3
+#define TEXTURE_X 2
+#define TEXTURE_Y 3
 #define AXES 3
+#define PIXEL_AXES 4
 #define EXTENDED_AXES 4
 #define MAX_NUM_LENGTH 13
 #define PI 3.14159265
@@ -23,10 +29,10 @@ using namespace std;
 class Vector {
 
 public:
-  float x, y, z, w;
+  double x, y, z, w;
   int texture_x, texture_y;
 
-  Vector(float _x = 0, float _y = 0, float _z = 0, float _w = 1,
+  Vector(double _x = 0, double _y = 0, double _z = 0, double _w = 1,
          int _texture_x = 0, int _texture_y = 0) {
     x = _x;
     y = _y;
@@ -37,22 +43,40 @@ public:
   }
 
   /** Returns the value at the given index (or axis)*/
-  float &operator[](int index);
+  double operator[](int index) const;
+
+  /** Returns a mutable reference to the value at the given index (or axis) */
+  double &operator[](int index);
+
+  /** Returns true if the vectors have the same 3d position (does not compare
+   * the w coordinate) */
+  bool operator==(const Vector &b2) const;
 };
 /** Prints the vector */
-ostream &operator<<(ostream &os, Vector &v);
+ostream &operator<<(ostream &os, const Vector &v);
 
 /** Returns the sum of the vectors */
-Vector operator+(Vector &v1, Vector &v2);
+Vector operator+(const Vector &v1, const Vector &v2);
 
 /** Returns the difference between the vectors (first-second) */
-Vector operator-(Vector &v1, Vector &v2);
+Vector operator-(const Vector &v1, const Vector &v2);
 
 /** Returns the vector multiplied by a scalar */
-Vector operator*(Vector &v, float a);
+Vector operator*(const Vector &v, double a);
 
 /** Returns the dot product of the vectors */
-float operator*(Vector &v1, Vector &v2);
+double operator*(const Vector &v1, const Vector &v2);
+
+/** Returns the l2norm of the vector (its size)*/
+double norm(const Vector &v);
+
+/** Returns the distance between the vectors */
+double distance(const Vector &v1, const Vector &v2);
+
+/** Vector hash function */
+struct Vector_hash {
+  size_t operator()(const Vector &key) const;
+};
 
 class Matrix {
 
@@ -72,8 +96,9 @@ public:
 
   /** Returns the rotation matrix around the given axis
    *  (when applied on the RIGHT)
-   *  The rotation direction is clockwise when looking towards the given axis */
-  static Matrix rotate(int axis, float angle);
+   *  The rotation direction is clockwise when looking towards the given axis
+   */
+  static Matrix rotate(int axis, double angle);
 
   /** Returns the shifting matrix, assuming w=1
    *  (when applied on the RIGHT) */
@@ -104,7 +129,7 @@ public:
   Vector source;
   int texture_x, texture_y;
 
-  Pixel(float _x = 0, float _y = 0, Vector _source = Vector(),
+  Pixel(double _x = 0, double _y = 0, Vector _source = Vector(),
         int _texture_x = 0, int _texture_y = 0) {
     x = _x;
     y = _y;
@@ -124,16 +149,16 @@ Pixel operator+(Pixel &p1, Pixel &p2);
 Pixel operator-(Pixel &p1, Pixel &p2);
 
 /** Returns the pixel multyplied by a scalar (source also multyplied) */
-Pixel operator*(Pixel &p, float a);
+Pixel operator*(Pixel &p, double a);
 
 /** Prints the pixel */
 ostream &operator<<(ostream &os, Pixel &p);
 
 /** Returns interpolation of the pixels according to the given ratio */
-Pixel interpolate(Pixel &p1, Pixel &p2, float ratio);
+Pixel interpolate(Pixel &p1, Pixel &p2, double ratio);
 
-/** Returns an array in which the first value is the minimum of all y values and
- * the second value is the maximum of all y values */
+/** Returns an array in which the first value is the minimum of all y values
+ * and the second value is the maximum of all y values */
 void get_extremum(Pixel *pixels, int len, int *extremum,
                   int lower_bound = INT_MIN, int upper_bound = INT_MAX);
 

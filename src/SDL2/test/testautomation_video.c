@@ -517,7 +517,7 @@ video_getWindowBrightness(void *arg)
 {
   SDL_Window* window;
   const char* title = "video_getWindowBrightness Test Window";
-  float result;
+  double result;
 
   /* Call against new test window */
   window = _createVideoSuiteTestWindow(title);
@@ -543,7 +543,7 @@ video_getWindowBrightnessNegative(void *arg)
 {
   const char *invalidWindowError = "Invalid window";
   char *lastError;
-  float result;
+  double result;
 
   /* Call against invalid window */
   result = SDL_GetWindowBrightness(NULL);

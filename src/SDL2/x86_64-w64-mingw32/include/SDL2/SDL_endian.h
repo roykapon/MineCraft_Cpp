@@ -32,14 +32,14 @@
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
 /* As of Clang 11, '_m_prefetchw' is conflicting with the winnt.h's version,
-   so we define the needed '_m_prefetch' here as a pseudo-header, until the issue is fixed. */
+   so we define the needed '_m_prefetch' here as a pseudo-header, until the
+   issue is fixed. */
 #ifdef __clang__
 #ifndef __PRFCHWINTRIN_H
 #define __PRFCHWINTRIN_H
 static __inline__ void __attribute__((__always_inline__, __nodebug__))
-_m_prefetch(void *__P)
-{
-  __builtin_prefetch (__P, 0, 3 /* _MM_HINT_T0 */);
+_m_prefetch(void *__P) {
+  __builtin_prefetch(__P, 0, 3 /* _MM_HINT_T0 */);
 }
 #endif /* __PRFCHWINTRIN_H */
 #endif /* __clang__ */
@@ -51,42 +51,41 @@ _m_prefetch(void *__P)
  *  \name The two types of endianness
  */
 /* @{ */
-#define SDL_LIL_ENDIAN  1234
-#define SDL_BIG_ENDIAN  4321
+#define SDL_LIL_ENDIAN 1234
+#define SDL_BIG_ENDIAN 4321
 /* @} */
 
-#ifndef SDL_BYTEORDER           /* Not defined in SDL_config.h? */
+#ifndef SDL_BYTEORDER /* Not defined in SDL_config.h? */
 #ifdef __linux__
 #include <endian.h>
-#define SDL_BYTEORDER  __BYTE_ORDER
+#define SDL_BYTEORDER __BYTE_ORDER
 #elif defined(__OpenBSD__)
 #include <endian.h>
-#define SDL_BYTEORDER  BYTE_ORDER
+#define SDL_BYTEORDER BYTE_ORDER
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/endian.h>
-#define SDL_BYTEORDER  BYTE_ORDER
+#define SDL_BYTEORDER BYTE_ORDER
 /* predefs from newer gcc and clang versions: */
-#elif defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__) && defined(__BYTE_ORDER__)
+#elif defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__) &&     \
+    defined(__BYTE_ORDER__)
 #if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-#define SDL_BYTEORDER   SDL_LIL_ENDIAN
+#define SDL_BYTEORDER SDL_LIL_ENDIAN
 #elif (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-#define SDL_BYTEORDER   SDL_BIG_ENDIAN
+#define SDL_BYTEORDER SDL_BIG_ENDIAN
 #else
 #error Unsupported endianness
 #endif /**/
 #else
-#if defined(__hppa__) || \
-    defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
-    (defined(__MIPS__) && defined(__MIPSEB__)) || \
-    defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+#if defined(__hppa__) || defined(__m68k__) || defined(mc68000) ||              \
+    defined(_M_M68K) || (defined(__MIPS__) && defined(__MIPSEB__)) ||          \
+    defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) ||             \
     defined(__sparc__)
-#define SDL_BYTEORDER   SDL_BIG_ENDIAN
+#define SDL_BYTEORDER SDL_BIG_ENDIAN
 #else
-#define SDL_BYTEORDER   SDL_LIL_ENDIAN
+#define SDL_BYTEORDER SDL_LIL_ENDIAN
 #endif
 #endif /* __linux__ */
 #endif /* !SDL_BYTEORDER */
-
 
 #include "begin_code.h"
 /* Set up for C function definitions, even when using C++ */
@@ -100,20 +99,23 @@ extern "C" {
 
 /* various modern compilers may have builtin swap */
 #if defined(__GNUC__) || defined(__clang__)
-#   define HAS_BUILTIN_BSWAP16 (_SDL_HAS_BUILTIN(__builtin_bswap16)) || \
-        (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
-#   define HAS_BUILTIN_BSWAP32 (_SDL_HAS_BUILTIN(__builtin_bswap32)) || \
-        (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
-#   define HAS_BUILTIN_BSWAP64 (_SDL_HAS_BUILTIN(__builtin_bswap64)) || \
-        (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#define HAS_BUILTIN_BSWAP16                                                    \
+  (_SDL_HAS_BUILTIN(__builtin_bswap16)) ||                                     \
+      (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
+#define HAS_BUILTIN_BSWAP32                                                    \
+  (_SDL_HAS_BUILTIN(__builtin_bswap32)) ||                                     \
+      (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#define HAS_BUILTIN_BSWAP64                                                    \
+  (_SDL_HAS_BUILTIN(__builtin_bswap64)) ||                                     \
+      (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
 
-    /* this one is broken */
-#   define HAS_BROKEN_BSWAP (__GNUC__ == 2 && __GNUC_MINOR__ <= 95)
+/* this one is broken */
+#define HAS_BROKEN_BSWAP (__GNUC__ == 2 && __GNUC_MINOR__ <= 95)
 #else
-#   define HAS_BUILTIN_BSWAP16 0
-#   define HAS_BUILTIN_BSWAP32 0
-#   define HAS_BUILTIN_BSWAP64 0
-#   define HAS_BROKEN_BSWAP 0
+#define HAS_BUILTIN_BSWAP16 0
+#define HAS_BUILTIN_BSWAP32 0
+#define HAS_BUILTIN_BSWAP64 0
+#define HAS_BROKEN_BSWAP 0
 #endif
 
 #if HAS_BUILTIN_BSWAP16
@@ -122,46 +124,33 @@ extern "C" {
 #pragma intrinsic(_byteswap_ushort)
 #define SDL_Swap16(x) _byteswap_ushort(x)
 #elif defined(__i386__) && !HAS_BROKEN_BSWAP
-SDL_FORCE_INLINE Uint16
-SDL_Swap16(Uint16 x)
-{
-  __asm__("xchgb %b0,%h0": "=q"(x):"0"(x));
-    return x;
+SDL_FORCE_INLINE Uint16 SDL_Swap16(Uint16 x) {
+  __asm__("xchgb %b0,%h0" : "=q"(x) : "0"(x));
+  return x;
 }
 #elif defined(__x86_64__)
-SDL_FORCE_INLINE Uint16
-SDL_Swap16(Uint16 x)
-{
-  __asm__("xchgb %b0,%h0": "=Q"(x):"0"(x));
-    return x;
+SDL_FORCE_INLINE Uint16 SDL_Swap16(Uint16 x) {
+  __asm__("xchgb %b0,%h0" : "=Q"(x) : "0"(x));
+  return x;
 }
 #elif (defined(__powerpc__) || defined(__ppc__))
-SDL_FORCE_INLINE Uint16
-SDL_Swap16(Uint16 x)
-{
-    int result;
+SDL_FORCE_INLINE Uint16 SDL_Swap16(Uint16 x) {
+  int result;
 
-  __asm__("rlwimi %0,%2,8,16,23": "=&r"(result):"0"(x >> 8), "r"(x));
-    return (Uint16)result;
+  __asm__("rlwimi %0,%2,8,16,23" : "=&r"(result) : "0"(x >> 8), "r"(x));
+  return (Uint16)result;
 }
 #elif (defined(__m68k__) && !defined(__mcoldfire__))
-SDL_FORCE_INLINE Uint16
-SDL_Swap16(Uint16 x)
-{
-  __asm__("rorw #8,%0": "=d"(x): "0"(x):"cc");
-    return x;
+SDL_FORCE_INLINE Uint16 SDL_Swap16(Uint16 x) {
+  __asm__("rorw #8,%0" : "=d"(x) : "0"(x) : "cc");
+  return x;
 }
 #elif defined(__WATCOMC__) && defined(__386__)
 extern __inline Uint16 SDL_Swap16(Uint16);
-#pragma aux SDL_Swap16 = \
-  "xchg al, ah" \
-  parm   [ax]   \
-  modify [ax];
+#pragma aux SDL_Swap16 = "xchg al, ah" parm[ax] modify[ax];
 #else
-SDL_FORCE_INLINE Uint16
-SDL_Swap16(Uint16 x)
-{
-    return SDL_static_cast(Uint16, ((x << 8) | (x >> 8)));
+SDL_FORCE_INLINE Uint16 SDL_Swap16(Uint16 x) {
+  return SDL_static_cast(Uint16, ((x << 8) | (x >> 8)));
 }
 #endif
 
@@ -171,49 +160,36 @@ SDL_Swap16(Uint16 x)
 #pragma intrinsic(_byteswap_ulong)
 #define SDL_Swap32(x) _byteswap_ulong(x)
 #elif defined(__i386__) && !HAS_BROKEN_BSWAP
-SDL_FORCE_INLINE Uint32
-SDL_Swap32(Uint32 x)
-{
-  __asm__("bswap %0": "=r"(x):"0"(x));
-    return x;
+SDL_FORCE_INLINE Uint32 SDL_Swap32(Uint32 x) {
+  __asm__("bswap %0" : "=r"(x) : "0"(x));
+  return x;
 }
 #elif defined(__x86_64__)
-SDL_FORCE_INLINE Uint32
-SDL_Swap32(Uint32 x)
-{
-  __asm__("bswapl %0": "=r"(x):"0"(x));
-    return x;
+SDL_FORCE_INLINE Uint32 SDL_Swap32(Uint32 x) {
+  __asm__("bswapl %0" : "=r"(x) : "0"(x));
+  return x;
 }
 #elif (defined(__powerpc__) || defined(__ppc__))
-SDL_FORCE_INLINE Uint32
-SDL_Swap32(Uint32 x)
-{
-    Uint32 result;
+SDL_FORCE_INLINE Uint32 SDL_Swap32(Uint32 x) {
+  Uint32 result;
 
-  __asm__("rlwimi %0,%2,24,16,23": "=&r"(result): "0" (x>>24),  "r"(x));
-  __asm__("rlwimi %0,%2,8,8,15"  : "=&r"(result): "0" (result), "r"(x));
-  __asm__("rlwimi %0,%2,24,0,7"  : "=&r"(result): "0" (result), "r"(x));
-    return result;
+  __asm__("rlwimi %0,%2,24,16,23" : "=&r"(result) : "0"(x >> 24), "r"(x));
+  __asm__("rlwimi %0,%2,8,8,15" : "=&r"(result) : "0"(result), "r"(x));
+  __asm__("rlwimi %0,%2,24,0,7" : "=&r"(result) : "0"(result), "r"(x));
+  return result;
 }
 #elif (defined(__m68k__) && !defined(__mcoldfire__))
-SDL_FORCE_INLINE Uint32
-SDL_Swap32(Uint32 x)
-{
-  __asm__("rorw #8,%0\n\tswap %0\n\trorw #8,%0": "=d"(x): "0"(x):"cc");
-    return x;
+SDL_FORCE_INLINE Uint32 SDL_Swap32(Uint32 x) {
+  __asm__("rorw #8,%0\n\tswap %0\n\trorw #8,%0" : "=d"(x) : "0"(x) : "cc");
+  return x;
 }
 #elif defined(__WATCOMC__) && defined(__386__)
 extern __inline Uint32 SDL_Swap32(Uint32);
-#pragma aux SDL_Swap32 = \
-  "bswap eax"  \
-  parm   [eax] \
-  modify [eax];
+#pragma aux SDL_Swap32 = "bswap eax" parm[eax] modify[eax];
 #else
-SDL_FORCE_INLINE Uint32
-SDL_Swap32(Uint32 x)
-{
-    return SDL_static_cast(Uint32, ((x << 24) | ((x << 8) & 0x00FF0000) |
-                                    ((x >> 8) & 0x0000FF00) | (x >> 24)));
+SDL_FORCE_INLINE Uint32 SDL_Swap32(Uint32 x) {
+  return SDL_static_cast(Uint32, ((x << 24) | ((x << 8) & 0x00FF0000) |
+                                  ((x >> 8) & 0x0000FF00) | (x >> 24)));
 }
 #endif
 
@@ -223,64 +199,52 @@ SDL_Swap32(Uint32 x)
 #pragma intrinsic(_byteswap_uint64)
 #define SDL_Swap64(x) _byteswap_uint64(x)
 #elif defined(__i386__) && !HAS_BROKEN_BSWAP
-SDL_FORCE_INLINE Uint64
-SDL_Swap64(Uint64 x)
-{
-    union {
-        struct {
-            Uint32 a, b;
-        } s;
-        Uint64 u;
-    } v;
-    v.u = x;
+SDL_FORCE_INLINE Uint64 SDL_Swap64(Uint64 x) {
+  union {
+    struct {
+      Uint32 a, b;
+    } s;
+    Uint64 u;
+  } v;
+  v.u = x;
   __asm__("bswapl %0 ; bswapl %1 ; xchgl %0,%1"
           : "=r"(v.s.a), "=r"(v.s.b)
-          : "0" (v.s.a),  "1"(v.s.b));
-    return v.u;
+          : "0"(v.s.a), "1"(v.s.b));
+  return v.u;
 }
 #elif defined(__x86_64__)
-SDL_FORCE_INLINE Uint64
-SDL_Swap64(Uint64 x)
-{
-  __asm__("bswapq %0": "=r"(x):"0"(x));
-    return x;
+SDL_FORCE_INLINE Uint64 SDL_Swap64(Uint64 x) {
+  __asm__("bswapq %0" : "=r"(x) : "0"(x));
+  return x;
 }
 #elif defined(__WATCOMC__) && defined(__386__)
 extern __inline Uint64 SDL_Swap64(Uint64);
-#pragma aux SDL_Swap64 = \
-  "bswap eax"     \
-  "bswap edx"     \
-  "xchg eax,edx"  \
-  parm [eax edx]  \
-  modify [eax edx];
+#pragma aux SDL_Swap64 = "bswap eax"                                           \
+                         "bswap edx"                                           \
+                         "xchg eax,edx" parm[eax edx] modify[eax edx];
 #else
-SDL_FORCE_INLINE Uint64
-SDL_Swap64(Uint64 x)
-{
-    Uint32 hi, lo;
+SDL_FORCE_INLINE Uint64 SDL_Swap64(Uint64 x) {
+  Uint32 hi, lo;
 
-    /* Separate into high and low 32-bit values and swap them */
-    lo = SDL_static_cast(Uint32, x & 0xFFFFFFFF);
-    x >>= 32;
-    hi = SDL_static_cast(Uint32, x & 0xFFFFFFFF);
-    x = SDL_Swap32(lo);
-    x <<= 32;
-    x |= SDL_Swap32(hi);
-    return (x);
+  /* Separate into high and low 32-bit values and swap them */
+  lo = SDL_static_cast(Uint32, x & 0xFFFFFFFF);
+  x >>= 32;
+  hi = SDL_static_cast(Uint32, x & 0xFFFFFFFF);
+  x = SDL_Swap32(lo);
+  x <<= 32;
+  x |= SDL_Swap32(hi);
+  return (x);
 }
 #endif
 
-
-SDL_FORCE_INLINE float
-SDL_SwapFloat(float x)
-{
-    union {
-        float f;
-        Uint32 ui32;
-    } swapper;
-    swapper.f = x;
-    swapper.ui32 = SDL_Swap32(swapper.ui32);
-    return swapper.f;
+SDL_FORCE_INLINE double SDL_Swapdouble(double x) {
+  union {
+    double f;
+    Uint32 ui32;
+  } swapper;
+  swapper.f = x;
+  swapper.ui32 = SDL_Swap32(swapper.ui32);
+  return swapper.f;
 }
 
 /* remove extra macros */
@@ -295,25 +259,25 @@ SDL_SwapFloat(float x)
  */
 /* @{ */
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define SDL_SwapLE16(X)     (X)
-#define SDL_SwapLE32(X)     (X)
-#define SDL_SwapLE64(X)     (X)
-#define SDL_SwapFloatLE(X)  (X)
-#define SDL_SwapBE16(X)     SDL_Swap16(X)
-#define SDL_SwapBE32(X)     SDL_Swap32(X)
-#define SDL_SwapBE64(X)     SDL_Swap64(X)
-#define SDL_SwapFloatBE(X)  SDL_SwapFloat(X)
+#define SDL_SwapLE16(X) (X)
+#define SDL_SwapLE32(X) (X)
+#define SDL_SwapLE64(X) (X)
+#define SDL_SwapdoubleLE(X) (X)
+#define SDL_SwapBE16(X) SDL_Swap16(X)
+#define SDL_SwapBE32(X) SDL_Swap32(X)
+#define SDL_SwapBE64(X) SDL_Swap64(X)
+#define SDL_SwapdoubleBE(X) SDL_Swapdouble(X)
 #else
-#define SDL_SwapLE16(X)     SDL_Swap16(X)
-#define SDL_SwapLE32(X)     SDL_Swap32(X)
-#define SDL_SwapLE64(X)     SDL_Swap64(X)
-#define SDL_SwapFloatLE(X)  SDL_SwapFloat(X)
-#define SDL_SwapBE16(X)     (X)
-#define SDL_SwapBE32(X)     (X)
-#define SDL_SwapBE64(X)     (X)
-#define SDL_SwapFloatBE(X)  (X)
+#define SDL_SwapLE16(X) SDL_Swap16(X)
+#define SDL_SwapLE32(X) SDL_Swap32(X)
+#define SDL_SwapLE64(X) SDL_Swap64(X)
+#define SDL_SwapdoubleLE(X) SDL_Swapdouble(X)
+#define SDL_SwapBE16(X) (X)
+#define SDL_SwapBE32(X) (X)
+#define SDL_SwapBE64(X) (X)
+#define SDL_SwapdoubleBE(X) (X)
 #endif
-/* @} *//* Swap to native */
+/* @} */ /* Swap to native */
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

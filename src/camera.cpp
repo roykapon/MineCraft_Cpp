@@ -7,24 +7,31 @@ using namespace std;
 
 // =========================== Camera ===========================
 
-Matrix Camera::get_world() {
+void Camera::update_world() {
   Vector offset = pos * (-1);
   Matrix shift = Matrix::shift(offset);
   Matrix rotate_x = Matrix::rotate(X, -vertical);
   Matrix rotate_y = Matrix::rotate(Y, -horizontal);
   world = shift * rotate_x;
   world = world * rotate_y;
-  return world;
 }
 
 void Camera::update() {
-  world = get_world();
-  direction = get_direction();
+  update_world();
+  update_direction();
+}
+
+void Camera::init_picture_colored() {
+  for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++) {
+      picture_colored[y * width + x] = x;
+    }
+  }
 }
 
 void Camera::project(Vector &v, Pixel *p) {
   Vector rotated = v * world;
-  float ratio = ffd / rotated.z;
+  double ratio = ffd / (rotated.z + ffd);
   p->x = pixel_x(rotated.x * ratio);
   p->y = pixel_y(rotated.y * ratio);
   p->source = v;
@@ -32,11 +39,10 @@ void Camera::project(Vector &v, Pixel *p) {
   p->texture_y = v.texture_y;
 }
 
-Vector Camera::get_direction() {
-  float x = cos(vertical) * (-sin(horizontal));
-  float y = sin(vertical);
-  float z = cos(vertical) * cos(horizontal);
-  return Vector(x, y, z);
+void Camera::update_direction() {
+  direction.x = cos(vertical) * (-sin(horizontal));
+  direction.y = sin(vertical);
+  direction.z = cos(vertical) * cos(horizontal);
 }
 
 void Camera::project(Face &face, Pixel *projected) {
@@ -45,30 +51,44 @@ void Camera::project(Face &face, Pixel *projected) {
   }
 }
 
-int Camera::pixel_x(float x) { return round(width * x) + width / 2; }
+int Camera::pixel_x(double x) { return round(width * x) + width / 2; }
 
-int Camera::pixel_y(float y) { return round(height * y) + height / 2; }
+int Camera::pixel_y(double y) { return round(height * y) + height / 2; }
+
+void update_edges(Pixel &p, Pixel *edges, int *extremum) {
+  if (p.x < edges[2 * (p.y - extremum[0]) + 0].x) {
+    edges[2 * (p.y - extremum[0]) + 0] = p;
+  }
+  if (p.x > edges[2 * (p.y - extremum[0]) + 1].x) {
+    edges[2 * (p.y - extremum[0]) + 1] = p;
+  }
+}
 
 void Camera::save_line(Pixel *line, Pixel *edges, int *extremum,
                        SDL_Renderer *renderer) {
-  int line_extremum[2] = {INT_MAX, INT_MIN};
+  int line_extremum[2];
   get_extremum(line, 2, line_extremum, 0, height);
-  for (int y = line_extremum[0]; y <= line_extremum[1]; y++) {
-    float ratio = (float)(line[1][Y] - y) / (float)(line[1][Y] - line[0][Y]);
-    Pixel curr = interpolate(line[0], line[1], ratio);
-    if (curr[X] < edges[2 * (y - extremum[0]) + 0][X]) {
-      edges[2 * (y - extremum[0]) + 0] = curr;
-    }
-    if (curr[X] > edges[2 * (y - extremum[0]) + 1][X]) {
-      edges[2 * (y - extremum[0]) + 1] = curr;
-    }
+  Pixel &p1 = line[0];
+  Pixel &p2 = line[1];
+  if (p1.y >= extremum[0] && p1.y <= extremum[1]) {
+    update_edges(p1, edges, extremum);
+  }
+  if (p2.y >= extremum[0] && p2.y <= extremum[1]) {
+    update_edges(p2, edges, extremum);
+  }
+
+  for (int y = line_extremum[0] + 1; y < line_extremum[1]; y++) {
+    double ratio = (double)(p2.y - y) / (double)(p2.y - p1.y);
+    Pixel curr = interpolate(p1, p2, ratio);
+    curr.y = y;
+    update_edges(curr, edges, extremum);
   }
 }
 
 void init_edges(Pixel *edges, int *extremum) {
   for (int y = extremum[0]; y <= extremum[1]; y++) {
-    edges[2 * (y - extremum[0]) + 0] = Pixel(1000000, y);
-    edges[2 * (y - extremum[0]) + 1] = Pixel(-1000000, y);
+    edges[2 * (y - extremum[0]) + 0] = Pixel(INT_MAX, y);
+    edges[2 * (y - extremum[0]) + 1] = Pixel(INT_MIN, y);
   }
 }
 
@@ -93,25 +113,75 @@ void Camera::render(Face &face, SDL_Renderer *renderer) {
   paint_face(edges, extremum, renderer);
 }
 
+double average_dist(Face &face, Vector &pos) {
+  Vector center =
+      face[0] * (1.0f / 3) + face[1] * (1.0f / 3) + face[2] * (1.0f / 3);
+  return distance(center, pos);
+}
+
+struct Comparator {
+  Vector pos;
+  Comparator(Vector &_pos) { pos = _pos; }
+
+  bool operator()(Face f1, Face f2) {
+    return average_dist(f1, pos) < average_dist(f2, pos);
+  }
+
+  int paramA;
+};
+
+void Camera::render(Env &env, SDL_Renderer *renderer) {
+  init_picture_colored();
+
+  // for (Face *face : faces) {
+  //   // cout << (*face)[0];
+  // }
+  sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(pos));
+  for (Face face : env.visible_faces) {
+    render(face, renderer);
+  }
+}
+
 int bound(int i, int upper_bound, int lower_bound) {
   return max(min(i, upper_bound), lower_bound);
 }
 
 void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
-  for (int y = extremum[0]; y <= extremum[1]; y++) {
+  for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
     Pixel left = edges[2 * (y - extremum[0]) + 0];
     Pixel right = edges[2 * (y - extremum[0]) + 1];
-    if (right[X] == left[X]) {
+    // handle edge case
+    if (right.x == left.x) {
       SDL_SetRenderDrawColor(renderer, left.texture_x, left.texture_y, 0, 255);
-      SDL_RenderDrawPoint(renderer, left[X], y);
+      SDL_RenderDrawPoint(renderer, left.x, y);
       continue;
     }
-    for (int x = max(left[X], 0); x <= min(right[X], width); x++) {
-
-      float ratio = (x - left[X]) / (right[X] - left[X]);
-      Pixel curr = interpolate(left, right, ratio);
-      SDL_SetRenderDrawColor(renderer, curr.texture_x, curr.texture_y, 0, 255);
+    double diff = right.x - left.x;
+    for (int x = get_next_x(max(left.x, 0), y); x <= min(right.x, width - 1);) {
+      // interpolate the texture coordinates
+      double ratio = ((double)(x - left.x)) / diff;
+      int texture_x = left.texture_x * ratio + right.texture_x * (1.0f - ratio);
+      int texture_y = left.texture_y * ratio + right.texture_y * (1.0f - ratio);
+      // paint the pixel
+      SDL_SetRenderDrawColor(renderer, texture_x, texture_y, 0, 255);
       SDL_RenderDrawPoint(renderer, x, y);
+      picture_colored[y * width + x] =
+          bound(right.x + 1, width, picture_colored[y * width + x]);
+      x = get_next_x(x + 1, y);
     }
   }
 }
+
+int Camera::get_next_x(int x, int y) {
+  if (x > width - 1) {
+    return x;
+  }
+  int next_x = picture_colored[y * width + x];
+  while (next_x != x && next_x < width) {
+    x = next_x;
+    next_x = picture_colored[y * width + x];
+  }
+  return next_x;
+}
+
+void Camera::free_camera() { free(picture_colored); }

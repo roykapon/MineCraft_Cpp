@@ -107,7 +107,7 @@ fill_buffer(void* unused, Uint8* stream, int len)
 
     /* Play a sine wave on the active channel only */
     for (i = active_channel; i < samples; i += total_channels) {
-        float time = (float)total_samples++ / SAMPLE_RATE_HZ;
+        double time = (double)total_samples++ / SAMPLE_RATE_HZ;
         int sine_freq = is_lfe_channel(active_channel, total_channels) ? LFE_SINE_FREQ_HZ : SINE_FREQ_HZ;
         int amplitude;
 

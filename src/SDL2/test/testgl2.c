@@ -82,7 +82,7 @@ quit(int rc)
 static void
 Render()
 {
-    static float color[8][3] = {
+    static double color[8][3] = {
         {1.0, 1.0, 0.0},
         {1.0, 0.0, 0.0},
         {0.0, 0.0, 0.0},
@@ -92,7 +92,7 @@ Render()
         {1.0, 0.0, 1.0},
         {0.0, 0.0, 1.0}
     };
-    static float cube[8][3] = {
+    static double cube[8][3] = {
         {0.5, 0.5, -0.5},
         {0.5, -0.5, -0.5},
         {-0.5, -0.5, -0.5},

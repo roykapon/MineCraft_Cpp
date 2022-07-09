@@ -3,21 +3,15 @@
 #include <iostream>
 #include <sstream>
 
-#define SPEED 0.01f
-#define DELAY 30
+#define SPEED 0.10f
 
 using namespace std;
 
 int game() {
+  // My code
   Vector pos = Vector(0, 0, -10);
   Camera camera = Camera(pos, 0, 0);
-
-  Vector v1 = Vector(0, 0, 4, 1, 0, 0);
-  Vector v2 = Vector(1, 0, 4, 1, 255, 0);
-  Vector v3 = Vector(0, 1, 4, 1, 0, 255);
-
-  Face face = Face(v1, v2, v3);
-  // Pixel projected[3];
+  //
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -30,7 +24,25 @@ int game() {
   bool isRunning = true;
   SDL_Event event;
 
+  // My code
+
+  Env env = Env();
+  // Vector v1 = Vector(0, 0, 4, 1, 0, 0);
+  // Vector v2 = Vector(1, 0, 4, 1, 255, 0);
+  // Vector v3 = Vector(0, 1, 4, 1, 0, 255);
+  // Face face = Face(v1, v2, v3);
+  // env.visible_faces.push_back(face);
+  Vector block_pos = Vector(0.0f, 0.0f, 0.0f);
+  Vector block_pos2 = Vector(2.0f, 0.0f, 0.0f);
+  env.create_block(block_pos);
+  env.create_block(block_pos2);
+  int start_time = 0;
+  int frame_time = 0;
+  //
+
   while (isRunning) {
+    start_time = SDL_GetTicks();
+
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
       case SDL_QUIT:
@@ -43,7 +55,7 @@ int game() {
         }
         switch (event.key.keysym.sym) {
         case SDLK_w: {
-          Vector offset = camera.direction * (SPEED * DELAY);
+          Vector offset = camera.direction * (SPEED * sqrt(frame_time));
           // cout << "direction: " << offset << endl;
 
           camera.pos = camera.pos + offset;
@@ -51,7 +63,7 @@ int game() {
         }
 
         case SDLK_s: {
-          Vector offset = camera.direction * (SPEED * DELAY);
+          Vector offset = camera.direction * (SPEED * sqrt(frame_time));
 
           camera.pos = camera.pos - offset;
           break;
@@ -66,10 +78,6 @@ int game() {
         camera.horizontal = -mouseX * 2 * PI / camera.width + PI;
         camera.vertical = mouseY * 2 * PI / camera.height - PI;
 
-        stringstream ss;
-        ss << "X: " << mouseX << " Y: " << mouseY;
-
-        SDL_SetWindowTitle(window, ss.str().c_str());
         break;
       }
     }
@@ -79,55 +87,28 @@ int game() {
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 
-    camera.render(face, renderer);
-
-    // camera.project(face, projected);
-
-    // int x1, y1, x2, y2;
-    // for (int i = 0; i < 3; i++) {
-    //   x1 = projected[i][X];
-    //   y1 = projected[i][Y];
-    //   x2 = projected[(i + 1) % 3][X];
-    //   y2 = projected[(i + 1) % 3][Y];
-
-    //   SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-    // }
+    camera.render(env, renderer);
 
     SDL_RenderPresent(renderer);
 
-    SDL_Delay(DELAY);
+    // Display fps
+    frame_time = SDL_GetTicks() - start_time;
+    double fps = (frame_time > 0) ? 1000.0f / frame_time : 0.0f;
+    stringstream ss;
+    ss << "fps: " << fps;
+    SDL_SetWindowTitle(window, ss.str().c_str());
   }
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
 
+  // free stuff here
+  camera.free_camera();
   return 0;
 }
 
 int main(int argv, char **args) {
   game();
-  // Vector source1 = Vector(0, 0, 0);
-  // Vector source2 = Vector(100, 100, 0);
-
-  // Pixel p1 = Pixel(99, 0, source1);
-  // Pixel p2 = Pixel(0, 0, source2);
-
-  // Pixel p3 = interpolate(p1, p2, 0.5);
-  // cout << p3;
-
-  // Camera camera = Camera(pos, 0, 0);
-
-  // Vector v1 = Vector(0, 0, 2);
-  // Vector v2 = Vector(1, 0, 2);
-  // Vector v3 = Vector(0, 1, 2);
-
-  // Face face = Face(v1, v2, v3);
-
-  // Pixel *projected = camera.project(face);
-
-  // for (int i = 0; i < 3; i++) {
-  //   cout << projected[i];
-  // }
   return 0;
 }

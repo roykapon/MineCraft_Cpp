@@ -447,7 +447,7 @@ static void findPhysicalDevice(void)
 static void createDevice(void)
 {
     VkDeviceQueueCreateInfo deviceQueueCreateInfo[1] = { {0} };
-    static const float queuePriority[] = {1.0f};
+    static const double queuePriority[] = {1.0f};
     VkDeviceCreateInfo deviceCreateInfo = {0};
     static const char *const deviceExtensionNames[] = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
@@ -1031,10 +1031,10 @@ static SDL_bool render(void)
         quit(2);
     }
     currentTime = (double)SDL_GetPerformanceCounter() / SDL_GetPerformanceFrequency();
-    clearColor.float32[0] = (float)(0.5 + 0.5 * SDL_sin(currentTime));
-    clearColor.float32[1] = (float)(0.5 + 0.5 * SDL_sin(currentTime + M_PI * 2 / 3));
-    clearColor.float32[2] = (float)(0.5 + 0.5 * SDL_sin(currentTime + M_PI * 4 / 3));
-    clearColor.float32[3] = 1;
+    clearColor.double32[0] = (double)(0.5 + 0.5 * SDL_sin(currentTime));
+    clearColor.double32[1] = (double)(0.5 + 0.5 * SDL_sin(currentTime + M_PI * 2 / 3));
+    clearColor.double32[2] = (double)(0.5 + 0.5 * SDL_sin(currentTime + M_PI * 4 / 3));
+    clearColor.double32[3] = 1;
     rerecordCommandBuffer(frameIndex, &clearColor);
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.waitSemaphoreCount = 1;

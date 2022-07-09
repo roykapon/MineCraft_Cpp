@@ -40,7 +40,7 @@ typedef struct GLES2_Context
 static SDL_Surface *g_surf_sdf = NULL;
 GLenum g_texture;
 GLenum g_texture_type = GL_TEXTURE_2D;
-GLfloat g_verts[24];
+GLdouble g_verts[24];
 typedef enum
 {
     GLES2_ATTRIBUTE_POSITION = 0,
@@ -177,8 +177,8 @@ static const Uint8 GLES2_VertexSrc_Default_[] = " \
     \
     void main() \
     { \
-        float s = a_angle[0]; \
-        float c = a_angle[1] + 1.0; \
+        double s = a_angle[0]; \
+        double c = a_angle[1] + 1.0; \
         mat2 rotationMatrix = mat2(c, -s, s, c); \
         vec2 position = rotationMatrix * (a_position - a_center) + a_center; \
         v_texCoord = a_texCoord; \
@@ -188,7 +188,7 @@ static const Uint8 GLES2_VertexSrc_Default_[] = " \
 ";
 
 static const Uint8 GLES2_FragmentSrc_TextureABGRSrc_[] = " \
-    precision mediump float; \
+    precision mediump double; \
     uniform sampler2D u_texture; \
     uniform vec4 u_color; \
     varying vec2 v_texCoord; \
@@ -204,7 +204,7 @@ static const Uint8 GLES2_FragmentSrc_TextureABGRSrc_[] = " \
 static const Uint8 GLES2_FragmentSrc_TextureABGRSrc_SDF[] = " \
     #extension GL_OES_standard_derivatives : enable\n\
     \
-    precision mediump float; \
+    precision mediump double; \
     uniform sampler2D u_texture; \
     uniform vec4 u_color; \
     varying vec2 v_texCoord; \
@@ -213,10 +213,10 @@ static const Uint8 GLES2_FragmentSrc_TextureABGRSrc_SDF[] = " \
     { \
         vec4 abgr = texture2D(u_texture, v_texCoord); \
 \
-        float sigDist = abgr.a; \
+        double sigDist = abgr.a; \
         \
-        float w = fwidth( sigDist );\
-        float alpha = clamp(smoothstep(0.5 - w, 0.5 + w, sigDist), 0.0, 1.0); \
+        double w = fwidth( sigDist );\
+        double alpha = clamp(smoothstep(0.5 - w, 0.5 + w, sigDist), 0.0, 1.0); \
 \
         gl_FragColor = vec4(abgr.rgb, abgr.a * alpha); \
         gl_FragColor.rgb *= gl_FragColor.a; \
@@ -228,7 +228,7 @@ static const Uint8 GLES2_FragmentSrc_TextureABGRSrc_SDF[] = " \
 static const char *GLES2_FragmentSrc_TextureABGRSrc_SDF_dbg = " \
     #extension GL_OES_standard_derivatives : enable\n\
     \
-    precision mediump float; \
+    precision mediump double; \
     uniform sampler2D u_texture; \
     uniform vec4 u_color; \
     varying vec2 v_texCoord; \
@@ -237,17 +237,17 @@ static const char *GLES2_FragmentSrc_TextureABGRSrc_SDF_dbg = " \
     { \
         vec4 abgr = texture2D(u_texture, v_texCoord); \
 \
-        float a = abgr.a; \
+        double a = abgr.a; \
         gl_FragColor = vec4(a, a, a, 1.0); \
     } \
 ";
 
 
-static float g_val = 1.0f;
+static double g_val = 1.0f;
 static int   g_use_SDF = 1;
 static int   g_use_SDF_debug = 0;
-static float g_angle = 0.0f;
-static float matrix_mvp[4][4];
+static double g_angle = 0.0f;
+static double matrix_mvp[4][4];
 
 
 
@@ -264,28 +264,28 @@ typedef struct shader_data
 static void
 Render(unsigned int width, unsigned int height, shader_data* data)
 {
-    float *verts = g_verts;
+    double *verts = g_verts;
     ctx.glViewport(0, 0, 640, 480);
 
     GL_CHECK(ctx.glClear(GL_COLOR_BUFFER_BIT));
 
-    GL_CHECK(ctx.glUniformMatrix4fv(g_uniform_locations[GLES2_UNIFORM_PROJECTION], 1, GL_FALSE, (const float *)matrix_mvp));
+    GL_CHECK(ctx.glUniformMatrix4fv(g_uniform_locations[GLES2_UNIFORM_PROJECTION], 1, GL_FALSE, (const double *)matrix_mvp));
     GL_CHECK(ctx.glUniform4f(g_uniform_locations[GLES2_UNIFORM_COLOR], 1.0f, 1.0f, 1.0f, 1.0f));
 
-    GL_CHECK(ctx.glVertexAttribPointer(GLES2_ATTRIBUTE_ANGLE,    2, GL_FLOAT, GL_FALSE, 0, (const GLvoid *) (verts + 16)));
-    GL_CHECK(ctx.glVertexAttribPointer(GLES2_ATTRIBUTE_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, (const GLvoid *) (verts + 8)));
-    GL_CHECK(ctx.glVertexAttribPointer(GLES2_ATTRIBUTE_POSITION, 2, GL_FLOAT, GL_FALSE, 0, (const GLvoid *) verts));
+    GL_CHECK(ctx.glVertexAttribPointer(GLES2_ATTRIBUTE_ANGLE,    2, GL_double, GL_FALSE, 0, (const GLvoid *) (verts + 16)));
+    GL_CHECK(ctx.glVertexAttribPointer(GLES2_ATTRIBUTE_TEXCOORD, 2, GL_double, GL_FALSE, 0, (const GLvoid *) (verts + 8)));
+    GL_CHECK(ctx.glVertexAttribPointer(GLES2_ATTRIBUTE_POSITION, 2, GL_double, GL_FALSE, 0, (const GLvoid *) verts));
 
     GL_CHECK(ctx.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 }
 
 
-void renderCopy_angle(float degree_angle) 
+void renderCopy_angle(double degree_angle) 
 {
-    const float radian_angle = (float)(3.141592 * degree_angle) / 180.0;
-    const GLfloat s = (GLfloat) SDL_sin(radian_angle);
-    const GLfloat c = (GLfloat) SDL_cos(radian_angle) - 1.0f;
-    GLfloat *verts = g_verts + 16;
+    const double radian_angle = (double)(3.141592 * degree_angle) / 180.0;
+    const GLdouble s = (GLdouble) SDL_sin(radian_angle);
+    const GLdouble c = (GLdouble) SDL_cos(radian_angle) - 1.0f;
+    GLdouble *verts = g_verts + 16;
     *(verts++) = s;
     *(verts++) = c;
     *(verts++) = s;
@@ -299,19 +299,19 @@ void renderCopy_angle(float degree_angle)
 
 void renderCopy_position(SDL_Rect *srcrect, SDL_Rect *dstrect) 
 {
-    GLfloat minx, miny, maxx, maxy;
-    GLfloat minu, maxu, minv, maxv;
-    GLfloat *verts = g_verts;
+    GLdouble minx, miny, maxx, maxy;
+    GLdouble minu, maxu, minv, maxv;
+    GLdouble *verts = g_verts;
 
     minx = dstrect->x;
     miny = dstrect->y;
     maxx = dstrect->x + dstrect->w;
     maxy = dstrect->y + dstrect->h;
 
-    minu = (GLfloat) srcrect->x / g_surf_sdf->w;
-    maxu = (GLfloat) (srcrect->x + srcrect->w) / g_surf_sdf->w;
-    minv = (GLfloat) srcrect->y / g_surf_sdf->h;
-    maxv = (GLfloat) (srcrect->y + srcrect->h) / g_surf_sdf->h;
+    minu = (GLdouble) srcrect->x / g_surf_sdf->w;
+    maxu = (GLdouble) (srcrect->x + srcrect->w) / g_surf_sdf->w;
+    minv = (GLdouble) srcrect->y / g_surf_sdf->h;
+    maxv = (GLdouble) (srcrect->y + srcrect->h) / g_surf_sdf->h;
 
     *(verts++) = minx;
     *(verts++) = miny;
@@ -404,7 +404,7 @@ void loop()
     
     if (0)
     {
-        float *f = (float *) matrix_mvp;
+        double *f = (double *) matrix_mvp;
         SDL_Log("-----------------------------------");
         SDL_Log("[ %f, %f, %f, %f ]", *f++, *f++, *f++, *f++);
         SDL_Log("[ %f, %f, %f, %f ]", *f++, *f++, *f++, *f++);

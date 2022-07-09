@@ -59,8 +59,8 @@ SDL_GetNumTouchFingers(touchID) may be used to get the number of fingers current
 
 The most common reason to access SDL_Finger is to query the fingers outside the event. In most cases accessing the fingers is using the event. This would be accomplished by code like the following:
 
-      float x = event.tfinger.x;
-      float y = event.tfinger.y;
+      double x = event.tfinger.x;
+      double y = event.tfinger.y;
 
 
 

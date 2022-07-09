@@ -118,19 +118,19 @@ quit(int rc)
  * order. 
  */
 static void
-rotate_matrix(float angle, float x, float y, float z, float *r)
+rotate_matrix(double angle, double x, double y, double z, double *r)
 {
-    float radians, c, s, c1, u[3], length;
+    double radians, c, s, c1, u[3], length;
     int i, j;
 
-    radians = (float)(angle * M_PI) / 180.0f;
+    radians = (double)(angle * M_PI) / 180.0f;
 
     c = SDL_cosf(radians);
     s = SDL_sinf(radians);
 
     c1 = 1.0f - SDL_cosf(radians);
 
-    length = (float)SDL_sqrt(x * x + y * y + z * z);
+    length = (double)SDL_sqrt(x * x + y * y + z * z);
 
     u[0] = x / length;
     u[1] = y / length;
@@ -158,10 +158,10 @@ rotate_matrix(float angle, float x, float y, float z, float *r)
  * Simulates gluPerspectiveMatrix 
  */
 static void 
-perspective_matrix(float fovy, float aspect, float znear, float zfar, float *r)
+perspective_matrix(double fovy, double aspect, double znear, double zfar, double *r)
 {
     int i;
-    float f;
+    double f;
 
     f = 1.0f/SDL_tanf(fovy * 0.5f);
 
@@ -182,10 +182,10 @@ perspective_matrix(float fovy, float aspect, float znear, float zfar, float *r)
  * major. In-place multiplication is supported.
  */
 static void
-multiply_matrix(float *lhs, float *rhs, float *r)
+multiply_matrix(double *lhs, double *rhs, double *r)
 {
     int i, j, k;
-    float tmp[16];
+    double tmp[16];
 
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
@@ -264,7 +264,7 @@ link_program(struct shader_data *data)
 
 /* 3D data. Vertex range -0.5..0.5 in all axes.
 * Z -0.5 is near, 0.5 is far. */
-const float _vertices[] =
+const double _vertices[] =
 {
     /* Front face. */
     /* Bottom left */
@@ -322,7 +322,7 @@ const float _vertices[] =
     0.5, -0.5,  0.5,
 };
 
-const float _colors[] =
+const double _colors[] =
 {
     /* Front face */
     /* Bottom left */
@@ -391,7 +391,7 @@ const char* _shader_vert_src =
 " } ";
 
 const char* _shader_frag_src = 
-" precision lowp float; "
+" precision lowp double; "
 " varying vec3 vv3color; "
 " void main() { "
 "    gl_FragColor = vec4(vv3color, 1.0); "
@@ -400,25 +400,25 @@ const char* _shader_frag_src =
 static void
 Render(unsigned int width, unsigned int height, shader_data* data)
 {
-    float matrix_rotate[16], matrix_modelview[16], matrix_perspective[16], matrix_mvp[16];
+    double matrix_rotate[16], matrix_modelview[16], matrix_perspective[16], matrix_mvp[16];
 
     /* 
     * Do some rotation with Euler angles. It is not a fixed axis as
     * quaterions would be, but the effect is cool. 
     */
-    rotate_matrix((float)data->angle_x, 1.0f, 0.0f, 0.0f, matrix_modelview);
-    rotate_matrix((float)data->angle_y, 0.0f, 1.0f, 0.0f, matrix_rotate);
+    rotate_matrix((double)data->angle_x, 1.0f, 0.0f, 0.0f, matrix_modelview);
+    rotate_matrix((double)data->angle_y, 0.0f, 1.0f, 0.0f, matrix_rotate);
 
     multiply_matrix(matrix_rotate, matrix_modelview, matrix_modelview);
 
-    rotate_matrix((float)data->angle_z, 0.0f, 1.0f, 0.0f, matrix_rotate);
+    rotate_matrix((double)data->angle_z, 0.0f, 1.0f, 0.0f, matrix_rotate);
 
     multiply_matrix(matrix_rotate, matrix_modelview, matrix_modelview);
 
     /* Pull the camera back from the cube */
     matrix_modelview[14] -= 2.5;
 
-    perspective_matrix(45.0f, (float)width/height, 0.01f, 100.0f, matrix_perspective);
+    perspective_matrix(45.0f, (double)width/height, 0.01f, 100.0f, matrix_perspective);
     multiply_matrix(matrix_perspective, matrix_modelview, matrix_mvp);
 
     GL_CHECK(ctx.glUniformMatrix4fv(data->attr_mvp, 1, GL_FALSE, matrix_mvp));
@@ -713,13 +713,13 @@ main(int argc, char *argv[])
         GL_CHECK(ctx.glGenBuffers(1, &data->position_buffer));
         GL_CHECK(ctx.glBindBuffer(GL_ARRAY_BUFFER, data->position_buffer));
         GL_CHECK(ctx.glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW));
-        GL_CHECK(ctx.glVertexAttribPointer(data->attr_position, 3, GL_FLOAT, GL_FALSE, 0, 0));
+        GL_CHECK(ctx.glVertexAttribPointer(data->attr_position, 3, GL_double, GL_FALSE, 0, 0));
         GL_CHECK(ctx.glBindBuffer(GL_ARRAY_BUFFER, 0));
 
         GL_CHECK(ctx.glGenBuffers(1, &data->color_buffer));
         GL_CHECK(ctx.glBindBuffer(GL_ARRAY_BUFFER, data->color_buffer));
         GL_CHECK(ctx.glBufferData(GL_ARRAY_BUFFER, sizeof(_colors), _colors, GL_STATIC_DRAW));
-        GL_CHECK(ctx.glVertexAttribPointer(data->attr_color, 3, GL_FLOAT, GL_FALSE, 0, 0));
+        GL_CHECK(ctx.glVertexAttribPointer(data->attr_color, 3, GL_double, GL_FALSE, 0, 0));
         GL_CHECK(ctx.glBindBuffer(GL_ARRAY_BUFFER, 0));
 
         GL_CHECK(ctx.glEnable(GL_CULL_FACE));

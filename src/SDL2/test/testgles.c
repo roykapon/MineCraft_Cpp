@@ -60,7 +60,7 @@ Render()
     {255, 0, 255, 255},
     {0, 0, 255, 255}
     };
-    static GLfloat cube[8][3] = { {0.5, 0.5, -0.5},
+    static GLdouble cube[8][3] = { {0.5, 0.5, -0.5},
     {0.5f, -0.5f, -0.5f},
     {-0.5f, -0.5f, -0.5f},
     {-0.5f, 0.5f, -0.5f},
@@ -91,7 +91,7 @@ Render()
     /* Draw the cube */
     glColorPointer(4, GL_UNSIGNED_BYTE, 0, color);
     glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, cube);
+    glVertexPointer(3, GL_double, 0, cube);
     glEnableClientState(GL_VERTEX_ARRAY);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
 
@@ -260,7 +260,7 @@ main(int argc, char *argv[])
 
     /* Set rendering settings for each context */
     for (i = 0; i < state->num_windows; ++i) {
-        float aspectAdjust;
+        double aspectAdjust;
 
         status = SDL_GL_MakeCurrent(state->windows[i], context[i]);
         if (status) {
@@ -270,7 +270,7 @@ main(int argc, char *argv[])
             continue;
         }
 
-        aspectAdjust = (4.0f / 3.0f) / ((float)state->window_w / state->window_h);
+        aspectAdjust = (4.0f / 3.0f) / ((double)state->window_w / state->window_h);
         glViewport(0, 0, state->window_w, state->window_h);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();

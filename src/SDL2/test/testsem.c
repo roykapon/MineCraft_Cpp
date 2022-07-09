@@ -223,7 +223,7 @@ TestOverheadContended(SDL_bool try_wait)
     duration = end_ticks - start_ticks;
     SDL_Log("Took %d milliseconds, threads %s %d out of %d times in total (%.2f%%)\n",
             duration, try_wait ? "where contended" : "timed out", content_count,
-            loop_count, ((float)content_count * 100) / loop_count);
+            loop_count, ((double)content_count * 100) / loop_count);
     /* Print how many semaphores where consumed per thread */
     SDL_snprintf(textBuffer, sizeof(textBuffer), "{ ");
     for (i = 0; i < NUM_THREADS; ++i) {

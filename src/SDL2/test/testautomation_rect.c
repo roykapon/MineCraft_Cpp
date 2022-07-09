@@ -1616,10 +1616,10 @@ int rect_testFRectEquals(void *arg)
     SDL_bool result;
 
     /* Equals */
-    refRectA.x=(float)SDLTest_RandomIntegerInRange(-1024, 1024);
-    refRectA.y=(float)SDLTest_RandomIntegerInRange(-1024, 1024);
-    refRectA.w=(float)SDLTest_RandomIntegerInRange(1, 1024);
-    refRectA.h=(float)SDLTest_RandomIntegerInRange(1, 1024);
+    refRectA.x=(double)SDLTest_RandomIntegerInRange(-1024, 1024);
+    refRectA.y=(double)SDLTest_RandomIntegerInRange(-1024, 1024);
+    refRectA.w=(double)SDLTest_RandomIntegerInRange(1, 1024);
+    refRectA.h=(double)SDLTest_RandomIntegerInRange(1, 1024);
     refRectB = refRectA;
     expectedResult = SDL_TRUE;
     rectA = refRectA;
@@ -1643,14 +1643,14 @@ int rect_testFRectEqualsParam(void *arg)
     SDL_bool result;
 
     /* data setup -- For the purpose of this test, the values don't matter. */
-    rectA.x=SDLTest_RandomFloat();
-    rectA.y=SDLTest_RandomFloat();
-    rectA.w=SDLTest_RandomFloat();
-    rectA.h=SDLTest_RandomFloat();
-    rectB.x=SDLTest_RandomFloat();
-    rectB.y=SDLTest_RandomFloat();
-    rectB.w=SDLTest_RandomFloat();
-    rectB.h=SDLTest_RandomFloat();
+    rectA.x=SDLTest_Randomdouble();
+    rectA.y=SDLTest_Randomdouble();
+    rectA.w=SDLTest_Randomdouble();
+    rectA.h=SDLTest_Randomdouble();
+    rectB.x=SDLTest_Randomdouble();
+    rectB.y=SDLTest_Randomdouble();
+    rectB.w=SDLTest_Randomdouble();
+    rectB.h=SDLTest_Randomdouble();
 
     /* invalid parameter combinations */
     result = (SDL_bool)SDL_FRectEquals((const SDL_FRect *)NULL, (const SDL_FRect *)&rectB);
