@@ -13,6 +13,7 @@ class Face {
 
 public:
   Vector vertices[3];
+  Vector normal;
   int ***texture;
 
   Face(Vector v1 = Vector(), Vector v2 = Vector(), Vector v3 = Vector(),
@@ -20,8 +21,12 @@ public:
     vertices[0] = v1;
     vertices[1] = v2;
     vertices[2] = v3;
+    update_normal();
     texture = _texture;
   }
+
+  /** Updates the normal according to the vertices (assumes clock-wise order)*/
+  void update_normal();
 
   static int ***default_texture() {
     int ***texture = (int ***)malloc(sizeof(int) * NUM_CHANNELS *

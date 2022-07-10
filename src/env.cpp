@@ -15,7 +15,8 @@ void Env::update_visible_faces() {
     Vector pos = pos_block.first;
     Block &block = pos_block.second;
     for (int i = 0; i < NUM_TRIANGLES_IN_BLOCK; i++) {
-      visible_faces.push_back(block[i]);
+      if (blocks.count(pos + block[i].normal * 2) == 0)
+        visible_faces.push_back(block[i]);
     }
   }
 }

@@ -27,15 +27,12 @@ int game() {
   // My code
 
   Env env = Env();
-  // Vector v1 = Vector(0, 0, 4, 1, 0, 0);
-  // Vector v2 = Vector(1, 0, 4, 1, 255, 0);
-  // Vector v3 = Vector(0, 1, 4, 1, 0, 255);
-  // Face face = Face(v1, v2, v3);
-  // env.visible_faces.push_back(face);
-  Vector block_pos = Vector(0.0f, 0.0f, 0.0f);
-  Vector block_pos2 = Vector(2.0f, 0.0f, 0.0f);
-  env.create_block(block_pos);
-  env.create_block(block_pos2);
+  for (double x = 0.0f; x < 20; x += 2) {
+    for (double z = 0.0f; z < 20; z += 2) {
+      Vector block_pos = Vector(x, 0.0f, z);
+      env.create_block(block_pos);
+    }
+  }
   int start_time = 0;
   int frame_time = 0;
   //

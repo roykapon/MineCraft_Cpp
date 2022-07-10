@@ -71,19 +71,23 @@ public:
   /** Renders the list of faces onto the camera */
   void render(Env &env, SDL_Renderer *renderer);
 
+  /** Returns true if the face should be rendered */
+  bool decide_to_render(Face &face);
+
   /** Given a list of edges, updates the pixture */
   void paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer);
 
   /** update the line to the edges struct */
   void save_line(Pixel *line, Pixel *edges, int *extremum,
                  SDL_Renderer *renderer);
-  /** Returns true if the first face is closer to the camera than the second one
+  /** Returns true if the first face is closer to the camera than the second
+   * one
    */
   bool compare(Face *face1, Face *face2);
 
   /** given x, y coordinates, returns the closest x (on the right) that was "
-    "not colored yet"
-    */
+      "not colored yet"
+      */
   int get_next_x(int x, int y);
 };
 #endif

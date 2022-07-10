@@ -38,33 +38,34 @@ double &Vector::operator[](int index) {
 
 Vector operator+(const Vector &v1, const Vector &v2) {
   Vector res;
-  for (int axis = 0; axis < AXES; axis++) {
-    res[axis] = v1[axis] + v2[axis];
-  }
+  res.x = v1.x + v2.x;
+  res.y = v1.y + v2.y;
+  res.z = v1.z + v2.z;
   return res;
 }
 
 Vector operator-(const Vector &v1, const Vector &v2) {
   Vector res;
-  for (int axis = 0; axis < AXES; axis++) {
-    res[axis] = v1[axis] - v2[axis];
-  }
+  res.x = v1.x - v2.x;
+  res.y = v1.y - v2.y;
+  res.z = v1.z - v2.z;
   return res;
 }
 
-Vector operator*(const Vector &v1, double a) {
+Vector operator*(const Vector &v, double a) {
   Vector res;
-  for (int axis = 0; axis < AXES; axis++) {
-    res[axis] = v1[axis] * a;
-  }
+  res.x = v.x * a;
+  res.y = v.y * a;
+  res.z = v.z * a;
+  res.w = v.w;
   return res;
 }
 
 double operator*(const Vector &v1, const Vector &v2) {
   double sum = 0.0f;
-  for (int axis = 0; axis < AXES; axis++) {
-    sum += v1[axis] * v2[axis];
-  }
+  sum += v1.x * v2.x;
+  sum += v1.y * v2.y;
+  sum += v1.z * v2.z;
   return sum;
 }
 
@@ -83,6 +84,24 @@ double norm(const Vector &v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
 double distance(const Vector &v1, const Vector &v2) {
   Vector diff = v1 - v2;
   return norm(diff);
+}
+
+Vector normalized(const Vector &v) {
+  double n = norm(v);
+  if (n == 0) {
+    return v * 0;
+  }
+  return v * (1.0f / n);
+}
+
+Vector cross(const Vector &v1, const Vector &v2) {
+  Vector res;
+  res.x = v1.y * v2.z - v1.z * v2.y;
+  res.y = v1.z * v2.x - v1.x * v2.z;
+  res.z = v1.x * v2.y - v1.y * v2.x;
+  // this is a direction vector so w=0
+  res.w = 0;
+  return normalized(res);
 }
 
 bool Vector::operator==(const Vector &b2) const {

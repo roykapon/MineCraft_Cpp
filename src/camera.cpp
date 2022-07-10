@@ -51,9 +51,13 @@ void Camera::project(Face &face, Pixel *projected) {
   }
 }
 
-int Camera::pixel_x(double x) { return round(width * x) + width / 2; }
+int Camera::pixel_x(double x) {
+  return round(min(height, width) * x) + width / 2;
+}
 
-int Camera::pixel_y(double y) { return round(height * y) + height / 2; }
+int Camera::pixel_y(double y) {
+  return round(min(height, width) * y) + height / 2;
+}
 
 void update_edges(Pixel &p, Pixel *edges, int *extremum) {
   if (p.x < edges[2 * (p.y - extremum[0]) + 0].x) {
@@ -132,14 +136,20 @@ struct Comparator {
 
 void Camera::render(Env &env, SDL_Renderer *renderer) {
   init_picture_colored();
-
-  // for (Face *face : faces) {
-  //   // cout << (*face)[0];
-  // }
   sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(pos));
   for (Face face : env.visible_faces) {
-    render(face, renderer);
+    // should probably filter the faces before sorting
+    if (decide_to_render(face)) {
+      render(face, renderer);
+    }
   }
+}
+
+bool Camera::decide_to_render(Face &face) {
+  Vector face_direction = face[0] - pos;
+  double relative_direction = face_direction * face.normal;
+  double relative_direction2 = direction * face_direction;
+  return relative_direction < 0 && relative_direction2 > 0;
 }
 
 int bound(int i, int upper_bound, int lower_bound) {

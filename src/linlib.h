@@ -70,8 +70,14 @@ double operator*(const Vector &v1, const Vector &v2);
 /** Returns the l2norm of the vector (its size)*/
 double norm(const Vector &v);
 
+/** Returns the normalized vector (same direction, with norm 1) */
+Vector normalized(const Vector &v);
+
 /** Returns the distance between the vectors */
 double distance(const Vector &v1, const Vector &v2);
+
+/** Returns the *normalized* cross-product between the vectors */
+Vector cross(const Vector &v1, const Vector &v2);
 
 /** Vector hash function */
 struct Vector_hash {
