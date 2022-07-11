@@ -6,9 +6,9 @@ using namespace std;
 
 double Vector::operator[](int index) const {
   switch (index) {
-  case X:
+  case X_AXIS:
     return x;
-  case Y:
+  case Y_AXIS:
     return y;
   case Z:
     return z;
@@ -22,9 +22,9 @@ double Vector::operator[](int index) const {
 
 double &Vector::operator[](int index) {
   switch (index) {
-  case X:
+  case X_AXIS:
     return x;
-  case Y:
+  case Y_AXIS:
     return y;
   case Z:
     return z;
@@ -188,12 +188,12 @@ Matrix Matrix::rotate(int axis, double angle) {
   Matrix res;
   res.vectors[3] = Vector(0, 0, 0, 1);
   switch (axis) {
-  case X:
+  case X_AXIS:
     res.vectors[0] = Vector(1, 0, 0, 0);
     res.vectors[1] = Vector(0, cos(angle), -sin(angle), 0);
     res.vectors[2] = Vector(0, sin(angle), cos(angle), 0);
     return res;
-  case Y:
+  case Y_AXIS:
     res.vectors[0] = Vector(cos(angle), 0, sin(angle), 0);
     res.vectors[1] = Vector(0, 1, 0, 0);
     res.vectors[2] = Vector(-sin(angle), 0, cos(angle), 0);
@@ -220,9 +220,9 @@ Matrix Matrix::shift(Vector &pos) {
 
 int &Pixel::operator[](int index) {
   switch (index) {
-  case X:
+  case X_AXIS:
     return x;
-  case Y:
+  case Y_AXIS:
     return y;
   case TEXTURE_X:
     return texture_x;

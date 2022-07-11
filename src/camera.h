@@ -4,6 +4,10 @@
 #include "env.h"
 #include "face.h"
 #include "linlib.h"
+// #include <Windows.h>
+#include <SDL2/SDL_thread.h>
+#include <iomanip>
+#include <iostream>
 
 #define DEFAULT_WIDTH 1080
 #define DEFAULT_HEIGHT 540

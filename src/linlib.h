@@ -12,10 +12,8 @@
 #define DOUBLE_MAX numeric_limits<double>::max()
 #define DOUBLE_MIN numeric_limits<double>::min()
 
-using namespace std;
-
-#define X 0
-#define Y 1
+#define X_AXIS 0
+#define Y_AXIS 1
 #define Z 2
 #define W 3
 #define TEXTURE_X 2
@@ -25,6 +23,8 @@ using namespace std;
 #define EXTENDED_AXES 4
 #define MAX_NUM_LENGTH 13
 #define PI 3.14159265
+
+using namespace std;
 
 class Vector {
 

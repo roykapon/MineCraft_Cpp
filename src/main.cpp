@@ -105,7 +105,44 @@ int game() {
   return 0;
 }
 
+// struct ThreadArgs {
+//   // DWORD thread_id;
+//   int x;
+//   int y;
+// };
+
+// DWORD WINAPI thread_func(ThreadArgs *args) {
+//   // cout << "hi from " args->thread_id << endl;
+//   cout << "x = " << args->x << endl;
+//   return 0;
+// }
+
+// int threading() {
+//   DWORD thread_id[10];
+//   HANDLE handles[10];
+//   ThreadArgs thread_args[10];
+//   for (int i = 0; i < 10; i++) {
+
+//     thread_args[i].x = i;
+//     handles[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&thread_func,
+//                               &thread_args[i], 0, &thread_id[i]);
+
+//     if (handles[i] == NULL) {
+//       cout << "error in " << i << endl;
+//       return -1;
+//     }
+//   }
+//   for (int i = 0; i < 10; i++) {
+//     WaitForSingleObject(handles[i], INFINITE);
+//     CloseHandle(handles[i]);
+//   }
+//   cout << "finished waiting" << endl;
+
+//   return 0;
+// }
+
 int main(int argv, char **args) {
   game();
+  // return threading();
   return 0;
 }
