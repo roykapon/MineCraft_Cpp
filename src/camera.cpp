@@ -1,5 +1,8 @@
 #include "camera.h"
-
+#include <iomanip>
+#include <iostream>
+// remove
+#include <unistd.h>
 using namespace std;
 
 // =========================== Camera ===========================
@@ -153,86 +156,36 @@ int bound(int i, int upper_bound, int lower_bound) {
   return max(min(i, upper_bound), lower_bound);
 }
 
-struct ThreadArgs {
-  int y;
-  Pixel *edges;
-  SDL_Renderer *renderer;
-  int *extremum;
-  Camera *camera;
-};
-
-int paint_line(void *args_ptr) {
-  // get arguments
-  ThreadArgs *args = (ThreadArgs *)args_ptr;
-  int y = args->y;
-  Pixel *edges = args->edges;
-  SDL_Renderer *renderer = args->renderer;
-  int *extremum = args->extremum;
-  Camera *camera = args->camera;
-
-  int width = camera->width;
-  int *picture_colored = camera->picture_colored;
-
-  Pixel left = edges[2 * (y - extremum[0]) + 0];
-  Pixel right = edges[2 * (y - extremum[0]) + 1];
-  // handle edge cases
-  if (max(left.x, 0) > min(right.x, width - 1)) {
-    return -1;
-  }
-  if (max(left.x, 0) == min(right.x, width - 1)) {
-    if (picture_colored[right.y * width + max(left.x, 0)] == right.x) {
-      SDL_SetRenderDrawColor(renderer, left.texture_x, left.texture_y, 0, 255);
-      SDL_RenderDrawPoint(renderer, left.x, y);
-    }
-    return -1;
-  }
-  double diff = right.x - left.x;
-  for (int x = camera->get_next_x(max(left.x, 0), y);
-       x <= min(right.x, width - 1);) {
-    // interpolate the texture coordinates
-    double ratio = ((double)(x - left.x)) / diff;
-    int texture_x = left.texture_x * ratio + right.texture_x * (1.0f - ratio);
-    int texture_y = left.texture_y * ratio + right.texture_y * (1.0f - ratio);
-    // paint the pixel
-    SDL_SetRenderDrawColor(renderer, texture_x, texture_y, 0, 255);
-    SDL_RenderDrawPoint(renderer, x, y);
-    // set the pixel colored
-    picture_colored[y * width + x] =
-        bound(right.x + 1, width, picture_colored[y * width + x]);
-    // get next uncolored pixel in that line
-    x = camera->get_next_x(x + 1, y);
-  }
-  return 0;
-}
-
 void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
-  int y_start = max(extremum[0], 0);
-  int y_end = min(extremum[1], height - 1);
-  int y_range = y_end - y_start + 1;
-  if (y_range < 0) {
-    return;
-  }
-  SDL_Thread *threads = calloc(y_range, sizeof(SDL_Thread));
-  // HANDLE handles[y_range];
-  ThreadArgs thread_args[y_range];
-
-  for (int y = y_start; y <= y_end; ++y) {
-    thread_args[y - y_start].y = y;
-    thread_args[y - y_start].edges = edges;
-    thread_args[y - y_start].renderer = renderer;
-    thread_args[y - y_start].extremum = extremum;
-    thread_args[y - y_start].camera = this;
-
-    threads[y - y_start] =
-        SDL_ThreadCreate(paint_line, &thread_args[y - y_start]);
-
-    // if (handles[y - y_start] == NULL) {
-    //   cout << "error in " << y << endl;
-    //   return;
-    // }
-  }
-  for (int i = 0; i < y_range; i++) {
-    SDL_WaitThread(threads[i], NULL);
+  for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
+    Pixel left = edges[2 * (y - extremum[0]) + 0];
+    Pixel right = edges[2 * (y - extremum[0]) + 1];
+    // handle edge cases
+    if (max(left.x, 0) > min(right.x, width - 1)) {
+      continue;
+    }
+    if (max(left.x, 0) == min(right.x, width - 1)) {
+      if (picture_colored[right.y * width + max(left.x, 0)] == right.x) {
+        SDL_SetRenderDrawColor(renderer, left.texture_x, left.texture_y, 0,
+                               255);
+        SDL_RenderDrawPoint(renderer, left.x, y);
+      }
+      continue;
+    }
+    double diff = right.x - left.x;
+    for (int x = get_next_x(max(left.x, 0), y); x <= min(right.x, width - 1);) {
+      // interpolate the texture coordinates
+      double ratio = ((double)(x - left.x)) / diff;
+      int texture_x = left.texture_x * ratio + right.texture_x * (1.0f - ratio);
+      int texture_y = left.texture_y * ratio + right.texture_y * (1.0f - ratio);
+      // paint the pixel
+      SDL_SetRenderDrawColor(renderer, texture_x, texture_y, 0, 255);
+      SDL_RenderDrawPoint(renderer, x, y);
+      // set the pixel colored
+      picture_colored[y * width + x] =
+          bound(right.x + 1, width, picture_colored[y * width + x]);
+      x = get_next_x(x + 1, y);
+    }
   }
 }
 
