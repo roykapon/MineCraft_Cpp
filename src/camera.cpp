@@ -161,8 +161,9 @@ struct ThreadArgs {
   Camera *camera;
 };
 
-DWORD WINAPI paint_line(ThreadArgs *args) {
+int paint_line(void *args_ptr) {
   // get arguments
+  ThreadArgs *args = (ThreadArgs *)args_ptr;
   int y = args->y;
   Pixel *edges = args->edges;
   SDL_Renderer *renderer = args->renderer;
@@ -211,8 +212,8 @@ void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
   if (y_range < 0) {
     return;
   }
-  DWORD thread_id[y_range];
-  HANDLE handles[y_range];
+  SDL_Thread *threads = calloc(y_range, sizeof(SDL_Thread));
+  // HANDLE handles[y_range];
   ThreadArgs thread_args[y_range];
 
   for (int y = y_start; y <= y_end; ++y) {
@@ -222,18 +223,16 @@ void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
     thread_args[y - y_start].extremum = extremum;
     thread_args[y - y_start].camera = this;
 
-    handles[y - y_start] =
-        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&paint_line,
-                     &thread_args[y - y_start], 0, &thread_id[y - y_start]);
+    threads[y - y_start] =
+        SDL_ThreadCreate(paint_line, &thread_args[y - y_start]);
 
-    if (handles[y - y_start] == NULL) {
-      cout << "error in " << y << endl;
-      return;
-    }
+    // if (handles[y - y_start] == NULL) {
+    //   cout << "error in " << y << endl;
+    //   return;
+    // }
   }
   for (int i = 0; i < y_range; i++) {
-    WaitForSingleObject(handles[i], INFINITE);
-    CloseHandle(handles[i]);
+    SDL_WaitThread(threads[i], NULL);
   }
 }
 

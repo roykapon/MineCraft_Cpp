@@ -1,9 +1,11 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "SDL2/SDL_Thread.h"
 #include "env.h"
 #include "face.h"
 #include "linlib.h"
+
 
 #define DEFAULT_WIDTH 1080
 #define DEFAULT_HEIGHT 540
