@@ -21,6 +21,10 @@ int game() {
   SDL_Renderer *renderer =
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+  SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           camera.width, camera.height);
+
   bool isRunning = true;
   SDL_Event event;
 
@@ -30,6 +34,13 @@ int game() {
   for (double x = 0.0f; x < 20; x += 2) {
     for (double z = 0.0f; z < 20; z += 2) {
       Vector block_pos = Vector(x, 0.0f, z);
+      env.create_block(block_pos);
+    }
+  }
+
+  for (double x = 0.0f; x < 20; x += 2) {
+    for (double z = 0.0f; z < 20; z += 2) {
+      Vector block_pos = Vector(x, 0.0f, z) + Vector(0.0f, 10.0f, 10.0f);
       env.create_block(block_pos);
     }
   }
@@ -80,12 +91,14 @@ int game() {
     }
     camera.update();
 
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 
-    camera.render(env, renderer);
+    camera.render(env);
 
+    SDL_UpdateTexture(texture, NULL, camera.picture,
+                      camera.width * sizeof(Uint32));
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
 
     // Display fps
@@ -98,6 +111,7 @@ int game() {
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+  SDL_DestroyTexture(texture);
   SDL_Quit();
 
   // free stuff here

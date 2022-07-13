@@ -14,7 +14,7 @@
 
 #define X_AXIS 0
 #define Y_AXIS 1
-#define Z 2
+#define Z_AXIS 2
 #define W 3
 #define TEXTURE_X 2
 #define TEXTURE_Y 3
@@ -129,14 +129,16 @@ Vector operator*(Vector &v, Matrix &M);
 /** Returns the product of the matrices */
 Matrix operator*(Matrix &M1, Matrix &M2);
 
-class Pixel : public SDL_Point {
+class Pixel {
 
 public:
+  int x;
+  int y;
   Vector source;
   int texture_x, texture_y;
 
-  Pixel(double _x = 0, double _y = 0, Vector _source = Vector(),
-        int _texture_x = 0, int _texture_y = 0) {
+  Pixel(int _x = 0, int _y = 0, Vector _source = Vector(), int _texture_x = 0,
+        int _texture_y = 0) {
     x = _x;
     y = _y;
     source = _source;
@@ -159,9 +161,6 @@ Pixel operator*(Pixel &p, double a);
 
 /** Prints the pixel */
 ostream &operator<<(ostream &os, Pixel &p);
-
-/** Returns interpolation of the pixels according to the given ratio */
-Pixel interpolate(Pixel &p1, Pixel &p2, double ratio);
 
 /** Returns an array in which the first value is the minimum of all y values
  * and the second value is the maximum of all y values */

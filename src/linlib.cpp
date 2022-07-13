@@ -10,7 +10,7 @@ double Vector::operator[](int index) const {
     return x;
   case Y_AXIS:
     return y;
-  case Z:
+  case Z_AXIS:
     return z;
   case W:
     return w;
@@ -26,7 +26,7 @@ double &Vector::operator[](int index) {
     return x;
   case Y_AXIS:
     return y;
-  case Z:
+  case Z_AXIS:
     return z;
   case W:
     return w;
@@ -198,7 +198,7 @@ Matrix Matrix::rotate(int axis, double angle) {
     res.vectors[1] = Vector(0, 1, 0, 0);
     res.vectors[2] = Vector(-sin(angle), 0, cos(angle), 0);
     return res;
-  case Z:
+  case Z_AXIS:
     res.vectors[0] = Vector(cos(angle), -sin(angle), 0, 0);
     res.vectors[1] = Vector(sin(angle), cos(angle), 0, 0);
     res.vectors[2] = Vector(0, 0, 1, 0);
@@ -267,15 +267,6 @@ Pixel operator*(Pixel &p, double a) {
 ostream &operator<<(ostream &os, Pixel &p) {
   os << "x = " << p.x << ", y = " << p.y << ", source = " << p.source << '\n';
   return os;
-}
-
-Pixel interpolate(Pixel &p1, Pixel &p2, double ratio) {
-  Pixel res;
-  for (int axis = 0; axis < PIXEL_AXES; axis++) {
-    res[axis] =
-        round(((double)p1[axis]) * ratio + ((double)p2[axis]) * (1 - ratio));
-  }
-  return res;
 }
 
 void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
