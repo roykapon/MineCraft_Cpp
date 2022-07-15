@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jul 13 13:51:16 2022
+# Make data base, printed on Fri Jul 15 11:50:35 2022
 
 # Variables
 
@@ -27,7 +27,7 @@ VBOX_MSI_INSTALL_PATH = C:\Program Files\Oracle\VirtualBox\
 # environment
 LOCALAPPDATA = C:\Users\royka\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-c7245c26-be26-4a86-9918-65eee12d5109-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-5fe86850-dfdf-439d-b3fb-a7d0e135d5fb-sock
 # environment
 VSCODE_CWD = C:\Users\royka\AppData\Local\Programs\Microsoft VS Code
 # environment
@@ -43,7 +43,7 @@ MAKE_COMMAND := C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_6656_YDWPSBWSAWZYGEUB
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_18808_BUSVAMGLXHMFMIQZ
 # environment
 FPS_BROWSER_USER_PROFILE_STRING = Default
 # environment
@@ -99,7 +99,7 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 6656
+VSCODE_PID = 18808
 # automatic
 ?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
 # automatic
@@ -286,6 +286,6 @@ GNUmakefile:
 # strcache performance: lookups = 18 / hit rate = 16%
 # hash-table stats:
 # Load=15/8192=0%, Rehash=0, Collisions=0/18=0%
-# Finished Make data base on Wed Jul 13 13:51:16 2022
+# Finished Make data base on Fri Jul 15 11:50:35 2022
 
  

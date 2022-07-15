@@ -9,11 +9,13 @@
 #define DEFAULT_WIDTH 1080
 #define DEFAULT_HEIGHT 540
 
-#define DEFAULT_FFD 2.0f
+#define DEFAULT_FFD 1.0f
 
 #define DEFAULT_COLOR 0
 
 #define COLOR(R, G, B) (((Uint32)R) << 16) + (((Uint32)G) << 8) + ((Uint32)B)
+#define INTERPOLATE(X1, X2, RATIO)                                             \
+  ((((double)X1) * RATIO) + (((double)X2) * (1.0f - RATIO)))
 
 class Camera {
 
@@ -69,8 +71,11 @@ public:
   /** given y coordinate, returns the y index of the pixel*/
   int coord_to_pixel_y(double y);
 
-  /** given pixel y , returns the y coordinate of the pixel*/
+  /** given pixel y , returns the y coordinate of the pixel  in 3d world*/
   double pixel_to_coord_y(int y);
+
+  /** given pixel x , returns the x coordinate of the pixel in 3d world*/
+  double pixel_to_coord_x(int x);
 
   /** Returns the projected pixels of a face in the camera */
   void project(Face &face, Pixel *projected);

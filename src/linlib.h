@@ -135,15 +135,11 @@ public:
   int x;
   int y;
   Vector source;
-  int texture_x, texture_y;
 
-  Pixel(int _x = 0, int _y = 0, Vector _source = Vector(), int _texture_x = 0,
-        int _texture_y = 0) {
+  Pixel(int _x = 0, int _y = 0, Vector _source = Vector()) {
     x = _x;
     y = _y;
     source = _source;
-    texture_x = _texture_x;
-    texture_y = _texture_y;
   }
 
   /** Returns the value a the given axis*/

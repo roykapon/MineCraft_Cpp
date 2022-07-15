@@ -41,6 +41,8 @@ Vector operator+(const Vector &v1, const Vector &v2) {
   res.x = v1.x + v2.x;
   res.y = v1.y + v2.y;
   res.z = v1.z + v2.z;
+  res.texture_x = v1.texture_x + v2.texture_x;
+  res.texture_y = v1.texture_y + v2.texture_y;
   return res;
 }
 
@@ -49,6 +51,8 @@ Vector operator-(const Vector &v1, const Vector &v2) {
   res.x = v1.x - v2.x;
   res.y = v1.y - v2.y;
   res.z = v1.z - v2.z;
+  res.texture_x = v1.texture_x - v2.texture_x;
+  res.texture_y = v1.texture_y - v2.texture_y;
   return res;
 }
 
@@ -58,6 +62,8 @@ Vector operator*(const Vector &v, double a) {
   res.y = v.y * a;
   res.z = v.z * a;
   res.w = v.w;
+  res.texture_x = v.texture_x * a;
+  res.texture_y = v.texture_y * a;
   return res;
 }
 
@@ -145,6 +151,8 @@ Vector operator*(Matrix &M, Vector &v) {
     }
     res[i] = sum;
   }
+  res.texture_x = v.texture_x;
+  res.texture_y = v.texture_y;
   return res;
 }
 
@@ -157,6 +165,8 @@ Vector operator*(Vector &v, Matrix &M) {
     }
     res[i] = sum;
   }
+  res.texture_x = v.texture_x;
+  res.texture_y = v.texture_y;
   return res;
 }
 
@@ -224,10 +234,6 @@ int &Pixel::operator[](int index) {
     return x;
   case Y_AXIS:
     return y;
-  case TEXTURE_X:
-    return texture_x;
-  case TEXTURE_Y:
-    return texture_y;
   default:
     cout << "Invalid index: " << index;
     return x;
@@ -239,8 +245,6 @@ Pixel operator+(Pixel &p1, Pixel &p2) {
   res.x = p1.x + p2.x;
   res.y = p1.y + p2.y;
   res.source = p1.source + p2.source;
-  res.texture_x = p1.texture_x + p2.texture_x;
-  res.texture_y = p1.texture_y + p2.texture_y;
   return res;
 }
 
@@ -249,8 +253,6 @@ Pixel operator-(Pixel &p1, Pixel &p2) {
   res.x = p1.x - p2.x;
   res.y = p1.y - p2.y;
   res.source = p1.source - p2.source;
-  res.texture_x = p1.texture_x - p2.texture_x;
-  res.texture_y = p1.texture_y - p2.texture_y;
   return res;
 }
 
@@ -259,8 +261,6 @@ Pixel operator*(Pixel &p, double a) {
   res.x = p.x * a;
   res.y = p.y * a;
   res.source = p.source * a;
-  res.texture_x = p.texture_x * a;
-  res.texture_y = p.texture_y * a;
   return res;
 }
 

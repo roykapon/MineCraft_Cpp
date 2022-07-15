@@ -32,8 +32,8 @@ Face default_faces[NUM_TRIANGLES_IN_BLOCK] = {
     Face(Vector(-1, 1, 1, 1, 0, TEXTURE_RES),
          Vector(1, 1, -1, 1, TEXTURE_RES, 0), Vector(-1, 1, -1, 1, 0, 0)),
     Face(Vector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
-         // down
          Vector(-1, -1, -1, 1, 0, 0), Vector(1, -1, -1, 1, TEXTURE_RES, 0)),
+    // down
     Face(Vector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
          Vector(-1, -1, 1, 1, 0, TEXTURE_RES), Vector(-1, -1, -1, 1, 0, 0))};
 
