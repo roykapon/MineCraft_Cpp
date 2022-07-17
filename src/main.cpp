@@ -31,19 +31,21 @@ int game() {
   // My code
 
   Env env = Env();
-  for (double x = 0.0f; x < 20; x += 2) {
-    for (double z = 0.0f; z < 20; z += 2) {
-      Vector block_pos = Vector(x, 0.0f, z);
+  for (double y = 0.0f; y < 30; y += 2) {
+    for (double x = 0.0f; x < 30; x += 2) {
+      Vector block_pos = Vector(x, y, y);
       env.create_block(block_pos);
     }
   }
 
-  for (double x = 0.0f; x < 20; x += 2) {
-    for (double z = 0.0f; z < 20; z += 2) {
-      Vector block_pos = Vector(x, 0.0f, z) + Vector(0.0f, 10.0f, 10.0f);
-      env.create_block(block_pos);
-    }
-  }
+  env.update_visible_faces();
+
+  // for (double x = 0.0f; x < 20; x += 2) {
+  //   for (double z = 0.0f; z < 20; z += 2) {
+  //     Vector block_pos = Vector(x, 0.0f, z) + Vector(0.0f, 10.0f, 10.0f);
+  //     env.create_block(block_pos);
+  //   }
+  // }
   int start_time = 0;
   int frame_time = 0;
   //
@@ -72,6 +74,32 @@ int game() {
 
         case SDLK_s: {
           Vector offset = camera.direction * (SPEED * sqrt(frame_time));
+
+          camera.pos = camera.pos - offset;
+          break;
+        }
+        case SDLK_a: {
+          Vector right = cross(camera.direction, Vector(0, 1, 0));
+          Vector offset = right * ((-1) * SPEED * sqrt(frame_time));
+
+          camera.pos = camera.pos - offset;
+          break;
+        }
+        case SDLK_d: {
+          Vector right = cross(camera.direction, Vector(0, 1, 0));
+          Vector offset = right * (SPEED * sqrt(frame_time));
+
+          camera.pos = camera.pos - offset;
+          break;
+        }
+        case SDLK_SPACE: {
+          Vector offset = Vector(0, 1, 0) * (SPEED * sqrt(frame_time));
+
+          camera.pos = camera.pos - offset;
+          break;
+        }
+        case SDLK_LSHIFT: {
+          Vector offset = Vector(0, -1, 0) * (SPEED * sqrt(frame_time));
 
           camera.pos = camera.pos - offset;
           break;

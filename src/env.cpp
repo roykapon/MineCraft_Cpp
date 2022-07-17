@@ -3,10 +3,7 @@
 using namespace std;
 
 /** creates a block in the environment at the given position */
-void Env::create_block(const Vector &pos) {
-  blocks[pos] = Block(pos);
-  update_visible_faces();
-}
+void Env::create_block(const Vector &pos) { blocks[pos] = Block(pos); }
 
 /** Updates visible faces list */
 void Env::update_visible_faces() {

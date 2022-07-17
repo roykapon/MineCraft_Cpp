@@ -75,6 +75,16 @@ double operator*(const Vector &v1, const Vector &v2) {
   return sum;
 }
 
+Vector interpolate(const Vector &v1, const Vector &v2, double ratio) {
+  Vector res;
+  res.x = INTERPOLATE(v1.x, v2.x, ratio);
+  res.y = INTERPOLATE(v1.y, v2.y, ratio);
+  res.z = INTERPOLATE(v1.z, v2.z, ratio);
+  res.texture_x = round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio));
+  res.texture_y = round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio));
+  return res;
+}
+
 ostream &operator<<(ostream &os, const Vector &v) {
   os << "(x = " << v.x << ", y = " << v.y << ", z = " << v.z << ", w = " << v.w
      << ")\n";

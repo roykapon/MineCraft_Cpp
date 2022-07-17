@@ -23,6 +23,10 @@
 #define EXTENDED_AXES 4
 #define MAX_NUM_LENGTH 13
 #define PI 3.14159265
+#define EPSILON 0.0001
+
+#define INTERPOLATE(X1, X2, RATIO)                                             \
+  ((((double)X1) * RATIO) + (((double)X2) * (1.0f - RATIO)))
 
 using namespace std;
 
@@ -63,6 +67,9 @@ Vector operator-(const Vector &v1, const Vector &v2);
 
 /** Returns the vector multiplied by a scalar */
 Vector operator*(const Vector &v, double a);
+
+/** Returns the point between the vectors with the given ratio */
+Vector interpolate(const Vector &v1, const Vector &v2, double ratio);
 
 /** Returns the dot product of the vectors */
 double operator*(const Vector &v1, const Vector &v2);
