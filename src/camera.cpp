@@ -254,32 +254,78 @@ int bound(int i, int upper_bound, int lower_bound) {
   return max(min(i, upper_bound), lower_bound);
 }
 
-void Camera::paint_face(Pixel *edges, int *extremum) {
-  for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
-    Pixel left = edges[2 * (y - extremum[0]) + 0];
-    Pixel right = edges[2 * (y - extremum[0]) + 1];
-    // actual work:
-    double diff = left.source.x - right.source.x;
-    int texture_x, texture_y;
-    for (int x = get_next_x(max(left.x, 0), y); x <= min(right.x, width - 1);) {
-      // interpolate the texture coordinates
-      double x_coord = pixel_to_coord_x(x);
-      // assumes ffd = 1!!!
-      double ratio_3d = (right.source.x - right.source.z * x_coord) /
-                        ((left.source.z - right.source.z) * x_coord -
-                         left.source.x + right.source.x);
-      texture_x =
-          INTERPOLATE(left.source.texture_x, right.source.texture_x, ratio_3d);
-      texture_y =
-          INTERPOLATE(left.source.texture_y, right.source.texture_y, ratio_3d);
+struct ThreadArgs {
+  int y = y;
+  Pixel *edges;
+  int *extremum;
+  Camera *camera;
+};
 
-      // paint the pixel
-      picture[y * width + x] = COLOR(texture_x, texture_y, 255);
-      // set the pixel colored
-      picture_colored[y * width + x] =
-          bound(right.x + 1, width, picture_colored[y * width + x]);
-      x = get_next_x(x + 1, y);
-    }
+void paint_line(ThreadArgs *args) {
+  int y = args->y;
+  Pixel *edges = args->edges;
+  int *extremum = args->extremum;
+  Camera *camera = args->camera;
+
+  int width = camera->width;
+  int *picture_colored = camera->picture_colored;
+  Uint32 *picture = camera->picture;
+
+  Pixel left = edges[2 * (y - extremum[0]) + 0];
+  Pixel right = edges[2 * (y - extremum[0]) + 1];
+  double diff = left.source.x - right.source.x;
+  int texture_x, texture_y;
+  for (int x = camera->get_next_x(max(left.x, 0), y);
+       x <= min(right.x, width - 1);) {
+    // interpolate the texture coordinates
+    double x_coord = camera->pixel_to_coord_x(x);
+    // assumes ffd = 1!!!
+    double ratio_3d = (right.source.x - right.source.z * x_coord) /
+                      ((left.source.z - right.source.z) * x_coord -
+                       left.source.x + right.source.x);
+    texture_x =
+        INTERPOLATE(left.source.texture_x, right.source.texture_x, ratio_3d);
+    texture_y =
+        INTERPOLATE(left.source.texture_y, right.source.texture_y, ratio_3d);
+
+    // paint the pixel
+    picture[y * width + x] = COLOR(texture_x, texture_y, 255);
+    // set the pixel colored
+    picture_colored[y * width + x] =
+        bound(right.x + 1, width, picture_colored[y * width + x]);
+    x = camera->get_next_x(x + 1, y);
+  }
+}
+
+void Camera::paint_face(Pixel *edges, int *extremum) {
+  int y_start = max(extremum[0], 0);
+  int y_end = min(extremum[1], height - 1);
+  int y_range = y_end - y_start + 1;
+  if (y_range < 0) {
+    return;
+  }
+  DWORD thread_id[y_range];
+  HANDLE handles[y_range];
+  ThreadArgs thread_args[y_range];
+
+  for (int y = y_start; y <= y_end; ++y) {
+    thread_args[y - y_start].y = y;
+    thread_args[y - y_start].edges = edges;
+    thread_args[y - y_start].extremum = extremum;
+    thread_args[y - y_start].camera = this;
+
+    handles[y - y_start] =
+        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&paint_line,
+                     &thread_args[y - y_start], 0, &thread_id[y - y_start]);
+
+    // if (handles[y - y_start] == NULL) {
+    //   cout << "error in " << y << endl;
+    //   return;
+    // }
+  }
+  for (int i = 0; i < y_range; i++) {
+    WaitForSingleObject(handles[i], INFINITE);
+    CloseHandle(handles[i]);
   }
 }
 
