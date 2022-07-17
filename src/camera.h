@@ -9,7 +9,6 @@
 #include <iomanip>
 #include <iostream>
 
-
 #define DEFAULT_WIDTH 1080
 #define DEFAULT_HEIGHT 540
 
@@ -71,20 +70,19 @@ public:
   void project(Vector &v, Pixel *p);
 
   /** Renders the face onto the camera */
-  void render(Face &face, SDL_Renderer *renderer);
+  void render(Face &face);
 
   /** Renders the list of faces onto the camera */
-  void render(Env &env, SDL_Renderer *renderer);
+  void render(Env &env);
 
   /** Returns true if the face should be rendered */
   bool decide_to_render(Face &face);
 
   /** Given a list of edges, updates the pixture */
-  void paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer);
+  void paint_face(Pixel *edges, int *extremum);
 
   /** update the line to the edges struct */
-  void save_line(Pixel *line, Pixel *edges, int *extremum,
-                 SDL_Renderer *renderer);
+  void save_line(Pixel *line, Pixel *edges, int *extremum);
   /** Returns true if the first face is closer to the camera than the second
    * one
    */

@@ -65,8 +65,7 @@ void update_edges(Pixel &p, Pixel *edges, int *extremum) {
   }
 }
 
-void Camera::save_line(Pixel *line, Pixel *edges, int *extremum,
-                       SDL_Renderer *renderer) {
+void Camera::save_line(Pixel *line, Pixel *edges, int *extremum) {
   int line_extremum[2];
   get_extremum(line, 2, line_extremum, 0, height);
   Pixel &p1 = line[0];
@@ -93,7 +92,7 @@ void init_edges(Pixel *edges, int *extremum) {
   }
 }
 
-void Camera::render(Face &face, SDL_Renderer *renderer) {
+void Camera::render(Face &face) {
   Pixel projected[3];
   project(face, projected);
   int extremum[2] = {INT_MAX, INT_MIN};
@@ -108,10 +107,10 @@ void Camera::render(Face &face, SDL_Renderer *renderer) {
   for (int i = 0; i < 3; i++) {
     line[0] = projected[i];
     line[1] = projected[(i + 1) % 3];
-    save_line(line, edges, extremum, renderer);
+    save_line(line, edges, extremum);
   }
 
-  paint_face(edges, extremum, renderer);
+  paint_face(edges, extremum);
 }
 
 double average_dist(Face &face, Vector &pos) {
@@ -131,13 +130,13 @@ struct Comparator {
   int paramA;
 };
 
-void Camera::render(Env &env, SDL_Renderer *renderer) {
+void Camera::render(Env &env) {
   init_picture_colored();
   sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(pos));
   for (Face face : env.visible_faces) {
     // should probably filter the faces before sorting
     if (decide_to_render(face)) {
-      render(face, renderer);
+      render(face);
     }
   }
 }
@@ -156,7 +155,6 @@ int bound(int i, int upper_bound, int lower_bound) {
 struct ThreadArgs {
   int y;
   Pixel *edges;
-  SDL_Renderer *renderer;
   int *extremum;
   Camera *camera;
 };
@@ -165,7 +163,6 @@ DWORD WINAPI paint_line(ThreadArgs *args) {
   // get arguments
   int y = args->y;
   Pixel *edges = args->edges;
-  SDL_Renderer *renderer = args->renderer;
   int *extremum = args->extremum;
   Camera *camera = args->camera;
 
@@ -204,7 +201,7 @@ DWORD WINAPI paint_line(ThreadArgs *args) {
   return 0;
 }
 
-void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
+void Camera::paint_face(Pixel *edges, int *extremum) {
   int y_start = max(extremum[0], 0);
   int y_end = min(extremum[1], height - 1);
   int y_range = y_end - y_start + 1;
@@ -218,7 +215,6 @@ void Camera::paint_face(Pixel *edges, int *extremum, SDL_Renderer *renderer) {
   for (int y = y_start; y <= y_end; ++y) {
     thread_args[y - y_start].y = y;
     thread_args[y - y_start].edges = edges;
-    thread_args[y - y_start].renderer = renderer;
     thread_args[y - y_start].extremum = extremum;
     thread_args[y - y_start].camera = this;
 

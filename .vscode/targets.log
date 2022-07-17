@@ -8,10 +8,12 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jul 04 22:58:43 2022
+# Make data base, printed on Sun Jul 17 23:38:23 2022
 
 # Variables
 
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -25,7 +27,7 @@ VBOX_MSI_INSTALL_PATH = C:\Program Files\Oracle\VirtualBox\
 # environment
 LOCALAPPDATA = C:\Users\royka\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-ae662ffb-6852-4c7a-8957-1a5cfe9f1c8b-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-59dd9705-f0c8-4706-be5a-23cbb775ea68-sock
 # environment
 VSCODE_CWD = C:\Users\royka\AppData\Local\Programs\Microsoft VS Code
 # environment
@@ -41,7 +43,9 @@ MAKE_COMMAND := C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15840_KIRURLUIKRUWURMP
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_16676_GYUNIJOTYAAJHUJT
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -95,7 +99,7 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 15840
+VSCODE_PID = 16676
 # automatic
 ?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
 # automatic
@@ -209,7 +213,7 @@ PROCESSOR_REVISION = 8e0c
 # environment
 PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 142 Stepping 12, GenuineIntel
 # variable set hash-table stats:
-# Load=98/1024=10%, Rehash=0, Collisions=9/122=7%
+# Load=100/1024=10%, Rehash=0, Collisions=10/124=8%
 
 # Pattern-specific Variable Values
 
@@ -282,6 +286,6 @@ GNUmakefile:
 # strcache performance: lookups = 18 / hit rate = 16%
 # hash-table stats:
 # Load=15/8192=0%, Rehash=0, Collisions=0/18=0%
-# Finished Make data base on Mon Jul 04 22:58:43 2022
+# Finished Make data base on Sun Jul 17 23:38:23 2022
 
  
