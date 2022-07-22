@@ -119,9 +119,6 @@ int game() {
     }
     camera.update();
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-    SDL_RenderClear(renderer);
-
     camera.render(env);
 
     SDL_UpdateTexture(texture, NULL, camera.picture,
@@ -143,7 +140,6 @@ int game() {
   SDL_Quit();
 
   // free stuff here
-  camera.free_camera();
   return 0;
 }
 
