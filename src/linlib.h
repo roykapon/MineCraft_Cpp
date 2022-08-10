@@ -1,6 +1,5 @@
 #ifndef LINLIB_H
 #define LINLIB_H
-#include <SDL2/SDL.h>
 #include <bits/stdc++.h>
 #include <iomanip>
 #include <iostream>

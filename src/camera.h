@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "SDL2\x86_64-w64-mingw32\include\SDL2\SDL.h"
 #include "renderer.h"
 
 #define DEFAULT_WIDTH 1080
