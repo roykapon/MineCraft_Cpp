@@ -63,16 +63,16 @@ public:
   void update();
 
   /** given x coordinate, returns the x index of the pixel*/
-  int coord_to_pixel_x(double x);
+#define COORD_TO_PIXEL_X(x) round(height *x) + width / 2;
 
   /** given y coordinate, returns the y index of the pixel*/
-  int coord_to_pixel_y(double y);
+#define COORD_TO_PIXEL_Y(y) round(height *y) + height / 2;
 
   /** given pixel y , returns the y coordinate of the pixel  in 3d world*/
-  double pixel_to_coord_y(int y);
+#define PIXEL_TO_COORD_Y(x) (double)(x - height / 2) / height;
 
-  /** given pixel x , returns the x coordinate of the pixel in 3d world*/
-  double pixel_to_coord_x(int x);
+/** given pixel x , returns the x coordinate of the pixel in 3d world*/
+#define PIXEL_TO_COORD_X(x) (double)(x - width / 2) / height;
 
   /** updates the projected array with the pixels of a face when projected onto
    * the camera. Returns the legnth of the projected array*/

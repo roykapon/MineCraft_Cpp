@@ -33,8 +33,8 @@ void Renderer::project(Vector &v, Pixel *p) {
   // assumes the point was already rotated
   p->source = v;
   double ratio = ffd / (p->source.z);
-  p->x = coord_to_pixel_x(p->source.x * ratio);
-  p->y = coord_to_pixel_y(p->source.y * ratio);
+  p->x = COORD_TO_PIXEL_X(p->source.x * ratio);
+  p->y = COORD_TO_PIXEL_Y(p->source.y * ratio);
 }
 
 void Renderer::update_direction() {
@@ -70,22 +70,6 @@ int Renderer::project(Face &face, Pixel *projected) {
     // else both points are behind the camera (do not add anything)
   }
   return j;
-}
-
-int Renderer::coord_to_pixel_x(double x) {
-  return round(min(height, width) * x) + width / 2;
-}
-
-int Renderer::coord_to_pixel_y(double y) {
-  return round(min(height, width) * y) + height / 2;
-}
-
-double Renderer::pixel_to_coord_y(int y) {
-  return (double)(y - height / 2) / min(height, width);
-}
-
-double Renderer::pixel_to_coord_x(int x) {
-  return (double)(x - width / 2) / min(height, width);
 }
 
 void update_edges(Pixel &p, Pixel *edges, int *extremum) {
@@ -259,7 +243,7 @@ Pixel Renderer::interpolate_by_y(Pixel &p1, Pixel &p2, int y) {
   res.x = round(INTERPOLATE(p1.x, p2.x, ratio));
   res.y = y;
 
-  double y_coord = pixel_to_coord_y(y);
+  double y_coord = PIXEL_TO_COORD_Y(y);
   // assumes ffd = 1 !!!
   double ratio_3d =
       (p2.source.y - p2.source.z * y_coord) /

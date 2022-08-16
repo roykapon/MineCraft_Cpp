@@ -19,7 +19,7 @@ void Camera::init_picture() {
 void Camera::paint_pixel(Pixel &left, Pixel &right, int x, int y, double diff_z,
                          double diff_x) {
   // interpolate the texture coordinates
-  double x_coord = pixel_to_coord_x(x);
+  double x_coord = PIXEL_TO_COORD_X(x);
   // assumes ffd = 1!!!
   double ratio_3d =
       (right.source.x - right.source.z * x_coord) / ((diff_z)*x_coord - diff_x);
