@@ -290,3 +290,11 @@ void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
     extremum[1] = min(max(extremum[1], p->y), upper_bound);
   }
 }
+
+Vector round(Vector &v) {
+  Vector res;
+  res.x = (double)round(v.x);
+  res.y = (double)round(v.y);
+  res.z = (double)round(v.z);
+  return res;
+}

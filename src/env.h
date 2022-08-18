@@ -1,3 +1,6 @@
+#ifndef ENV_H
+#define ENV_H
+
 #include "block.h"
 #include <map>
 #include <vector>
@@ -22,3 +25,5 @@ public:
 
   void update_visible_faces();
 };
+
+#endif

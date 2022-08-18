@@ -169,4 +169,7 @@ ostream &operator<<(ostream &os, Pixel &p);
 void get_extremum(Pixel *pixels, int len, int *extremum,
                   int lower_bound = INT_MIN, int upper_bound = INT_MAX);
 
+/** returns the vector rounded to the closest block */
+Vector round(Vector &v);
+
 #endif
