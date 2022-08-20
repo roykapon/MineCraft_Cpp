@@ -17,7 +17,7 @@
                 "-lSDL2",
                 "-mwindows",
                 // // remember to remove the following line!!!!
-                // "-mconsole"
+                "-mconsole"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

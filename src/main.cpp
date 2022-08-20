@@ -32,7 +32,7 @@ int game() {
   Env env = Env();
   for (double y = 0.0f; y < 30; y += 2) {
     for (double x = 0.0f; x < 30; x += 2) {
-      Vector block_pos = Vector(x, y, y);
+      Vector block_pos = Vector(x, 0, y);
       env.create_block(block_pos);
     }
   }
@@ -179,7 +179,44 @@ int game() {
 // }
 
 int main(int argv, char **args) {
-  game();
+  // game();
   // return threading();
+
+  // Vector p1 = Vector(0, 0, 0);
+  // Vector p2 = Vector(0, 1, 0);
+  // Vector p3 = Vector(1, 0, 1.5);
+  // Vector p4 = Vector(-1, 1, 1.5);
+  // Vector v = Vector(0.1, 0, 1);
+  // Vector line1[] = {p1, p2};
+  // Vector line2[] = {p3, p4};
+
+  // Vector inter;
+  // double intersected = intersection(line1, line2, v, inter);
+  // cout << "intersected: " << intersected << endl;
+  // cout << inter << endl;
+
+  Vector p1 = Vector(0, 0, 0);
+  Vector p2 = Vector(0, 1, 0);
+  Vector p3 = Vector(1, 0, 0);
+  Face face = Face(p1, p2, p3);
+
+  Vector p = Vector(0.1, 0.1, -10);
+  Vector v = Vector(0.02, 0, 1);
+  Vector inter;
+
+  double intersected = intersection(p, face, v, inter);
+  cout << "intersected: " << intersected << endl;
+  cout << inter << endl;
+
+  // Vector p1 = Vector(0, 1, 0, 0);
+  // Vector p2 = Vector(0, -3, 15, 0);
+  // Vector p3 = Vector(0.2, 0.5, 2, 0);
+  // Vector p4 = Vector(0, 0, 0, 0);
+
+  // Matrix M = Matrix(p1, p2, p3, p4);
+  // Matrix res;
+
+  // inverse(M, res);
+
   return 0;
 }

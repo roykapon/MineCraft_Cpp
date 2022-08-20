@@ -67,6 +67,9 @@ Vector operator-(const Vector &v1, const Vector &v2);
 /** Returns the vector multiplied by a scalar */
 Vector operator*(const Vector &v, double a);
 
+/** Returns the vector multiplied by a scalar */
+Vector operator*(double a, const Vector &v);
+
 /** Returns the point between the vectors with the given ratio */
 Vector interpolate(const Vector &v1, const Vector &v2, double ratio);
 
@@ -89,6 +92,8 @@ Vector cross(const Vector &v1, const Vector &v2);
 struct Vector_hash {
   size_t operator()(const Vector &key) const;
 };
+
+// ============================ Matrix ============================
 
 class Matrix {
 
@@ -135,6 +140,15 @@ Vector operator*(Vector &v, Matrix &M);
 /** Returns the product of the matrices */
 Matrix operator*(Matrix &M1, Matrix &M2);
 
+/** Returns the Identity matrix of size 3 by 3 (rest is 0) */
+Matrix I();
+
+/** Given a matrix M of size len by len, finds its inverse and returns whether
+ * it is invertible or not*/
+bool inverse(Matrix &M, Matrix &res, int len = 3);
+
+// ============================= Pixel ===================================
+
 class Pixel {
 
 public:
@@ -170,6 +184,6 @@ void get_extremum(Pixel *pixels, int len, int *extremum,
                   int lower_bound = INT_MIN, int upper_bound = INT_MAX);
 
 /** returns the vector rounded to the closest block */
-Vector round(Vector &v);
+// Vector round(Vector &v);
 
 #endif

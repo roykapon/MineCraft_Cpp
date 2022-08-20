@@ -1,5 +1,10 @@
 #include "linlib.h"
 
+#define SWITCH(M, i, i2, tmp)                                                  \
+  tmp = M[i2];                                                                 \
+  M[i2] = M[i];                                                                \
+  M[i] = tmp;
+
 using namespace std;
 
 // =========================== Vector ===========================
@@ -41,6 +46,8 @@ Vector operator+(const Vector &v1, const Vector &v2) {
   res.x = v1.x + v2.x;
   res.y = v1.y + v2.y;
   res.z = v1.z + v2.z;
+  // sets w to be the same as v1
+  res.w = v1.w;
   res.texture_x = v1.texture_x + v2.texture_x;
   res.texture_y = v1.texture_y + v2.texture_y;
   return res;
@@ -51,6 +58,8 @@ Vector operator-(const Vector &v1, const Vector &v2) {
   res.x = v1.x - v2.x;
   res.y = v1.y - v2.y;
   res.z = v1.z - v2.z;
+  // sets w to be the same as v1
+  res.w = v1.w;
   res.texture_x = v1.texture_x - v2.texture_x;
   res.texture_y = v1.texture_y - v2.texture_y;
   return res;
@@ -61,6 +70,19 @@ Vector operator*(const Vector &v, double a) {
   res.x = v.x * a;
   res.y = v.y * a;
   res.z = v.z * a;
+  // sets w to be the same as v
+  res.w = v.w;
+  res.texture_x = v.texture_x * a;
+  res.texture_y = v.texture_y * a;
+  return res;
+}
+
+Vector operator*(double a, const Vector &v) {
+  Vector res;
+  res.x = v.x * a;
+  res.y = v.y * a;
+  res.z = v.z * a;
+  // sets w to be the same as v1
   res.w = v.w;
   res.texture_x = v.texture_x * a;
   res.texture_y = v.texture_y * a;
@@ -80,6 +102,8 @@ Vector interpolate(const Vector &v1, const Vector &v2, double ratio) {
   res.x = INTERPOLATE(v1.x, v2.x, ratio);
   res.y = INTERPOLATE(v1.y, v2.y, ratio);
   res.z = INTERPOLATE(v1.z, v2.z, ratio);
+  // sets w to be the same as v1
+  res.w = v1.w;
   res.texture_x = round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio));
   res.texture_y = round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio));
   return res;
@@ -123,6 +147,16 @@ Vector cross(const Vector &v1, const Vector &v2) {
 bool Vector::operator==(const Vector &b2) const {
   return x == b2.x && (y == b2.y && z == b2.z);
 }
+
+// void baricentric_coords(const Vector &p, const Vector *tri) {}
+
+// Vector round(Vector &v) {
+//   Vector res;
+//   res.x = (double)round(v.x);
+//   res.y = (double)round(v.y);
+//   res.z = (double)round(v.z);
+//   return res;
+// }
 
 // =========================== Matrix ===========================
 
@@ -236,6 +270,59 @@ Matrix Matrix::shift(Vector &pos) {
   res.vectors[3] = pos;
   return res;
 }
+
+Matrix I() {
+  Matrix res;
+  res.vectors[0] = Vector(1, 0, 0, 0);
+  res.vectors[1] = Vector(0, 1, 0, 0);
+  res.vectors[2] = Vector(0, 0, 1, 0);
+  res.vectors[3] = Vector(0, 0, 0, 0);
+  return res;
+}
+
+/** helper function for finding a pivot row.
+ * returns whether there exists such row or not */
+bool pivot(int i, int len, Matrix &copy, Matrix &res) {
+  Vector tmp;
+  for (int i2 = i + 1; i2 < len; i2++) {
+    if (copy[i2][i] != 0) {
+      SWITCH(copy, i, i2, tmp);
+      SWITCH(res, i, i2, tmp);
+      return true;
+    }
+  }
+  return false;
+}
+
+bool inverse(Matrix &M, Matrix &res, int len) {
+  res = I();
+  Matrix copy = M;
+  double a;
+  bool invalid;
+  for (int i = 0; i < len; i++) {
+    if (copy[i][i] == 0) {
+      if (!pivot(i, len, copy, res)) {
+        return false;
+      }
+    }
+    a = copy[i][i];
+    copy[i] = copy[i] * (1 / a);
+    res[i] = res[i] * (1 / a);
+    for (int i2 = 0; i2 < len; i2++) {
+      if (i2 != i) {
+        a = copy[i2][i];
+        copy[i2] = copy[i2] - a * copy[i];
+        res[i2] = res[i2] - a * res[i];
+      }
+    }
+    // cout << i << ": \n" << copy << endl;
+    // cout << i << ": \n" << res << endl;
+  }
+  cout << copy << endl;
+  cout << res << endl;
+  return true;
+}
+
 // =========================== Pixel ===========================
 
 int &Pixel::operator[](int index) {
@@ -289,12 +376,4 @@ void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
     extremum[0] = max(min(extremum[0], p->y), lower_bound);
     extremum[1] = min(max(extremum[1], p->y), upper_bound);
   }
-}
-
-Vector round(Vector &v) {
-  Vector res;
-  res.x = (double)round(v.x);
-  res.y = (double)round(v.y);
-  res.z = (double)round(v.z);
-  return res;
 }

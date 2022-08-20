@@ -5,6 +5,5 @@
 
 void Object::apply_physics(Env &env) {
   v = v - Vector(0, G, 0);
-  Vector possible_block = round(v);
   //   pos.y -=
 }
