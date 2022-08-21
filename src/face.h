@@ -65,4 +65,6 @@ double intersection(const Vector &p, const Face &face, const Vector &v,
 
 double intersection(const Face &face1, const Face &face2, Vector &v,
                     Vector &res);
+
+Face operator*(const Face &face, const Matrix &M);
 #endif

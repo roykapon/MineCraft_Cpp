@@ -1,5 +1,6 @@
 #ifndef LINLIB_H
 #define LINLIB_H
+
 #include <bits/stdc++.h>
 #include <iomanip>
 #include <iostream>
@@ -93,6 +94,9 @@ struct Vector_hash {
   size_t operator()(const Vector &key) const;
 };
 
+/** returns the vector rounded to the closest block */
+Vector round(Vector &v);
+
 // ============================ Matrix ============================
 
 class Matrix {
@@ -108,6 +112,9 @@ public:
     vectors[3] = v4;
   }
 
+  /** Returns a mutable reference to the row at the given index */
+  const Vector &operator[](int index) const;
+
   /** Returns the row at the given index */
   Vector &operator[](int index);
 
@@ -119,33 +126,33 @@ public:
 
   /** Returns the shifting matrix, assuming w=1
    *  (when applied on the RIGHT) */
-  static Matrix shift(Vector &offset);
+  static Matrix shift(const Vector &offset);
 };
 
 /** Prints the matrix */
-ostream &operator<<(ostream &os, Matrix &M);
+ostream &operator<<(ostream &os, const Matrix &M);
 
 /** Returns the sum of the two matrices */
-Matrix operator+(Matrix &M1, Matrix &M2);
+Matrix operator+(const Matrix &M1, const Matrix &M2);
 
 /** Returns the difference of the matrices */
-Matrix operator-(Matrix &M1, Matrix &M2);
+Matrix operator-(const Matrix &M1, const Matrix &M2);
 
 /** Returns the vector multiplied by a matrix (from the LEFT) */
-Vector operator*(Matrix &M, Vector &v);
+Vector operator*(const Matrix &M, const Vector &v);
 
 /** Returns the vector multiplied by a matrix (from the RIGHT)*/
-Vector operator*(Vector &v, Matrix &M);
+Vector operator*(const Vector &v, const Matrix &M);
 
 /** Returns the product of the matrices */
-Matrix operator*(Matrix &M1, Matrix &M2);
+Matrix operator*(const Matrix &M1, const Matrix &M2);
 
 /** Returns the Identity matrix of size 3 by 3 (rest is 0) */
 Matrix I();
 
 /** Given a matrix M of size len by len, finds its inverse and returns whether
  * it is invertible or not*/
-bool inverse(Matrix &M, Matrix &res, int len = 3);
+bool inverse(const Matrix &M, Matrix &res, int len = 3);
 
 // ============================= Pixel ===================================
 
@@ -182,8 +189,5 @@ ostream &operator<<(ostream &os, Pixel &p);
  * and the second value is the maximum of all y values */
 void get_extremum(Pixel *pixels, int len, int *extremum,
                   int lower_bound = INT_MIN, int upper_bound = INT_MAX);
-
-/** returns the vector rounded to the closest block */
-// Vector round(Vector &v);
 
 #endif

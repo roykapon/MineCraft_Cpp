@@ -24,6 +24,8 @@ public:
   void create_block(const Vector &pos);
 
   void update_visible_faces();
+
+  void move_object(Object &object, Vector &v);
 };
 
 #endif

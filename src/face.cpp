@@ -68,6 +68,7 @@ double intersection(const Vector *line1, const Vector *line2, const Vector &v,
 //   return (t2 >= 0 && t2 <= 1);
 // }
 
+// remove res as it not useful
 double intersection(const Vector &p, const Face &face, const Vector &v,
                     Vector &res) {
   // handle division by zero!
@@ -111,6 +112,8 @@ double intersection(const Face &face1, const Face &face2, Vector &v,
     for (int j = 0; j < 3; j++) {
       line2[0] = face2[j];
       line2[1] = face2[j + 1];
+      // should be optimized so that edges that point the other way are not
+      // considered
       t = intersection(line1, line2, v, inter);
       if (t >= 0) {
         min_t = min(min_t, t);
@@ -122,4 +125,13 @@ double intersection(const Face &face1, const Face &face2, Vector &v,
     }
   }
   return min_t;
+}
+
+Face operator*(const Face &face, const Matrix &M) {
+  Face res;
+  for (int i = 0; i < 3; i++) {
+    Vector tmp = face[i];
+    res[i] = tmp * M;
+  }
+  return res;
 }

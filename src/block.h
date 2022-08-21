@@ -1,15 +1,15 @@
-#include "face.h"
-
+#include "object.h"
 #define NUM_TRIANGLES_IN_BLOCK 12
 
-class Block {
+class Block : Object {
 public:
-  Vector pos;
-  Face faces[NUM_TRIANGLES_IN_BLOCK];
-
   Block();
 
   Block(const Vector &pos);
+
+  Block(const Block &other);
+
+  ~Block();
 
   Face &operator[](int index);
 

@@ -178,7 +178,7 @@ void Renderer::render(Env &env) {
   init_picture();
   init_picture_colored();
   sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(pos));
-  for (Face face : env.visible_faces) {
+  for (Face &face : env.visible_faces) {
     // should probably filter the faces before sorting
     if (decide_to_render(face)) {
       render(face);

@@ -150,19 +150,21 @@ bool Vector::operator==(const Vector &b2) const {
 
 // void baricentric_coords(const Vector &p, const Vector *tri) {}
 
-// Vector round(Vector &v) {
-//   Vector res;
-//   res.x = (double)round(v.x);
-//   res.y = (double)round(v.y);
-//   res.z = (double)round(v.z);
-//   return res;
-// }
+Vector round(Vector &v) {
+  Vector res;
+  res.x = (double)round(v.x * 2) / 2;
+  res.y = (double)round(v.y * 2) / 2;
+  res.z = (double)round(v.z * 2) / 2;
+  return res;
+}
 
 // =========================== Matrix ===========================
 
 Vector &Matrix::operator[](int index) { return vectors[index]; }
 
-Matrix operator+(Matrix &M1, Matrix &M2) {
+const Vector &Matrix::operator[](int index) const { return vectors[index]; }
+
+Matrix operator+(const Matrix &M1, const Matrix &M2) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     res[i] = M1[i] + M2[i];
@@ -170,7 +172,7 @@ Matrix operator+(Matrix &M1, Matrix &M2) {
   return res;
 }
 
-Matrix operator-(Matrix &M1, Matrix &M2) {
+Matrix operator-(const Matrix &M1, const Matrix &M2) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     res[i] = M1[i] - M2[i];
@@ -178,7 +180,7 @@ Matrix operator-(Matrix &M1, Matrix &M2) {
   return res;
 }
 
-Matrix operator*(Matrix &M, double a) {
+Matrix operator*(const Matrix &M, double a) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     res[i] = M[i] * a;
@@ -186,7 +188,7 @@ Matrix operator*(Matrix &M, double a) {
   return res;
 }
 
-Vector operator*(Matrix &M, Vector &v) {
+Vector operator*(const Matrix &M, const Vector &v) {
   Vector res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     double sum = 0.0f;
@@ -200,7 +202,7 @@ Vector operator*(Matrix &M, Vector &v) {
   return res;
 }
 
-Vector operator*(Vector &v, Matrix &M) {
+Vector operator*(const Vector &v, const Matrix &M) {
   Vector res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     double sum = 0.0f;
@@ -214,7 +216,7 @@ Vector operator*(Vector &v, Matrix &M) {
   return res;
 }
 
-Matrix operator*(Matrix &M1, Matrix &M2) {
+Matrix operator*(const Matrix &M1, const Matrix &M2) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     for (int j = 0; j < EXTENDED_AXES; j++) {
@@ -228,7 +230,7 @@ Matrix operator*(Matrix &M1, Matrix &M2) {
   return res;
 }
 
-ostream &operator<<(ostream &os, Matrix &M) {
+ostream &operator<<(ostream &os, const Matrix &M) {
   for (int i = 0; i < EXTENDED_AXES; i++) {
     for (int j = 0; j < EXTENDED_AXES; j++) {
       os << i << "," << j << " = " << left << setw(MAX_NUM_LENGTH) << M[i][j];
@@ -262,7 +264,7 @@ Matrix Matrix::rotate(int axis, double angle) {
   return res;
 };
 
-Matrix Matrix::shift(Vector &pos) {
+Matrix Matrix::shift(const Vector &pos) {
   Matrix res;
   res.vectors[0] = Vector(1, 0, 0, 0);
   res.vectors[1] = Vector(0, 1, 0, 0);
@@ -294,7 +296,7 @@ bool pivot(int i, int len, Matrix &copy, Matrix &res) {
   return false;
 }
 
-bool inverse(Matrix &M, Matrix &res, int len) {
+bool inverse(const Matrix &M, Matrix &res, int len) {
   res = I();
   Matrix copy = M;
   double a;

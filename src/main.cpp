@@ -32,8 +32,10 @@ int game() {
   Env env = Env();
   for (double y = 0.0f; y < 30; y += 2) {
     for (double x = 0.0f; x < 30; x += 2) {
-      Vector block_pos = Vector(x, 0, y);
-      env.create_block(block_pos);
+      for (double z = 0.0f; z < 30; z += 2) {
+        Vector block_pos = Vector(x, y, z);
+        env.create_block(block_pos);
+      }
     }
   }
 
@@ -161,7 +163,8 @@ int game() {
 //   for (int i = 0; i < 10; i++) {
 
 //     thread_args[i].x = i;
-//     handles[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&thread_func,
+//     handles[i] = CreateThread(NULL, 0,
+//     (LPTHREAD_START_ROUTINE)&thread_func,
 //                               &thread_args[i], 0, &thread_id[i]);
 
 //     if (handles[i] == NULL) {
@@ -179,8 +182,7 @@ int game() {
 // }
 
 int main(int argv, char **args) {
-  // game();
-  // return threading();
+  game();
 
   // Vector p1 = Vector(0, 0, 0);
   // Vector p2 = Vector(0, 1, 0);
@@ -195,18 +197,18 @@ int main(int argv, char **args) {
   // cout << "intersected: " << intersected << endl;
   // cout << inter << endl;
 
-  Vector p1 = Vector(0, 0, 0);
-  Vector p2 = Vector(0, 1, 0);
-  Vector p3 = Vector(1, 0, 0);
-  Face face = Face(p1, p2, p3);
+  // Vector p1 = Vector(0, 0, 0);
+  // Vector p2 = Vector(0, 1, 0);
+  // Vector p3 = Vector(1, 0, 0);
+  // Face face = Face(p1, p2, p3);
 
-  Vector p = Vector(0.1, 0.1, -10);
-  Vector v = Vector(0.02, 0, 1);
-  Vector inter;
+  // Vector p = Vector(0.1, 0.1, -10);
+  // Vector v = Vector(0.02, 0, 1);
+  // Vector inter;
 
-  double intersected = intersection(p, face, v, inter);
-  cout << "intersected: " << intersected << endl;
-  cout << inter << endl;
+  // double intersected = intersection(p, face, v, inter);
+  // cout << "intersected: " << intersected << endl;
+  // cout << inter << endl;
 
   // Vector p1 = Vector(0, 1, 0, 0);
   // Vector p2 = Vector(0, -3, 15, 0);
