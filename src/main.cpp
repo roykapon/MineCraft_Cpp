@@ -10,8 +10,34 @@ int game() {
   // My code
   Vector pos = Vector(0, 0, -10);
   Camera camera = Camera(pos, 0, 0);
-  //
 
+  Env env = Env();
+  // for (double y = 0.0f; y < 30; y += 2) {
+  //   for (double x = 0.0f; x < 30; x += 2) {
+  //     for (double z = 0.0f; z < 30; z += 2) {
+  //       Vector block_pos = Vector(x, y, z);
+  //       env.create_block(block_pos);
+  //     }
+  //   }
+  // }
+  Vector block_pos = Vector(0.0f, 0.0f, 4.0f);
+  env.create_block(block_pos);
+
+  Vector entity_pos = Vector(0, 0, 0);
+  env.create_entity(entity_pos);
+
+  Object &entity = env.entities[0];
+
+  env.update_visible_faces();
+
+  // for (double x = 0.0f; x < 20; x += 2) {
+  //   for (double z = 0.0f; z < 20; z += 2) {
+  //     Vector block_pos = Vector(x, 0.0f, z) + Vector(0.0f, 10.0f, 10.0f);
+  //     env.create_block(block_pos);
+  //   }
+  // }
+
+  // library code
   SDL_Init(SDL_INIT_EVERYTHING);
 
   SDL_Window *window =
@@ -27,31 +53,14 @@ int game() {
   bool isRunning = true;
   SDL_Event event;
 
-  // My code
-
-  Env env = Env();
-  for (double y = 0.0f; y < 30; y += 2) {
-    for (double x = 0.0f; x < 30; x += 2) {
-      for (double z = 0.0f; z < 30; z += 2) {
-        Vector block_pos = Vector(x, y, z);
-        env.create_block(block_pos);
-      }
-    }
-  }
-
-  env.update_visible_faces();
-
-  // for (double x = 0.0f; x < 20; x += 2) {
-  //   for (double z = 0.0f; z < 20; z += 2) {
-  //     Vector block_pos = Vector(x, 0.0f, z) + Vector(0.0f, 10.0f, 10.0f);
-  //     env.create_block(block_pos);
-  //   }
-  // }
   int start_time = 0;
   int frame_time = 0;
   //
-
+  Vector offset;
   while (isRunning) {
+    double speed = SPEED * sqrt(frame_time);
+    offset = Vector();
+
     start_time = SDL_GetTicks();
 
     while (SDL_PollEvent(&event)) {
@@ -66,7 +75,7 @@ int game() {
         }
         switch (event.key.keysym.sym) {
         case SDLK_w: {
-          Vector offset = camera.direction * (SPEED * sqrt(frame_time));
+          offset = camera.direction * (speed);
           // cout << "direction: " << offset << endl;
 
           camera.pos = camera.pos + offset;
@@ -74,35 +83,35 @@ int game() {
         }
 
         case SDLK_s: {
-          Vector offset = camera.direction * (SPEED * sqrt(frame_time));
+          offset = camera.direction * (-speed);
 
-          camera.pos = camera.pos - offset;
+          camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_a: {
           Vector right = cross(camera.direction, Vector(0, 1, 0));
-          Vector offset = right * ((-1) * SPEED * sqrt(frame_time));
+          offset = right * (speed);
 
-          camera.pos = camera.pos - offset;
+          camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_d: {
           Vector right = cross(camera.direction, Vector(0, 1, 0));
-          Vector offset = right * (SPEED * sqrt(frame_time));
+          offset = right * (-speed);
 
-          camera.pos = camera.pos - offset;
+          camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_SPACE: {
-          Vector offset = Vector(0, 1, 0) * (SPEED * sqrt(frame_time));
+          offset = Vector(0, 1, 0) * (speed);
 
-          camera.pos = camera.pos - offset;
+          camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_LSHIFT: {
-          Vector offset = Vector(0, -1, 0) * (SPEED * sqrt(frame_time));
+          offset = Vector(0, -1, 0) * (speed);
 
-          camera.pos = camera.pos - offset;
+          camera.pos = camera.pos + offset;
           break;
         }
         }
@@ -113,11 +122,17 @@ int game() {
         int mouseY = event.motion.y;
 
         camera.horizontal = -mouseX * 2 * PI / camera.width + PI;
-        camera.vertical = mouseY * 2 * PI / camera.height - PI;
+        camera.vertical = -mouseY * 2 * PI / camera.height - PI;
 
         break;
       }
     }
+    // =============================== updates ============================
+    // Vector entity_offset = offset;
+    Vector entity_offset = Vector(0, 0, 0.7, 0);
+    env.move_object(entity, entity_offset);
+    entity.update();
+
     camera.update();
 
     camera.render(env);

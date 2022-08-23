@@ -167,8 +167,8 @@ struct Comparator {
   Vector pos;
   Comparator(Vector &_pos) { pos = _pos; }
 
-  bool operator()(Face f1, Face f2) {
-    return average_dist(f1, pos) < average_dist(f2, pos);
+  bool operator()(Face *f1, Face *f2) {
+    return average_dist(*f1, pos) < average_dist(*f2, pos);
   }
 
   int paramA;
@@ -178,10 +178,10 @@ void Renderer::render(Env &env) {
   init_picture();
   init_picture_colored();
   sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(pos));
-  for (Face &face : env.visible_faces) {
+  for (Face *face : env.visible_faces) {
     // should probably filter the faces before sorting
-    if (decide_to_render(face)) {
-      render(face);
+    if (decide_to_render(*face)) {
+      render(*face);
     }
   }
 }

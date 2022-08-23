@@ -44,9 +44,7 @@ Object::Object(const Vector &_pos, double _vertical, double _horizontal) {
   v = Vector(0, 0, 0, 0);
   faces_len = 12;
   faces = new Face[faces_len];
-  for (int i = 0; i < faces_len; i++) {
-    faces[i] = default_faces[i] + pos;
-  }
+  update();
 }
 
 Object::Object(const Object &other) {
@@ -56,9 +54,7 @@ Object::Object(const Object &other) {
   v = other.v;
   faces_len = other.faces_len;
   faces = new Face[faces_len];
-  for (int i = 0; i < faces_len; i++) {
-    faces[i] = other.faces[i];
-  }
+  update();
 }
 
 void Object::update() {
@@ -103,9 +99,11 @@ double intersection(const Object &o1, const Object &o2, Vector &v) {
     Face &face1 = o1.faces[i];
     for (int j = 0; j < o1.faces_len; j++) {
       Face &face2 = o2.faces[j];
-      t = intersection(face1, face2, v, inter);
+      t = intersection(face1, face2, v);
       min_t = min(min_t, t);
     }
   }
   return min_t;
 }
+
+Face &Object::operator[](int index) { return faces[index]; }

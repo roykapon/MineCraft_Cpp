@@ -29,7 +29,7 @@ void Camera::paint_pixel(Pixel &left, Pixel &right, int x, int y, double diff_z,
       INTERPOLATE(left.source.texture_y, right.source.texture_y, ratio_3d);
 
   // paint the pixel
-  picture[y * width + x] = COLOR(texture_x, texture_y, 255);
+  picture[(height - 1 - y) * width + x] = COLOR(texture_x, texture_y, 255);
 }
 
 /** free picture and picture_colored */

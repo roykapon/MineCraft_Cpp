@@ -18,7 +18,7 @@ public:
   int ***texture;
 
   Face(Vector v1 = Vector(), Vector v2 = Vector(), Vector v3 = Vector(),
-       int ***_texture = default_texture()) {
+       int ***_texture = NULL) {
     vertices[0] = v1;
     vertices[1] = v2;
     vertices[2] = v3;
@@ -57,14 +57,12 @@ double mindist(const Face &face, const Vector &pos);
 
 bool is_in(const Vector &p, const Face &face);
 
-double intersection(const Vector *line1, const Vector *line2, const Vector &v,
-                    Vector &res);
+double intersection(const Vector *line1, const Vector *line2, const Vector &v);
 
-double intersection(const Vector &p, const Face &face, const Vector &v,
-                    Vector &res);
+double intersection(const Vector &p, const Face &face, const Vector &v);
 
-double intersection(const Face &face1, const Face &face2, Vector &v,
-                    Vector &res);
+double intersection(const Face &face1, const Face &face2, Vector &v);
 
 Face operator*(const Face &face, const Matrix &M);
+
 #endif

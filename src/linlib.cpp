@@ -90,11 +90,8 @@ Vector operator*(double a, const Vector &v) {
 }
 
 double operator*(const Vector &v1, const Vector &v2) {
-  double sum = 0.0f;
-  sum += v1.x * v2.x;
-  sum += v1.y * v2.y;
-  sum += v1.z * v2.z;
-  return sum;
+  return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+  ;
 }
 
 Vector interpolate(const Vector &v1, const Vector &v2, double ratio) {
@@ -320,8 +317,6 @@ bool inverse(const Matrix &M, Matrix &res, int len) {
     // cout << i << ": \n" << copy << endl;
     // cout << i << ": \n" << res << endl;
   }
-  cout << copy << endl;
-  cout << res << endl;
   return true;
 }
 

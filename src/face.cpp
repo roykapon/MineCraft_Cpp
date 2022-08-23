@@ -27,25 +27,19 @@ Face operator+(const Face &face, const Vector &pos) {
   return res;
 }
 
-double intersection(const Vector *line1, const Vector *line2, const Vector &v,
-                    Vector &res) {
+double intersection(const Vector *line1, const Vector *line2, const Vector &v) {
   Vector direction1 = line1[1] - line1[0];
   Vector direction2 = line2[1] - line2[0];
   Matrix M = Matrix(direction1, (-1) * direction2, v);
-  cout << M << endl;
   Matrix M_inverse;
   if (!inverse(M, M_inverse)) {
     return -1;
   }
-
-  cout << M_inverse << endl;
-
   Vector diff = line2[0] - line1[0];
   Vector t = diff * M_inverse;
   if (t[0] < 0 || t[0] > 1 || t[1] < 0 || t[1] > 1) {
     return -1;
   }
-  res = line2[0] + t[1] * direction2;
   return t[2];
 }
 
@@ -69,16 +63,14 @@ double intersection(const Vector *line1, const Vector *line2, const Vector &v,
 // }
 
 // remove res as it not useful
-double intersection(const Vector &p, const Face &face, const Vector &v,
-                    Vector &res) {
+double intersection(const Vector &p, const Face &face, const Vector &v) {
   // handle division by zero!
   double t = (face.d - face.normal * p) / (face.normal * v);
-  cout << t << endl;
   if (t < 0) {
     return -1;
   }
 
-  res = p + (t * v);
+  Vector res = p + (t * v);
   if (!is_in(res, face)) {
     return -1;
   }
@@ -91,7 +83,6 @@ bool is_in(const Vector &p, const Face &face) {
   for (int i = 0; i < 3; i++) {
     edge_normal = cross(face[i + 1] - face[i], face.normal);
     // the normals are facing the inside
-    cout << edge_normal;
     if (edge_normal * (p - face[i]) > 0) {
       return false;
     }
@@ -99,8 +90,7 @@ bool is_in(const Vector &p, const Face &face) {
   return true;
 }
 
-double intersection(const Face &face1, const Face &face2, Vector &v,
-                    Vector &res) {
+double intersection(const Face &face1, const Face &face2, Vector &v) {
   Vector line1[2];
   Vector line2[2];
   Vector inter;
@@ -114,12 +104,12 @@ double intersection(const Face &face1, const Face &face2, Vector &v,
       line2[1] = face2[j + 1];
       // should be optimized so that edges that point the other way are not
       // considered
-      t = intersection(line1, line2, v, inter);
+      t = intersection(line1, line2, v);
       if (t >= 0) {
         min_t = min(min_t, t);
       }
     }
-    t = intersection(face1[i], face2, v, inter);
+    t = intersection(face1[i], face2, v);
     if (t >= 0) {
       min_t = min(min_t, t);
     }
@@ -133,5 +123,6 @@ Face operator*(const Face &face, const Matrix &M) {
     Vector tmp = face[i];
     res[i] = tmp * M;
   }
+  res.update_plane();
   return res;
 }

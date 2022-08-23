@@ -14,7 +14,8 @@ using namespace std;
 class Env {
 public:
   unordered_map<Vector, Block, Vector_hash> blocks;
-  vector<Face> visible_faces;
+  vector<Face *> visible_faces;
+  vector<Object> entities;
 
   Env() {
     blocks.clear();
@@ -22,6 +23,8 @@ public:
   };
 
   void create_block(const Vector &pos);
+
+  void create_entity(const Vector &pos);
 
   void update_visible_faces();
 

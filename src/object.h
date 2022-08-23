@@ -30,6 +30,8 @@ public:
   void update_world();
 
   void update_faces();
+
+  Face &operator[](int index);
 };
 
 double intersection(const Object &o1, const Object &o2, Vector &v);
