@@ -16,17 +16,13 @@ void Camera::init_picture() {
 }
 
 /** paints a single pixel (to be implemented)*/
-void Camera::paint_pixel(Pixel &left, Pixel &right, int x, int y, double diff_z,
-                         double diff_x) {
+void Camera::paint_pixel(Pixel &left, Pixel &right, int x, int y,
+                         double ratio) {
   // interpolate the texture coordinates
-  double x_coord = PIXEL_TO_COORD_X(x);
-  // assumes ffd = 1!!!
-  double ratio_3d =
-      (right.source.x - right.source.z * x_coord) / ((diff_z)*x_coord - diff_x);
   int texture_x =
-      INTERPOLATE(left.source.texture_x, right.source.texture_x, ratio_3d);
+      INTERPOLATE(left.source.texture_x, right.source.texture_x, ratio);
   int texture_y =
-      INTERPOLATE(left.source.texture_y, right.source.texture_y, ratio_3d);
+      INTERPOLATE(left.source.texture_y, right.source.texture_y, ratio);
 
   // paint the pixel
   picture[(height - 1 - y) * width + x] = COLOR(texture_x, texture_y, 255);

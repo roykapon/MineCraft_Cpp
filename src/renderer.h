@@ -21,6 +21,7 @@ public:
   int width, height;
   Matrix world;
   // a 2d array that holds the offset to the next unpainted pixel
+  double *z_buffer;
   int *picture_colored;
 
   Renderer(Vector _pos = Vector(), double _vertical = 0, double _horizontal = 0,
@@ -36,7 +37,10 @@ public:
     height = _height;
     ffd = _ffd;
     picture_colored = (int *)malloc(sizeof(int) * width * height);
+    z_buffer = (double *)malloc(sizeof(double) * width * height);
+
     init_picture_colored();
+    init_z_buffer();
   }
 
   /** initialize picture by setting each pixel color to DEFAULT */
@@ -44,11 +48,14 @@ public:
 
   /** paints a single pixel (to be implemented)*/
   virtual void paint_pixel(Pixel &left, Pixel &right, int x, int y,
-                           double diff_z, double diff_x) {}
+                           double ratio) {}
 
   /** initialize picture_colored by setting each pixel to point to the
-   * following one */
+   * following one (value of 0)*/
   void init_picture_colored();
+
+  /** initialize z_buffer by setting each pixel to have a maximal depth */
+  void init_z_buffer();
 
   /** free memory allocated by the camera */
   ~Renderer();
@@ -103,10 +110,6 @@ public:
   /** Returns true if the first face is closer to the camera than the second
    * one */
   bool compare(Face *face1, Face *face2);
-
-  /** given x, y coordinates, returns the closest x (on the right) that was "
-        "not colored yet" */
-  int get_next_x(int x, int y);
 
   /** Returns interpolation of the pixels in the specified y pixel-index */
   Pixel interpolate_by_y(Pixel &p1, Pixel &p2, int y);

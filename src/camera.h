@@ -42,8 +42,8 @@ public:
   void init_picture() override;
 
   /** paints a single pixel (to be implemented)*/
-  void paint_pixel(Pixel &left, Pixel &right, int x, int y, double diff_z,
-                   double diff_x) override;
+  void paint_pixel(Pixel &left, Pixel &right, int x, int y,
+                   double ratio) override;
 
   /** update the camera's position to folllow the player in 3rd person */
   void update_wrt_player(Object &player);

@@ -25,6 +25,14 @@ void Renderer::init_picture_colored() {
   memset(picture_colored, 0, sizeof(int) * width * height);
 }
 
+void Renderer::init_z_buffer() {
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      z_buffer[y * width + x] = DOUBLE_MAX;
+    }
+  }
+}
+
 void Renderer::project(Vector &v, Pixel &p) {
   // assumes the point was already rotated
   p.source = v;
@@ -195,6 +203,7 @@ struct Comparator {
 void Renderer::render(Env &env) {
   init_picture();
   init_picture_colored();
+  init_z_buffer();
   sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(this));
   for (Face *face : env.visible_faces) {
     // should probably filter the faces before sorting
@@ -222,28 +231,33 @@ int bound(int i, int upper_bound, int lower_bound) {
 }
 
 void Renderer::paint_face(Pixel *edges, int *extremum) {
+  int texture_x, texture_y;
+  double x_coord, ratio, diff_x, diff_z, z;
   for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
     Pixel left = edges[2 * (y - extremum[0]) + 0];
     Pixel right = edges[2 * (y - extremum[0]) + 1];
     // actual work:
-    double diff_x = left.source.x - right.source.x;
-    double diff_z = left.source.z - right.source.z;
-    int texture_x, texture_y;
-    for (int x = get_next_x(max(left.x, 0), y); x <= min(right.x, width - 1);) {
-      // paint the pixel
-      paint_pixel(left, right, x, y, diff_z, diff_x);
-      // set the pixel colored
-      picture_colored[y * width + x] = (right.x + 1 - x);
-      x = get_next_x(x + 1, y);
+    diff_x = left.source.x - right.source.x;
+    diff_z = left.source.z - right.source.z;
+    // paint a single horizontal line
+    for (int x = max(left.x, 0); x <= min(right.x, width - 2);) {
+      x_coord = PIXEL_TO_COORD_X(x);
+      // assumes ffd = 1!!!
+      ratio = (right.source.x - right.source.z * x_coord) /
+              ((diff_z)*x_coord - diff_x);
+      z = INTERPOLATE(left.source.z, right.source.z, ratio);
+      if (z < z_buffer[y * width + x]) {
+        // paint the pixel
+        paint_pixel(left, right, x, y, ratio);
+        // set the pixel colored
+        picture_colored[y * width + x] = (right.x - x);
+        z_buffer[y * width + x] = z;
+        x++;
+      } else {
+        x += 1 + picture_colored[y * width + x + 1];
+      }
     }
   }
-}
-
-int Renderer::get_next_x(int x, int y) {
-  while (x < width && picture_colored[y * width + x] != 0) {
-    x += picture_colored[y * width + x];
-  }
-  return x;
 }
 
 Renderer::~Renderer() { free(picture_colored); }
