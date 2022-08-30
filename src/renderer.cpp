@@ -22,25 +22,22 @@ void Renderer::update() {
 }
 
 void Renderer::init_picture_colored() {
-  for (int x = 0; x < width; x++) {
-    for (int y = 0; y < height; y++) {
-      picture_colored[y * width + x] = x;
-    }
-  }
+  memset(picture_colored, 0, sizeof(int) * width * height);
 }
 
-void Renderer::project(Vector &v, Pixel *p) {
+void Renderer::project(Vector &v, Pixel &p) {
   // assumes the point was already rotated
-  p->source = v;
-  double ratio = ffd / (p->source.z);
-  p->x = COORD_TO_PIXEL_X(p->source.x * ratio);
-  p->y = COORD_TO_PIXEL_Y(p->source.y * ratio);
+  p.source = v;
+  double ratio = ffd / v.z;
+  p.x = COORD_TO_PIXEL_X(v.x * ratio);
+  p.y = COORD_TO_PIXEL_Y(v.y * ratio);
 }
 
 void Renderer::update_direction() {
   direction.x = cos(vertical) * (-sin(horizontal));
   direction.y = sin(vertical);
   direction.z = cos(vertical) * cos(horizontal);
+  direction.w = 0;
 }
 
 int Renderer::project(Face &face, Pixel *projected) {
@@ -52,19 +49,18 @@ int Renderer::project(Face &face, Pixel *projected) {
   for (int i = 0; i < 3; i++) {
     // fisrt point is in front of the camera
     if (rotated[i].z > EPSILON) {
-      project(rotated[i], &projected[j]);
+      project(rotated[i], projected[j]);
       j++;
     }
     // one point is in front and one is behind the camera
     if ((rotated[(i + 1) % 3].z <= EPSILON && rotated[i].z > EPSILON) ||
         (rotated[i].z <= EPSILON && rotated[(i + 1) % 3].z > EPSILON)) {
-      // find intersection
+      // find collision
       double ratio = (EPSILON - rotated[(i + 1) % 3].z) /
                      (rotated[i].z - rotated[(i + 1) % 3].z);
-      Vector intersection =
-          interpolate(rotated[i], rotated[(i + 1) % 3], ratio);
+      Vector collision = interpolate(rotated[i], rotated[(i + 1) % 3], ratio);
       // can be optimized (x and y pixel coordinates can be easily calculated)
-      project(intersection, &projected[j]);
+      project(collision, projected[j]);
       j++;
     }
     // else both points are behind the camera (do not add anything)
@@ -164,11 +160,33 @@ double average_dist(Face &face, Vector &pos) {
 }
 
 struct Comparator {
-  Vector pos;
-  Comparator(Vector &_pos) { pos = _pos; }
+  Renderer *renderer;
+
+  Comparator(Renderer *_renderer) { renderer = _renderer; }
 
   bool operator()(Face *f1, Face *f2) {
-    return average_dist(*f1, pos) < average_dist(*f2, pos);
+    // double t1, t2;
+    // Face rotated1 = (*f1) * renderer->world;
+    // Pixel projected1[4];
+    // Pixel line1[2];
+    // int len1 = renderer->project(*f1, projected1);
+    // Pixel projected2[4];
+    // Pixel line2[2];
+    // Pixel inter;
+    // int len2 = renderer->project(*f2, projected2);
+    // for (int i = 0; i < len1; i++) {
+    //   line1[0] = projected1[i];
+    //   line1[1] = projected1[(i + 1) % len1];
+    //   for (int j = 0; j < len2; j++) {
+    //     line2[0] = projected2[i];
+    //     line2[1] = projected2[(i + 1) % len1];
+    //     if (line_line_collision(line1, line2, inter)) {
+    //       t1 = (f1->d - *f1->normal);
+    //     }
+    //   }
+    // }
+
+    return average_dist(*f1, renderer->pos) < average_dist(*f2, renderer->pos);
   }
 
   int paramA;
@@ -177,7 +195,7 @@ struct Comparator {
 void Renderer::render(Env &env) {
   init_picture();
   init_picture_colored();
-  sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(pos));
+  sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(this));
   for (Face *face : env.visible_faces) {
     // should probably filter the faces before sorting
     if (decide_to_render(*face)) {
@@ -215,23 +233,17 @@ void Renderer::paint_face(Pixel *edges, int *extremum) {
       // paint the pixel
       paint_pixel(left, right, x, y, diff_z, diff_x);
       // set the pixel colored
-      picture_colored[y * width + x] =
-          bound(right.x + 1, width, picture_colored[y * width + x]);
+      picture_colored[y * width + x] = (right.x + 1 - x);
       x = get_next_x(x + 1, y);
     }
   }
 }
 
 int Renderer::get_next_x(int x, int y) {
-  if (x > width - 1) {
-    return x;
+  while (x < width && picture_colored[y * width + x] != 0) {
+    x += picture_colored[y * width + x];
   }
-  int next_x = picture_colored[y * width + x];
-  while (next_x != x && next_x < width) {
-    x = next_x;
-    next_x = picture_colored[y * width + x];
-  }
-  return next_x;
+  return x;
 }
 
 Renderer::~Renderer() { free(picture_colored); }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "object.h"
 #define NUM_TRIANGLES_IN_BLOCK 12
 

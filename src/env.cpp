@@ -4,12 +4,12 @@ using namespace std;
 
 /** creates a block in the environment at the given position */
 void Env::create_block(const Vector &pos) {
-  // pass
+  //
   blocks[pos] = Block(pos);
 }
 
 void Env::create_entity(const Vector &pos) {
-  // pass
+  //
   entities.push_back(Object(pos));
 }
 
@@ -32,26 +32,67 @@ void Env::update_visible_faces() {
   }
 }
 
-void Env::move_object(Object &object, Vector &v) {
+double Env::object_env_collision(Object &object, Vector &v, Vector &normal,
+                                 Object *&collision) {
+  if (norm(v) < 0.01) {
+    return 1;
+  }
   double min_t = 1;
   Vector offset;
   Vector block_pos;
   double t;
+  Vector curr_normal;
   Vector rounded = round(object.pos);
-  for (double x = -1; x <= 1; x++) {
-    for (double y = -1; y <= 1; y++) {
-      for (double z = -1; z <= 1; z++) {
+  double radius = ceil(norm(v));
+  // should be optimized so that only the relevant block positions are
+  // considered
+  for (double x = -radius; x <= radius; x++) {
+    for (double y = -radius; y <= radius; y++) {
+      for (double z = -radius; z <= radius; z++) {
+        // could be deleted
         if (x != 0 || y != 0 || z != 0) {
           offset = Vector(x, y, z);
           block_pos = rounded + 2 * offset;
           if (blocks.find(block_pos) != blocks.end()) {
-            t = intersection(object, (Object &)blocks[block_pos], v);
-            min_t = min(min_t, t);
+            Object &block = blocks[block_pos];
+            t = block_block_collision(object, block, v, curr_normal);
+            if (t < min_t) {
+              min_t = t;
+              normal = curr_normal;
+              collision = &block;
+            }
           }
         }
       }
     }
   }
+  return min_t;
+}
+// may replace v with object.v
+void Env::move_object(Object &object, Vector &v) {
+  Vector normal;
+  Object *collision;
+  double t = object_env_collision(object, v, normal, collision);
+  int counter = 0;
+  while (t < 1 - EPSILON) {
+    if (counter == 2) {
+      counter++;
+    }
+    object.pos = object.pos + v * t;
+    double force = (normal * v) * (t - 1);
+    v = ((1 - t) * v + force * normal) * (collision->friction / (force + 1));
+    t = object_env_collision(object, v, normal, collision);
+    counter++;
+  }
+  object.pos = object.pos + v;
+  object.v = object.v * AIR_FRICTION;
+  object.update();
+}
 
-  object.pos = object.pos + min_t * v;
+void Env::apply_physics(double frame_time) {
+  Vector gravity = GRAVITY * frame_time;
+  for (Object &entity : entities) {
+    entity.v = entity.v + gravity;
+    move_object(entity, entity.v);
+  }
 }

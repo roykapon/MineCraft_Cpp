@@ -1,5 +1,4 @@
-#ifndef LINLIB_H
-#define LINLIB_H
+#pragma once
 
 #include <bits/stdc++.h>
 #include <iomanip>
@@ -55,6 +54,10 @@ public:
   /** Returns true if the vectors have the same 3d position (does not compare
    * the w coordinate) */
   bool operator==(const Vector &b2) const;
+
+  /** Returns true if the vectors so not have the same 3d position (does not
+   * compare the w coordinate) */
+  bool operator!=(const Vector &b2) const;
 };
 /** Prints the vector */
 ostream &operator<<(ostream &os, const Vector &v);
@@ -83,6 +86,9 @@ double norm(const Vector &v);
 /** Returns the normalized vector (same direction, with norm 1) */
 Vector normalized(const Vector &v);
 
+/** Returns the normalized vector in the x, z axes */
+Vector normalized_horizontal(const Vector &v);
+
 /** Returns the distance between the vectors */
 double distance(const Vector &v1, const Vector &v2);
 
@@ -97,6 +103,42 @@ struct Vector_hash {
 /** returns the vector rounded to the closest block */
 Vector round(Vector &v);
 
+// ============================= Pixel ===================================
+
+class Pixel {
+
+public:
+  int x;
+  int y;
+  Vector source;
+
+  Pixel(int _x = 0, int _y = 0, Vector _source = Vector()) {
+    x = _x;
+    y = _y;
+    source = _source;
+  }
+
+  /** Returns the value a the given axis*/
+  int &operator[](int index);
+};
+
+/** Returns the sum of the pixels (sources also summed) */
+Pixel operator+(const Pixel &p1, const Pixel &p2);
+
+/** Returns the difference of the pixels (sources also substracted) */
+Pixel operator-(const Pixel &p1, const Pixel &p2);
+
+/** Returns the pixel multyplied by a scalar (source also multyplied) */
+Pixel operator*(const Pixel &p, double a);
+
+/** Prints the pixel */
+ostream &operator<<(ostream &os, Pixel &p);
+
+/** Returns an array in which the first value is the minimum of all y values
+ * and the second value is the maximum of all y values */
+void get_extremum(Pixel *pixels, int len, int *extremum,
+                  int lower_bound = INT_MIN, int upper_bound = INT_MAX);
+
 // ============================ Matrix ============================
 
 class Matrix {
@@ -104,8 +146,8 @@ class Matrix {
 public:
   Vector vectors[4];
 
-  Matrix(Vector v1 = Vector(), Vector v2 = Vector(), Vector v3 = Vector(),
-         Vector v4 = Vector()) {
+  Matrix(Vector v1 = Vector(0, 0, 0, 0), Vector v2 = Vector(0, 0, 0, 0),
+         Vector v3 = Vector(0, 0, 0, 0), Vector v4 = Vector(0, 0, 0, 0)) {
     vectors[0] = v1;
     vectors[1] = v2;
     vectors[2] = v3;
@@ -153,41 +195,3 @@ Matrix I();
 /** Given a matrix M of size len by len, finds its inverse and returns whether
  * it is invertible or not*/
 bool inverse(const Matrix &M, Matrix &res, int len = 3);
-
-// ============================= Pixel ===================================
-
-class Pixel {
-
-public:
-  int x;
-  int y;
-  Vector source;
-
-  Pixel(int _x = 0, int _y = 0, Vector _source = Vector()) {
-    x = _x;
-    y = _y;
-    source = _source;
-  }
-
-  /** Returns the value a the given axis*/
-  int &operator[](int index);
-};
-
-/** Returns the sum of the pixels (sources also summed) */
-Pixel operator+(Pixel &p1, Pixel &p2);
-
-/** Returns the difference of the pixels (sources also substracted) */
-Pixel operator-(Pixel &p1, Pixel &p2);
-
-/** Returns the pixel multyplied by a scalar (source also multyplied) */
-Pixel operator*(Pixel &p, double a);
-
-/** Prints the pixel */
-ostream &operator<<(ostream &os, Pixel &p);
-
-/** Returns an array in which the first value is the minimum of all y values
- * and the second value is the maximum of all y values */
-void get_extremum(Pixel *pixels, int len, int *extremum,
-                  int lower_bound = INT_MIN, int upper_bound = INT_MAX);
-
-#endif

@@ -2,7 +2,8 @@
 #include <iostream>
 #include <sstream>
 
-#define SPEED 0.10f
+#define SPEED 5.0f
+#define JUMP_HEIGHT 2.0f
 
 using namespace std;
 
@@ -12,21 +13,32 @@ int game() {
   Camera camera = Camera(pos, 0, 0);
 
   Env env = Env();
-  // for (double y = 0.0f; y < 30; y += 2) {
-  //   for (double x = 0.0f; x < 30; x += 2) {
-  //     for (double z = 0.0f; z < 30; z += 2) {
-  //       Vector block_pos = Vector(x, y, z);
-  //       env.create_block(block_pos);
-  //     }
-  //   }
-  // }
-  Vector block_pos = Vector(0.0f, 0.0f, 4.0f);
-  env.create_block(block_pos);
+  for (double y = 0.0f; y < 2; y += 2) {
+    for (double x = 0.0f; x < 30; x += 2) {
+      for (double z = 0.0f; z < 30; z += 2) {
+        Vector block_pos = Vector(x, y, z);
+        env.create_block(block_pos);
+      }
+    }
+  }
 
-  Vector entity_pos = Vector(0, 0, 0);
+  Vector itays_house = Vector(20, 2, 20);
+  for (double x = 0.0f; x < 6; x += 2) {
+    for (double y = 0.0f; y < 6; y += 2) {
+      for (double z = 0.0f; z < 6; z += 2) {
+        Vector block_pos = Vector(x, y, z);
+        env.create_block(block_pos + itays_house);
+      }
+    }
+  }
+
+  // Vector block_pos = Vector(0.0f, 0.0f, 8.0f);
+  // env.create_block(block_pos);
+
+  Vector entity_pos = Vector(0, 5, 0);
   env.create_entity(entity_pos);
 
-  Object &entity = env.entities[0];
+  Object &player = env.entities[0];
 
   env.update_visible_faces();
 
@@ -43,6 +55,9 @@ int game() {
   SDL_Window *window =
       SDL_CreateWindow("Shady MineCraft", SDL_WINDOWPOS_CENTERED,
                        SDL_WINDOWPOS_CENTERED, camera.width, camera.height, 0);
+
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+
   SDL_Renderer *renderer =
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -54,12 +69,16 @@ int game() {
   SDL_Event event;
 
   int start_time = 0;
-  int frame_time = 0;
+  double frame_time = 0;
   //
   Vector offset;
+  Vector right;
   while (isRunning) {
+
     double speed = SPEED * sqrt(frame_time);
-    offset = Vector();
+
+    offset = Vector(0, 0, 0, 0);
+    Vector right = cross(camera.direction, Vector(0, 1, 0, 0));
 
     start_time = SDL_GetTicks();
 
@@ -75,43 +94,41 @@ int game() {
         }
         switch (event.key.keysym.sym) {
         case SDLK_w: {
-          offset = camera.direction * (speed);
+          offset = camera.direction;
           // cout << "direction: " << offset << endl;
 
-          camera.pos = camera.pos + offset;
+          // camera.pos = camera.pos + offset;
           break;
         }
 
         case SDLK_s: {
-          offset = camera.direction * (-speed);
+          offset = (-1) * camera.direction;
 
-          camera.pos = camera.pos + offset;
+          // camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_a: {
-          Vector right = cross(camera.direction, Vector(0, 1, 0));
-          offset = right * (speed);
+          offset = offset + right;
 
-          camera.pos = camera.pos + offset;
+          // camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_d: {
-          Vector right = cross(camera.direction, Vector(0, 1, 0));
-          offset = right * (-speed);
+          offset = offset - right;
 
-          camera.pos = camera.pos + offset;
+          // camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_SPACE: {
-          offset = Vector(0, 1, 0) * (speed);
+          offset = offset + Vector(0, JUMP_HEIGHT, 0, 0);
 
-          camera.pos = camera.pos + offset;
+          // camera.pos = camera.pos + offset;
           break;
         }
         case SDLK_LSHIFT: {
-          offset = Vector(0, -1, 0) * (speed);
+          offset = offset + Vector(0, -JUMP_HEIGHT, 0, 0);
 
-          camera.pos = camera.pos + offset;
+          // camera.pos = camera.pos + offset;
           break;
         }
         }
@@ -129,11 +146,17 @@ int game() {
     }
     // =============================== updates ============================
     // Vector entity_offset = offset;
-    Vector entity_offset = Vector(0, 0, 0.7, 0);
-    env.move_object(entity, entity_offset);
-    entity.update();
+    // Vector entity_offset = Vector(0, 0, 0.7, 0);
+    offset = normalized_horizontal(offset);
+    offset.x *= speed;
+    offset.z *= speed;
+    player.horizontal = camera.horizontal;
+    // player.vertical = camera.vertical;
+    player.v = player.v + offset;
+    // env.move_object(player, player.v);
+    env.apply_physics(frame_time);
 
-    camera.update();
+    camera.update_wrt_player(player);
 
     camera.render(env);
 
@@ -143,8 +166,9 @@ int game() {
     SDL_RenderPresent(renderer);
 
     // Display fps
-    frame_time = SDL_GetTicks() - start_time;
-    double fps = (frame_time > 0) ? 1000.0f / frame_time : 0.0f;
+    // converts from ms to seconds
+    frame_time = (double)(SDL_GetTicks() - start_time) / 1000;
+    double fps = (frame_time > 0) ? 1 / frame_time : 0.0f;
     stringstream ss;
     ss << "fps: " << fps;
     SDL_SetWindowTitle(window, ss.str().c_str());
@@ -208,7 +232,7 @@ int main(int argv, char **args) {
   // Vector line2[] = {p3, p4};
 
   // Vector inter;
-  // double intersected = intersection(line1, line2, v, inter);
+  // double intersected = collision(line1, line2, v, inter);
   // cout << "intersected: " << intersected << endl;
   // cout << inter << endl;
 
@@ -221,7 +245,7 @@ int main(int argv, char **args) {
   // Vector v = Vector(0.02, 0, 1);
   // Vector inter;
 
-  // double intersected = intersection(p, face, v, inter);
+  // double intersected = collision(p, face, v, inter);
   // cout << "intersected: " << intersected << endl;
   // cout << inter << endl;
 

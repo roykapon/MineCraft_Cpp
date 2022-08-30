@@ -42,68 +42,38 @@ double &Vector::operator[](int index) {
 }
 
 Vector operator+(const Vector &v1, const Vector &v2) {
-  Vector res;
-  res.x = v1.x + v2.x;
-  res.y = v1.y + v2.y;
-  res.z = v1.z + v2.z;
   // sets w to be the same as v1
-  res.w = v1.w;
-  res.texture_x = v1.texture_x + v2.texture_x;
-  res.texture_y = v1.texture_y + v2.texture_y;
-  return res;
+  return Vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w,
+                v1.texture_x + v2.texture_x, v1.texture_y + v2.texture_y);
 }
 
 Vector operator-(const Vector &v1, const Vector &v2) {
-  Vector res;
-  res.x = v1.x - v2.x;
-  res.y = v1.y - v2.y;
-  res.z = v1.z - v2.z;
   // sets w to be the same as v1
-  res.w = v1.w;
-  res.texture_x = v1.texture_x - v2.texture_x;
-  res.texture_y = v1.texture_y - v2.texture_y;
-  return res;
+  return Vector(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w,
+                v1.texture_x - v2.texture_x, v1.texture_y - v2.texture_y);
 }
 
 Vector operator*(const Vector &v, double a) {
-  Vector res;
-  res.x = v.x * a;
-  res.y = v.y * a;
-  res.z = v.z * a;
-  // sets w to be the same as v
-  res.w = v.w;
-  res.texture_x = v.texture_x * a;
-  res.texture_y = v.texture_y * a;
-  return res;
+  // sets w to be the same as v1
+  return Vector(v.x * a, v.y * a, v.z * a, v.w, v.texture_x * a,
+                v.texture_y * a);
 }
 
 Vector operator*(double a, const Vector &v) {
-  Vector res;
-  res.x = v.x * a;
-  res.y = v.y * a;
-  res.z = v.z * a;
   // sets w to be the same as v1
-  res.w = v.w;
-  res.texture_x = v.texture_x * a;
-  res.texture_y = v.texture_y * a;
-  return res;
+  return Vector(v.x * a, v.y * a, v.z * a, v.w, v.texture_x * a,
+                v.texture_y * a);
 }
 
 double operator*(const Vector &v1, const Vector &v2) {
   return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-  ;
 }
 
 Vector interpolate(const Vector &v1, const Vector &v2, double ratio) {
-  Vector res;
-  res.x = INTERPOLATE(v1.x, v2.x, ratio);
-  res.y = INTERPOLATE(v1.y, v2.y, ratio);
-  res.z = INTERPOLATE(v1.z, v2.z, ratio);
-  // sets w to be the same as v1
-  res.w = v1.w;
-  res.texture_x = round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio));
-  res.texture_y = round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio));
-  return res;
+  return Vector(INTERPOLATE(v1.x, v2.x, ratio), INTERPOLATE(v1.y, v2.y, ratio),
+                INTERPOLATE(v1.z, v2.z, ratio), v1.w,
+                round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio)),
+                round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio)));
 }
 
 ostream &operator<<(ostream &os, const Vector &v) {
@@ -126,33 +96,36 @@ double distance(const Vector &v1, const Vector &v2) {
 Vector normalized(const Vector &v) {
   double n = norm(v);
   if (n == 0) {
-    return v * 0;
+    return v;
   }
   return v * (1.0f / n);
 }
 
+Vector normalized_horizontal(const Vector &v) {
+  double n = sqrt(v.x * v.x + v.z * v.z);
+  if (n == 0) {
+    return v;
+  }
+  return Vector(v.x * (1.0f / n), v.y, v.z * (1.0f / n));
+}
+
 Vector cross(const Vector &v1, const Vector &v2) {
-  Vector res;
-  res.x = v1.y * v2.z - v1.z * v2.y;
-  res.y = v1.z * v2.x - v1.x * v2.z;
-  res.z = v1.x * v2.y - v1.y * v2.x;
   // this is a direction vector so w=0
-  res.w = 0;
-  return normalized(res);
+  return normalized(Vector(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+                           v1.x * v2.y - v1.y * v2.x, 0));
 }
 
-bool Vector::operator==(const Vector &b2) const {
-  return x == b2.x && (y == b2.y && z == b2.z);
+bool Vector::operator==(const Vector &v2) const {
+  return x == v2.x && y == v2.y && z == v2.z;
 }
 
-// void baricentric_coords(const Vector &p, const Vector *tri) {}
+bool Vector::operator!=(const Vector &v2) const {
+  return !(x == v2.x && y == v2.y && z == v2.z);
+}
 
 Vector round(Vector &v) {
-  Vector res;
-  res.x = (double)round(v.x * 2) / 2;
-  res.y = (double)round(v.y * 2) / 2;
-  res.z = (double)round(v.z * 2) / 2;
-  return res;
+  return Vector((double)round(v.x / 2) * 2, (double)round(v.y / 2) * 2,
+                (double)round(v.z / 2) * 2);
 }
 
 // =========================== Matrix ===========================
@@ -284,7 +257,7 @@ Matrix I() {
 bool pivot(int i, int len, Matrix &copy, Matrix &res) {
   Vector tmp;
   for (int i2 = i + 1; i2 < len; i2++) {
-    if (copy[i2][i] != 0) {
+    if (copy[i2][i] > EPSILON || copy[i2][i] < -EPSILON) {
       SWITCH(copy, i, i2, tmp);
       SWITCH(res, i, i2, tmp);
       return true;
@@ -299,7 +272,7 @@ bool inverse(const Matrix &M, Matrix &res, int len) {
   double a;
   bool invalid;
   for (int i = 0; i < len; i++) {
-    if (copy[i][i] == 0) {
+    if (copy[i][i] < EPSILON && copy[i][i > -EPSILON]) {
       if (!pivot(i, len, copy, res)) {
         return false;
       }
@@ -334,7 +307,7 @@ int &Pixel::operator[](int index) {
   }
 }
 
-Pixel operator+(Pixel &p1, Pixel &p2) {
+Pixel operator+(const Pixel &p1, const Pixel &p2) {
   Pixel res;
   res.x = p1.x + p2.x;
   res.y = p1.y + p2.y;
@@ -342,7 +315,7 @@ Pixel operator+(Pixel &p1, Pixel &p2) {
   return res;
 }
 
-Pixel operator-(Pixel &p1, Pixel &p2) {
+Pixel operator-(const Pixel &p1, const Pixel &p2) {
   Pixel res;
   res.x = p1.x - p2.x;
   res.y = p1.y - p2.y;
@@ -350,7 +323,7 @@ Pixel operator-(Pixel &p1, Pixel &p2) {
   return res;
 }
 
-Pixel operator*(Pixel &p, double a) {
+Pixel operator*(const Pixel &p, double a) {
   Pixel res;
   res.x = p.x * a;
   res.y = p.y * a;

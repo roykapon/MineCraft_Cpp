@@ -1,5 +1,4 @@
-#ifndef FACE_H
-#define FACE_H
+#pragma once
 
 #include "linlib.h"
 
@@ -57,12 +56,16 @@ double mindist(const Face &face, const Vector &pos);
 
 bool is_in(const Vector &p, const Face &face);
 
-double intersection(const Vector *line1, const Vector *line2, const Vector &v);
+double line_line_collision(const Vector *line1, const Vector *line2,
+                           const Vector &v);
 
-double intersection(const Vector &p, const Face &face, const Vector &v);
+bool line_line_collision(const Pixel *line1, const Pixel *line2, Pixel &res);
 
-double intersection(const Face &face1, const Face &face2, Vector &v);
+double point_face_collision(const Vector &p, const Face &face, const Vector &v);
+
+double face_face_collision(const Face &face1, const Face &face2,
+                           const Vector &v, Vector &normal);
+
+bool face_face_intersection(const Face &face1, const Face &face2, Vector *line);
 
 Face operator*(const Face &face, const Matrix &M);
-
-#endif

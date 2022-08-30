@@ -37,3 +37,9 @@ Camera::~Camera() {
   // calls Renderer destructor
   free(picture);
 }
+
+void Camera::update_wrt_player(Object &player) {
+  update_direction();
+  pos = player.pos - direction * distance;
+  update_world();
+}

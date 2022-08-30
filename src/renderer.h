@@ -1,5 +1,4 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#pragma once
 
 #include "env.h"
 #include "face.h"
@@ -21,6 +20,7 @@ public:
   double ffd;
   int width, height;
   Matrix world;
+  // a 2d array that holds the offset to the next unpainted pixel
   int *picture_colored;
 
   Renderer(Vector _pos = Vector(), double _vertical = 0, double _horizontal = 0,
@@ -53,13 +53,14 @@ public:
   /** free memory allocated by the camera */
   ~Renderer();
 
-  /** Returns the camera's direction vector */
+  /** Updates the camera's direction vector as a function of the horizontal and
+   * vertical angles */
   void update_direction();
 
   /** Updates the world matrix of the camera */
   void update_world();
 
-  /** Update the camera (currently only world)*/
+  /** Update the camera's world matrix and direction */
   void update();
 
   /** given x coordinate, returns the x index of the pixel*/
@@ -79,7 +80,7 @@ public:
   int project(Face &face, Pixel *projected);
 
   /** Returns the projected pixel of a point in the camera */
-  void project(Vector &v, Pixel *p);
+  void project(Vector &v, Pixel &p);
 
   /** Renders the face onto the camera */
   void render(Face &face);
@@ -110,4 +111,3 @@ public:
   /** Returns interpolation of the pixels in the specified y pixel-index */
   Pixel interpolate_by_y(Pixel &p1, Pixel &p2, int y);
 };
-#endif

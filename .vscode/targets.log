@@ -8,12 +8,10 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Aug 18 18:24:45 2022
+# Make data base, printed on Sat Aug 27 11:34:41 2022
 
 # Variables
 
-# environment
-FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -27,7 +25,7 @@ VBOX_MSI_INSTALL_PATH = C:\Program Files\Oracle\VirtualBox\
 # environment
 LOCALAPPDATA = C:\Users\royka\AppData\Local
 # environment
-VSCODE_CWD = C:\WINDOWS\system32
+VSCODE_CWD = C:\Users\royka\AppData\Local\Programs\Microsoft VS Code
 # environment
 CHOCOLATEYINSTALL = C:\ProgramData\chocolatey
 # environment
@@ -41,9 +39,7 @@ MAKE_COMMAND := C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_16968_WYXUQJQXDEOQAAHX
-# environment
-FPS_BROWSER_USER_PROFILE_STRING = Default
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_344_AHVYTXVSCACVNOYS
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -55,7 +51,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\royka\AppData\Roaming\Code\CachedData\da76f93349a72022ca4670c1b84860304616aaa2
+VSCODE_CODE_CACHE_PATH = C:\Users\royka\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
 # environment
 LANG = C
 # default
@@ -91,7 +87,7 @@ MAKEFILE_LIST :=
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 16968
+VSCODE_PID = 344
 # automatic
 ?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
 # automatic
@@ -123,7 +119,7 @@ MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = C:\ffmpeg\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\MiKTeX\miktex\bin\x64\;C:\Program Files\dotnet\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\Users\royka\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\royka\.dotnet\tools;C:\Users\royka\AppData\Local\Programs\Python\Python39\Scripts;C:\Users\royka\AppData\Local\Programs\Python\Python39;C:\Users\royka\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Graphviz\bin;C:\Program Files\Graphviz\bin\dot.exe;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\Program Files\PuTTY;C:\Users\royka\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\royka\.dotnet\tools;C:\Users\royka\AppData\Local\Programs\Python\Python39\Scripts;C:\Users\royka\AppData\Local\Programs\Python\Python39;C:\Users\royka\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Graphviz\bin;C:\Program Files\Graphviz\bin\dot.exe;C:\Program Files\Java\jdk-15.0.2\bin;
+PATH = C:\ffmpeg\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\MiKTeX\miktex\bin\x64\;C:\Program Files\dotnet\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\Users\royka\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\royka\.dotnet\tools;C:\Users\royka\AppData\Local\Programs\Python\Python39\Scripts;C:\Users\royka\AppData\Local\Programs\Python\Python39;C:\Users\royka\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Graphviz\bin;C:\Program Files\Graphviz\bin\dot.exe;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\Program Files\PuTTY;C:\Users\royka\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\royka\.dotnet\tools;C:\Users\royka\AppData\Local\Programs\Python\Python39\Scripts;C:\Users\royka\AppData\Local\Programs\Python\Python39;C:\Users\royka\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Graphviz\bin;C:\Program Files\Graphviz\bin\dot.exe;C:\Program Files\Java\jdk-15.0.2\bin;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin\g++.exe;
 # environment
 ZES_ENABLE_SYSMAN = 1
 # environment
@@ -185,7 +181,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 TEMP = C:\Users\royka\AppData\Local\Temp
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\3b28b55e8908d6cf12a498e3a05224ce-1.70.0-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\3b28b55e8908d6cf12a498e3a05224ce-1.70.2-main-sock
 # default
 .RECIPEPREFIX := 
 # automatic
@@ -203,7 +199,7 @@ PROCESSOR_REVISION = 8e0c
 # environment
 PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 142 Stepping 12, GenuineIntel
 # variable set hash-table stats:
-# Load=95/1024=9%, Rehash=0, Collisions=9/119=8%
+# Load=93/1024=9%, Rehash=0, Collisions=8/117=7%
 
 # Pattern-specific Variable Values
 
@@ -257,7 +253,8 @@ makefile.mak:
 
 # Not a target:
 GNUmakefile:
-#  Implicit rule search has been done.
+#  Implicit rule searc 
+h has been done.
 #  File does not exist.
 #  File has been updated.
 #  Failed to be updated.
@@ -276,6 +273,6 @@ GNUmakefile:
 # strcache performance: lookups = 18 / hit rate = 16%
 # hash-table stats:
 # Load=15/8192=0%, Rehash=0, Collisions=0/18=0%
-# Finished Make data base on Thu Aug 18 18:24:45 2022
+# Finished Make data base on Sat Aug 27 11:34:41 2022
 
  

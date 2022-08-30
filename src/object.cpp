@@ -13,7 +13,7 @@ Face default_faces[NUM_TRIANGLES_IN_BOX] = {
     Face(Vector(1, -1, 1, 1, 0, TEXTURE_RES),
          Vector(1, 1, -1, 1, TEXTURE_RES, 0),
          Vector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
-    // beckward
+    // backward
     Face(Vector(1, -1, -1, 1, TEXTURE_RES, 0), Vector(-1, -1, -1, 1, 0, 0),
          Vector(-1, 1, -1, 1, 0, TEXTURE_RES)),
     Face(Vector(1, -1, -1, 1, TEXTURE_RES, 0),
@@ -31,16 +31,18 @@ Face default_faces[NUM_TRIANGLES_IN_BOX] = {
          Vector(1, 1, -1, 1, TEXTURE_RES, 0)),
     Face(Vector(-1, 1, 1, 1, 0, TEXTURE_RES),
          Vector(1, 1, -1, 1, TEXTURE_RES, 0), Vector(-1, 1, -1, 1, 0, 0)),
+    // down
     Face(Vector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
          Vector(-1, -1, -1, 1, 0, 0), Vector(1, -1, -1, 1, TEXTURE_RES, 0)),
-    // down
     Face(Vector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
          Vector(-1, -1, 1, 1, 0, TEXTURE_RES), Vector(-1, -1, -1, 1, 0, 0))};
 
-Object::Object(const Vector &_pos, double _vertical, double _horizontal) {
+Object::Object(const Vector &_pos, double _vertical, double _horizontal,
+               double _friction) {
   pos = _pos;
   vertical = _vertical;
   horizontal = _horizontal;
+  friction = _friction;
   v = Vector(0, 0, 0, 0);
   faces_len = 12;
   faces = new Face[faces_len];
@@ -91,16 +93,23 @@ Object &Object::operator=(const Object &other) {
   return *this;
 }
 
-double intersection(const Object &o1, const Object &o2, Vector &v) {
+double block_block_collision(const Object &o1, const Object &o2,
+                             const Vector &v, Vector &normal) {
   double min_t = 1;
   double t;
-  Vector inter;
+  Vector curr_normal;
+  // for now it is not needed
+  Face argmin;
   for (int i = 0; i < o1.faces_len; i++) {
     Face &face1 = o1.faces[i];
-    for (int j = 0; j < o1.faces_len; j++) {
+    for (int j = 0; j < o2.faces_len; j++) {
       Face &face2 = o2.faces[j];
-      t = intersection(face1, face2, v);
-      min_t = min(min_t, t);
+      t = face_face_collision(face1, face2, v, curr_normal);
+      if (t < min_t) {
+        normal = curr_normal;
+        argmin = face2;
+        min_t = t;
+      }
     }
   }
   return min_t;
