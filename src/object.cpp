@@ -2,43 +2,50 @@
 
 Face default_faces[NUM_TRIANGLES_IN_BOX] = {
     // forward
-    Face(Vector(-1, -1, 1, 1, 0, 0), Vector(1, -1, 1, 1, TEXTURE_RES, 0),
-         Vector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
-    Face(Vector(-1, -1, 1, 1, 0, 0),
-         Vector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES),
-         Vector(-1, 1, 1, 1, 0, TEXTURE_RES)),
+    Face(ColoredVector(-1, -1, 1, 1, 0, 0),
+         ColoredVector(1, -1, 1, 1, TEXTURE_RES, 0),
+         ColoredVector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
+    Face(ColoredVector(-1, -1, 1, 1, 0, 0),
+         ColoredVector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES),
+         ColoredVector(-1, 1, 1, 1, 0, TEXTURE_RES)),
     // right
-    Face(Vector(1, -1, 1, 1, 0, TEXTURE_RES), Vector(1, -1, -1, 1, 0, 0),
-         Vector(1, 1, -1, 1, TEXTURE_RES, 0)),
-    Face(Vector(1, -1, 1, 1, 0, TEXTURE_RES),
-         Vector(1, 1, -1, 1, TEXTURE_RES, 0),
-         Vector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
+    Face(ColoredVector(1, -1, 1, 1, 0, TEXTURE_RES),
+         ColoredVector(1, -1, -1, 1, 0, 0),
+         ColoredVector(1, 1, -1, 1, TEXTURE_RES, 0)),
+    Face(ColoredVector(1, -1, 1, 1, 0, TEXTURE_RES),
+         ColoredVector(1, 1, -1, 1, TEXTURE_RES, 0),
+         ColoredVector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
     // backward
-    Face(Vector(1, -1, -1, 1, TEXTURE_RES, 0), Vector(-1, -1, -1, 1, 0, 0),
-         Vector(-1, 1, -1, 1, 0, TEXTURE_RES)),
-    Face(Vector(1, -1, -1, 1, TEXTURE_RES, 0),
-         Vector(-1, 1, -1, 1, 0, TEXTURE_RES),
-         Vector(1, 1, -1, 1, TEXTURE_RES, TEXTURE_RES)),
+    Face(ColoredVector(1, -1, -1, 1, TEXTURE_RES, 0),
+         ColoredVector(-1, -1, -1, 1, 0, 0),
+         ColoredVector(-1, 1, -1, 1, 0, TEXTURE_RES)),
+    Face(ColoredVector(1, -1, -1, 1, TEXTURE_RES, 0),
+         ColoredVector(-1, 1, -1, 1, 0, TEXTURE_RES),
+         ColoredVector(1, 1, -1, 1, TEXTURE_RES, TEXTURE_RES)),
     // left
-    Face(Vector(-1, -1, -1, 1, 0, 0), Vector(-1, -1, 1, 1, 0, TEXTURE_RES),
-         Vector(-1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
-    Face(Vector(-1, -1, -1, 1, 0, 0),
-         Vector(-1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES),
-         Vector(-1, 1, -1, 1, TEXTURE_RES, 0)),
+    Face(ColoredVector(-1, -1, -1, 1, 0, 0),
+         ColoredVector(-1, -1, 1, 1, 0, TEXTURE_RES),
+         ColoredVector(-1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES)),
+    Face(ColoredVector(-1, -1, -1, 1, 0, 0),
+         ColoredVector(-1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES),
+         ColoredVector(-1, 1, -1, 1, TEXTURE_RES, 0)),
     // up
-    Face(Vector(-1, 1, 1, 1, 0, TEXTURE_RES),
-         Vector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES),
-         Vector(1, 1, -1, 1, TEXTURE_RES, 0)),
-    Face(Vector(-1, 1, 1, 1, 0, TEXTURE_RES),
-         Vector(1, 1, -1, 1, TEXTURE_RES, 0), Vector(-1, 1, -1, 1, 0, 0)),
+    Face(ColoredVector(-1, 1, 1, 1, 0, TEXTURE_RES),
+         ColoredVector(1, 1, 1, 1, TEXTURE_RES, TEXTURE_RES),
+         ColoredVector(1, 1, -1, 1, TEXTURE_RES, 0)),
+    Face(ColoredVector(-1, 1, 1, 1, 0, TEXTURE_RES),
+         ColoredVector(1, 1, -1, 1, TEXTURE_RES, 0),
+         ColoredVector(-1, 1, -1, 1, 0, 0)),
     // down
-    Face(Vector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
-         Vector(-1, -1, -1, 1, 0, 0), Vector(1, -1, -1, 1, TEXTURE_RES, 0)),
-    Face(Vector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
-         Vector(-1, -1, 1, 1, 0, TEXTURE_RES), Vector(-1, -1, -1, 1, 0, 0))};
+    Face(ColoredVector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
+         ColoredVector(-1, -1, -1, 1, 0, 0),
+         ColoredVector(1, -1, -1, 1, TEXTURE_RES, 0)),
+    Face(ColoredVector(1, -1, 1, 1, TEXTURE_RES, TEXTURE_RES),
+         ColoredVector(-1, -1, 1, 1, 0, TEXTURE_RES),
+         ColoredVector(-1, -1, -1, 1, 0, 0))};
 
-Object::Object(const Vector &_pos, double _vertical, double _horizontal,
-               double _friction) {
+Object::Object(const Vector &_pos, SCALAR _vertical, SCALAR _horizontal,
+               SCALAR _friction) {
   pos = _pos;
   vertical = _vertical;
   horizontal = _horizontal;
@@ -93,10 +100,10 @@ Object &Object::operator=(const Object &other) {
   return *this;
 }
 
-double block_block_collision(const Object &o1, const Object &o2,
+SCALAR block_block_collision(const Object &o1, const Object &o2,
                              const Vector &v, Vector &normal) {
-  double min_t = 1;
-  double t;
+  SCALAR min_t = 1;
+  SCALAR t;
   Vector curr_normal;
   // for now it is not needed
   Face argmin;

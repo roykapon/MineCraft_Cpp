@@ -18,11 +18,11 @@ class Camera : public Renderer {
 
 public:
   Uint32 *picture;
-  double distance;
+  SCALAR distance;
 
-  Camera(Vector _pos = Vector(), double _vertical = 0, double _horizontal = 0,
-         double _ffd = DEFAULT_FFD, int _width = DEFAULT_WIDTH,
-         int _height = DEFAULT_HEIGHT, double _distance = DEFAULT_DISTANCE) {
+  Camera(Vector _pos = Vector(), SCALAR _vertical = 0, SCALAR _horizontal = 0,
+         SCALAR _ffd = DEFAULT_FFD, int _width = DEFAULT_WIDTH,
+         int _height = DEFAULT_HEIGHT, SCALAR _distance = DEFAULT_DISTANCE) {
     pos = _pos;
     vertical = _vertical;
     horizontal = _horizontal;
@@ -43,7 +43,7 @@ public:
 
   /** paints a single pixel (to be implemented)*/
   void paint_pixel(Pixel &left, Pixel &right, int x, int y,
-                   double ratio) override;
+                   SCALAR ratio) override;
 
   /** update the camera's position to folllow the player in 3rd person */
   void update_wrt_player(Object &player);

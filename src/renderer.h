@@ -3,6 +3,7 @@
 #include "env.h"
 #include "face.h"
 #include "linlib.h"
+#include "pixel.h"
 #include <iomanip>
 #include <iostream>
 
@@ -15,17 +16,17 @@ class Renderer {
 
 public:
   Vector pos;
-  double vertical, horizontal;
+  SCALAR vertical, horizontal;
   Vector direction;
-  double ffd;
+  SCALAR ffd;
   int width, height;
   Matrix world;
   // a 2d array that holds the offset to the next unpainted pixel
-  double *z_buffer;
+  SCALAR *z_buffer;
   int *picture_colored;
 
-  Renderer(Vector _pos = Vector(), double _vertical = 0, double _horizontal = 0,
-           double _ffd = DEFAULT_FFD, int _width = DEFAULT_WIDTH,
+  Renderer(Vector _pos = Vector(), SCALAR _vertical = 0, SCALAR _horizontal = 0,
+           SCALAR _ffd = DEFAULT_FFD, int _width = DEFAULT_WIDTH,
            int _height = DEFAULT_HEIGHT) {
     pos = _pos;
     vertical = _vertical;
@@ -37,7 +38,7 @@ public:
     height = _height;
     ffd = _ffd;
     picture_colored = (int *)malloc(sizeof(int) * width * height);
-    z_buffer = (double *)malloc(sizeof(double) * width * height);
+    z_buffer = (SCALAR *)malloc(sizeof(SCALAR) * width * height);
 
     init_picture_colored();
     init_z_buffer();
@@ -48,7 +49,7 @@ public:
 
   /** paints a single pixel (to be implemented)*/
   virtual void paint_pixel(Pixel &left, Pixel &right, int x, int y,
-                           double ratio) {}
+                           SCALAR ratio) {}
 
   /** initialize picture_colored by setting each pixel to point to the
    * following one (value of 0)*/
@@ -77,17 +78,17 @@ public:
 #define COORD_TO_PIXEL_Y(y) round(height *y) + height / 2;
 
   /** given pixel y , returns the y coordinate of the pixel  in 3d world*/
-#define PIXEL_TO_COORD_Y(x) (double)(x - height / 2) / height;
+#define PIXEL_TO_COORD_Y(x) (SCALAR)(x - height / 2) / height;
 
 /** given pixel x , returns the x coordinate of the pixel in 3d world*/
-#define PIXEL_TO_COORD_X(x) (double)(x - width / 2) / height;
+#define PIXEL_TO_COORD_X(x) (SCALAR)(x - width / 2) / height;
 
   /** updates the projected array with the pixels of a face when projected onto
    * the camera. Returns the legnth of the projected array*/
   int project(Face &face, Pixel *projected);
 
   /** Returns the projected pixel of a point in the camera */
-  void project(Vector &v, Pixel &p);
+  void project(ColoredVector &v, Pixel &p);
 
   /** Renders the face onto the camera */
   void render(Face &face);

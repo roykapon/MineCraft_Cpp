@@ -9,17 +9,17 @@
 class Object {
 public:
   Vector pos;
-  double vertical, horizontal;
+  SCALAR vertical, horizontal;
   Vector v;
   // multiply by world on the right
   Matrix world;
   Face *faces;
   int faces_len;
   // the closer friction to 1 is, the smaller the friction
-  double friction;
+  SCALAR friction;
 
-  Object(const Vector &_pos, double vertical = 0.0, double horizontal = 0.0,
-         double friction = FEFAULT_FRICTION);
+  Object(const Vector &_pos, SCALAR vertical = 0.0, SCALAR horizontal = 0.0,
+         SCALAR friction = FEFAULT_FRICTION);
 
   Object(const Object &other);
 
@@ -36,5 +36,5 @@ public:
   Face &operator[](int index);
 };
 
-double block_block_collision(const Object &o1, const Object &o2,
+SCALAR block_block_collision(const Object &o1, const Object &o2,
                              const Vector &v, Vector &normal);

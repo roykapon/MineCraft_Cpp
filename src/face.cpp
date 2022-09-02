@@ -6,17 +6,23 @@ void Face::update_plane() {
   Vector edge1 = vertices[1] - vertices[0];
   Vector edge2 = vertices[2] - vertices[1];
   normal = cross(edge1, edge2);
-  d = normal * vertices[0];
+  d = normal * (Vector)(vertices[0]);
 }
 
-const Vector &Face::operator[](int index) const {
-  const Vector &res = vertices[index % 3];
+void Face::update_edge_normals() {
+  for (int i = 0; i < 3; i++) {
+    edge_normals[i] = cross(vertices[(i + 1) % 3] - vertices[i], normal);
+  }
+}
+
+const ColoredVector &Face::operator[](int index) const {
+  const ColoredVector &res = vertices[index % 3];
   return res;
 }
 
-Vector &Face::operator[](int index) { return vertices[index % 3]; }
+ColoredVector &Face::operator[](int index) { return vertices[index % 3]; }
 
-Face operator+(const Face &face, const Vector &pos) {
+Face operator+(const Face &face, const ColoredVector &pos) {
   Face res;
   for (int i = 0; i < 3; i++) {
     res[i] = face[i] + pos;
@@ -27,8 +33,8 @@ Face operator+(const Face &face, const Vector &pos) {
   return res;
 }
 
-double line_line_collision(const Vector *line1, const Vector *line2,
-                           const Vector &v) {
+SCALAR line_line_collision(const Vector *line1, const Vector *line2,
+                           const Vector &v, Vector &normal) {
   Vector direction1 = line1[1] - line1[0];
   Vector direction2 = line2[1] - line2[0];
   Matrix M = Matrix(direction1, (-1) * direction2, v);
@@ -38,37 +44,47 @@ double line_line_collision(const Vector *line1, const Vector *line2,
   }
   Vector diff = line2[0] - line1[0];
   Vector t = diff * M_inverse;
-  if (t[0] < EPSILON || t[0] > 1 - EPSILON || t[1] < EPSILON ||
-      t[1] > 1 - EPSILON || t[2] < -EPSILON) {
+
+  Vector test = line1[0] + t[0] * direction1 + t[2] * v;
+  Vector test2 = line2[0] + t[1] * direction2;
+  if (t[0] < 0 || t[0] > 1 || t[1] < 0 || t[1] > 1 || t[2] < 0 || t[2] >= 1) {
     return 1;
   }
+  normal = cross(line1[1] - line1[0], line2[1] - line2[0]);
+  SCALAR sign = ((normal * v) > 0) ? -1.0 : 1.0;
+  normal *= sign;
+  // make the object have some distance from the other object
+  SCALAR dist = EPSILON * t[2] * abs(normal * v) / (norm(v) * norm(v));
+  t[2] = max(t[2] - dist, 0.0f);
   return t[2];
 }
 
-bool line_line_collision(const Pixel *line1, const Pixel *line2, Pixel &res) {
-  Vector v11 = Vector(line1[0].x, line1[0].y, 0, 0);
-  Vector v12 = Vector(line1[1].x, line1[1].y, 0, 0);
-  Vector v21 = Vector(line2[0].x, line2[0].y, 0, 0);
-  Vector v22 = Vector(line2[1].x, line2[1].y, 0, 0);
-  Matrix M = Matrix(v11 - v12, v21 - v22);
-  Matrix M_inverse;
-  if (!inverse(M, M_inverse, 2)) {
-    return false;
-  }
-  Vector diff = v21 - v11;
-  Vector t = diff * M_inverse;
-  if (t[0] < 0 || t[0] > 1 - 0 || t[1] < 0 || t[1] > 1) {
-    return false;
-  }
-  res.x = v11.x + t[0] * v12.x;
-  res.y = v11.y + t[0] * v12.y;
-  return true;
-}
+// bool line_line_collision(const Pixel *line1, const Pixel *line2, Pixel &res)
+// {
+//   Vector v11 = Vector(line1[0].x, line1[0].y, 0, 0);
+//   Vector v12 = Vector(line1[1].x, line1[1].y, 0, 0);
+//   Vector v21 = Vector(line2[0].x, line2[0].y, 0, 0);
+//   Vector v22 = Vector(line2[1].x, line2[1].y, 0, 0);
+//   Matrix M = Matrix(v11 - v12, v21 - v22);
+//   Matrix M_inverse;
+//   if (!inverse(M, M_inverse, 2)) {
+//     return false;
+//   }
+//   Vector diff = v21 - v11;
+//   Vector t = diff * M_inverse;
+//   if (t[0] < 0 || t[0] > 1 || t[1] < 0 || t[1] > 1) {
+//     return false;
+//   }
+//   res.x = v11.x + t[0] * v12.x;
+//   res.y = v11.y + t[0] * v12.y;
+//   return true;
+// }
 
-double point_face_collision(const Vector &p, const Face &face,
-                            const Vector &v) {
+SCALAR point_face_collision(const Vector &p, const Face &face, const Vector &v,
+                            Vector &normal) {
   // assumes face.normal * v != 0
-  double t = (face.d - face.normal * p) / (face.normal * v);
+  // make the object have some distance from the other object
+  SCALAR t = (face.d + EPSILON - face.normal * p) / (face.normal * v);
   if (t < 0) {
     return 1;
   }
@@ -77,55 +93,52 @@ double point_face_collision(const Vector &p, const Face &face,
   if (!is_in(res, face)) {
     return 1;
   }
+  normal = face.normal;
   return t;
 }
 
 bool is_in(const Vector &p, const Face &face) {
   // assumes the point is inside the face's plane
-  Vector edge_normal;
   for (int i = 0; i < 3; i++) {
-    edge_normal = cross(face[i + 1] - face[i], face.normal);
     // the normals are facing the outside
-    if (edge_normal * (p - face[i]) > -EPSILON) {
+    if (face.edge_normals[i] * (p - face[i]) > 0) {
       return false;
     }
   }
   return true;
 }
 
-double face_face_collision(const Face &face1, const Face &face2,
+SCALAR face_face_collision(const Face &face1, const Face &face2,
                            const Vector &v, Vector &normal) {
   if (face1.normal * v <= EPSILON || face2.normal * v >= -EPSILON) {
     return 1;
   }
   Vector line1[2];
   Vector line2[2];
-  Vector inter;
-  double min_t = 1;
-  double t;
+  Vector curr_normal;
+  SCALAR min_t = 1;
+  SCALAR t;
   for (int i = 0; i < 3; i++) {
     line1[0] = face1[i];
     line1[1] = face1[i + 1];
     for (int j = 0; j < 3; j++) {
       line2[0] = face2[j];
       line2[1] = face2[j + 1];
-      t = line_line_collision(line1, line2, v);
+      t = line_line_collision(line1, line2, v, curr_normal);
       if (t < min_t) {
         min_t = t;
-        normal = cross(line1[1] - line1[0], line2[1] - line2[0]);
-        double sign = ((normal * v) > 0) ? -1.0 : 1.0;
-        normal = normal * sign;
+        normal = curr_normal;
       }
     }
-    t = point_face_collision(face1[i], face2, v);
+    t = point_face_collision(face1[i], face2, v, curr_normal);
     if (t < min_t) {
       min_t = t;
-      normal = face2.normal;
+      normal = curr_normal;
     }
-    t = point_face_collision(face2[i], face1, (-1) * v);
+    t = point_face_collision(face2[i], face1, (-1) * v, curr_normal);
     if (t < min_t) {
       min_t = t;
-      normal = face1.normal * (-1);
+      normal = curr_normal * (-1);
     }
   }
   return min_t;
@@ -152,9 +165,8 @@ double face_face_collision(const Face &face1, const Face &face2,
 Face operator*(const Face &face, const Matrix &M) {
   Face res;
   for (int i = 0; i < 3; i++) {
-    Vector tmp = face[i];
-    res[i] = tmp * M;
+    res[i] = face[i] * M;
   }
-  res.update_plane();
+  res.update();
   return res;
 }

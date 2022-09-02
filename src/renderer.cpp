@@ -28,15 +28,15 @@ void Renderer::init_picture_colored() {
 void Renderer::init_z_buffer() {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      z_buffer[y * width + x] = DOUBLE_MAX;
+      z_buffer[y * width + x] = SCALAR_MAX;
     }
   }
 }
 
-void Renderer::project(Vector &v, Pixel &p) {
+void Renderer::project(ColoredVector &v, Pixel &p) {
   // assumes the point was already rotated
   p.source = v;
-  double ratio = ffd / v.z;
+  SCALAR ratio = ffd / v.z;
   p.x = COORD_TO_PIXEL_X(v.x * ratio);
   p.y = COORD_TO_PIXEL_Y(v.y * ratio);
 }
@@ -49,7 +49,7 @@ void Renderer::update_direction() {
 }
 
 int Renderer::project(Face &face, Pixel *projected) {
-  Vector rotated[3];
+  ColoredVector rotated[3];
   int j = 0;
   for (int i = 0; i < 3; i++) {
     rotated[i] = face[i] * world;
@@ -63,12 +63,13 @@ int Renderer::project(Face &face, Pixel *projected) {
     // one point is in front and one is behind the camera
     if ((rotated[(i + 1) % 3].z <= EPSILON && rotated[i].z > EPSILON) ||
         (rotated[i].z <= EPSILON && rotated[(i + 1) % 3].z > EPSILON)) {
-      // find collision
-      double ratio = (EPSILON - rotated[(i + 1) % 3].z) /
+      // find intersection
+      SCALAR ratio = (EPSILON - rotated[(i + 1) % 3].z) /
                      (rotated[i].z - rotated[(i + 1) % 3].z);
-      Vector collision = interpolate(rotated[i], rotated[(i + 1) % 3], ratio);
+      ColoredVector inter;
+      interpolate(rotated[i], rotated[(i + 1) % 3], ratio, inter);
       // can be optimized (x and y pixel coordinates can be easily calculated)
-      project(collision, projected[j]);
+      project(inter, projected[j]);
       j++;
     }
     // else both points are behind the camera (do not add anything)
@@ -97,8 +98,9 @@ void Renderer::save_line(Pixel *line, Pixel *edges, int *extremum) {
   if (p2.y >= extremum[0] && p2.y <= extremum[1]) {
     update_edges(p2, edges, extremum);
   }
+  Pixel curr;
   for (int y = line_extremum[0] + 1; y < line_extremum[1]; y++) {
-    Pixel curr = interpolate_by_y(p1, p2, y);
+    curr = interpolate_by_y(p1, p2, y);
     update_edges(curr, edges, extremum);
   }
 }
@@ -129,7 +131,7 @@ bool Renderer::decide_to_render2(Pixel *projected, int len) {
     if (p.y < height) {
       temp_top = true;
     }
-    if (p.source.z > 0 + EPSILON) {
+    if (p.source.z > EPSILON) {
       temp_forward = true;
     }
   }
@@ -149,7 +151,8 @@ void Renderer::render(Face &face) {
     return;
   }
   // Array of the pixels of the edges of the face on every y coordinate
-  Pixel edges[2 * (extremum[1] - extremum[0] + 1)];
+  Pixel *edges =
+      (Pixel *)malloc((2 * (extremum[1] - extremum[0] + 1)) * sizeof(Pixel));
   init_edges(edges, extremum);
   Pixel line[2];
   for (int i = 0; i < len; i++) {
@@ -159,9 +162,10 @@ void Renderer::render(Face &face) {
   }
 
   paint_face(edges, extremum);
+  free(edges);
 }
 
-double average_dist(Face &face, Vector &pos) {
+SCALAR average_dist(Face &face, Vector &pos) {
   Vector center =
       face[0] * (1.0f / 3) + face[1] * (1.0f / 3) + face[2] * (1.0f / 3);
   return distance(center, pos);
@@ -173,7 +177,7 @@ struct Comparator {
   Comparator(Renderer *_renderer) { renderer = _renderer; }
 
   bool operator()(Face *f1, Face *f2) {
-    // double t1, t2;
+    // SCALAR t1, t2;
     // Face rotated1 = (*f1) * renderer->world;
     // Pixel projected1[4];
     // Pixel line1[2];
@@ -214,16 +218,16 @@ void Renderer::render(Env &env) {
 }
 
 bool Renderer::decide_to_render(Face &face) {
-  Vector face_direction = face[0] - pos;
+  Vector face_direction = normalized(face[0] - pos);
   /** assert the angle between the ray to the face and the normal is lower than
    90 degrees (otherwise the face cannot be seen from the camera's position) */
-  double relative_direction = face_direction * face.normal;
+  SCALAR relative_direction = face_direction * face.normal;
   /** assert the angle between the camera's direction and the normal is between
    * 90 and 270 (otherwise the face cannot be seen from the camera's direction)
    */
   // should be changed (it is not enough to look only at a single vertex)
-  // double relative_direction2 = direction * face_direction;
-  return relative_direction < 0; //&& relative_direction2 > 0;
+  // SCALAR relative_direction2 = direction * face_direction;
+  return relative_direction < -100 * EPSILON; //&& relative_direction2 > 0;
 }
 
 int bound(int i, int upper_bound, int lower_bound) {
@@ -232,10 +236,10 @@ int bound(int i, int upper_bound, int lower_bound) {
 
 void Renderer::paint_face(Pixel *edges, int *extremum) {
   int texture_x, texture_y;
-  double x_coord, ratio, diff_x, diff_z, z;
+  SCALAR x_coord, ratio, diff_x, diff_z, z;
   for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
-    Pixel left = edges[2 * (y - extremum[0]) + 0];
-    Pixel right = edges[2 * (y - extremum[0]) + 1];
+    Pixel &left = edges[2 * (y - extremum[0]) + 0];
+    Pixel &right = edges[2 * (y - extremum[0]) + 1];
     // actual work:
     diff_x = left.source.x - right.source.x;
     diff_z = left.source.z - right.source.z;
@@ -246,7 +250,8 @@ void Renderer::paint_face(Pixel *edges, int *extremum) {
       ratio = (right.source.x - right.source.z * x_coord) /
               ((diff_z)*x_coord - diff_x);
       z = INTERPOLATE(left.source.z, right.source.z, ratio);
-      if (z < z_buffer[y * width + x]) {
+      // check the z_buffer
+      if (z < z_buffer[y * width + x] - EPSILON) {
         // paint the pixel
         paint_pixel(left, right, x, y, ratio);
         // set the pixel colored
@@ -254,7 +259,7 @@ void Renderer::paint_face(Pixel *edges, int *extremum) {
         z_buffer[y * width + x] = z;
         x++;
       } else {
-        x += 1 + picture_colored[y * width + x + 1];
+        x += (1 + picture_colored[y * width + x]);
       }
     }
   }
@@ -265,15 +270,15 @@ Renderer::~Renderer() { free(picture_colored); }
 Pixel Renderer::interpolate_by_y(Pixel &p1, Pixel &p2, int y) {
   Pixel res;
   // assumes p2.y - p1.y != 0
-  double ratio = (double)(p2.y - y) / (double)(p2.y - p1.y);
+  SCALAR ratio = (SCALAR)(p2.y - y) / (SCALAR)(p2.y - p1.y);
   res.x = round(INTERPOLATE(p1.x, p2.x, ratio));
   res.y = y;
 
-  double y_coord = PIXEL_TO_COORD_Y(y);
+  SCALAR y_coord = PIXEL_TO_COORD_Y(y);
   // assumes ffd = 1 !!!
-  double ratio_3d =
+  SCALAR ratio_3d =
       (p2.source.y - p2.source.z * y_coord) /
       ((p1.source.z - p2.source.z) * y_coord - p1.source.y + p2.source.y);
-  res.source = interpolate(p1.source, p2.source, ratio_3d);
+  interpolate(p1.source, p2.source, ratio_3d, res.source);
   return res;
 }

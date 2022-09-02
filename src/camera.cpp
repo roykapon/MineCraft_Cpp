@@ -17,7 +17,7 @@ void Camera::init_picture() {
 
 /** paints a single pixel (to be implemented)*/
 void Camera::paint_pixel(Pixel &left, Pixel &right, int x, int y,
-                         double ratio) {
+                         SCALAR ratio) {
   // interpolate the texture coordinates
   int texture_x =
       INTERPOLATE(left.source.texture_x, right.source.texture_x, ratio);

@@ -13,5 +13,8 @@ public:
 
   ~Block();
 
+  /* compares the blocks' positions */
   bool operator==(const Block &b2) const;
 };
+
+Vector get_block_pos(const Vector &pos);

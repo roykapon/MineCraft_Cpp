@@ -13,19 +13,19 @@ int game() {
   Camera camera = Camera(pos, 0, 0);
 
   Env env = Env();
-  for (double y = 0.0f; y < 2; y += 2) {
-    for (double x = 0.0f; x < 30; x += 2) {
-      for (double z = 0.0f; z < 30; z += 2) {
-        Vector block_pos = Vector(x, y, z);
+  for (SCALAR y = 0.0f; y < 30; y += 2) {
+    for (SCALAR x = 0.0f; x < 30; x += 2) {
+      for (SCALAR z = 0.0f; z < 30; z += 2) {
+        Vector block_pos = Vector(x, y, y);
         env.create_block(block_pos);
       }
     }
   }
 
   Vector itays_house = Vector(20, 2, 20);
-  for (double x = 0.0f; x < 6; x += 2) {
-    for (double y = 0.0f; y < 6; y += 2) {
-      for (double z = 0.0f; z < 6; z += 2) {
+  for (SCALAR x = 0.0f; x < 6; x += 2) {
+    for (SCALAR y = 0.0f; y < 6; y += 2) {
+      for (SCALAR z = 0.0f; z < 6; z += 2) {
         Vector block_pos = Vector(x, y, z);
         env.create_block(block_pos + itays_house);
       }
@@ -35,15 +35,15 @@ int game() {
   // Vector block_pos = Vector(0.0f, 0.0f, 8.0f);
   // env.create_block(block_pos);
 
-  Vector entity_pos = Vector(0, 5, 0);
+  Vector entity_pos = Vector(0, 10, 0);
   env.create_entity(entity_pos);
 
   Object &player = env.entities[0];
 
   env.update_visible_faces();
 
-  // for (double x = 0.0f; x < 20; x += 2) {
-  //   for (double z = 0.0f; z < 20; z += 2) {
+  // for (SCALAR x = 0.0f; x < 20; x += 2) {
+  //   for (SCALAR z = 0.0f; z < 20; z += 2) {
   //     Vector block_pos = Vector(x, 0.0f, z) + Vector(0.0f, 10.0f, 10.0f);
   //     env.create_block(block_pos);
   //   }
@@ -69,13 +69,13 @@ int game() {
   SDL_Event event;
 
   int start_time = 0;
-  double frame_time = 0;
+  SCALAR frame_time = 0;
   //
   Vector offset;
   Vector right;
   while (isRunning) {
 
-    double speed = SPEED * sqrt(frame_time);
+    SCALAR speed = SPEED * sqrt(frame_time);
 
     offset = Vector(0, 0, 0, 0);
     Vector right = cross(camera.direction, Vector(0, 1, 0, 0));
@@ -167,8 +167,8 @@ int game() {
 
     // Display fps
     // converts from ms to seconds
-    frame_time = (double)(SDL_GetTicks() - start_time) / 1000;
-    double fps = (frame_time > 0) ? 1 / frame_time : 0.0f;
+    frame_time = (SCALAR)(SDL_GetTicks() - start_time) / 1000;
+    SCALAR fps = (frame_time > 0) ? 1 / frame_time : 0.0f;
     stringstream ss;
     ss << "fps: " << fps;
     SDL_SetWindowTitle(window, ss.str().c_str());
@@ -232,7 +232,7 @@ int main(int argv, char **args) {
   // Vector line2[] = {p3, p4};
 
   // Vector inter;
-  // double intersected = collision(line1, line2, v, inter);
+  // SCALAR intersected = collision(line1, line2, v, inter);
   // cout << "intersected: " << intersected << endl;
   // cout << inter << endl;
 
@@ -245,7 +245,7 @@ int main(int argv, char **args) {
   // Vector v = Vector(0.02, 0, 1);
   // Vector inter;
 
-  // double intersected = collision(p, face, v, inter);
+  // SCALAR intersected = collision(p, face, v, inter);
   // cout << "intersected: " << intersected << endl;
   // cout << inter << endl;
 

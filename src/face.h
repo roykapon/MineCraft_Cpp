@@ -1,6 +1,7 @@
 #pragma once
 
 #include "linlib.h"
+#include "pixel.h"
 
 #define NUM_CHANNELS 3
 #define TEXTURE_WIDTH 10
@@ -11,22 +12,33 @@
 class Face {
 
 public:
-  Vector vertices[3];
+  ColoredVector vertices[3];
+  Vector edge_normals[3];
   Vector normal;
-  double d;
+  SCALAR d;
   int ***texture;
 
-  Face(Vector v1 = Vector(), Vector v2 = Vector(), Vector v3 = Vector(),
-       int ***_texture = NULL) {
+  Face(ColoredVector v1 = ColoredVector(), ColoredVector v2 = ColoredVector(),
+       ColoredVector v3 = ColoredVector(), int ***_texture = NULL) {
     vertices[0] = v1;
     vertices[1] = v2;
     vertices[2] = v3;
-    update_plane();
+    update();
     texture = _texture;
   }
 
-  /** Updates the normal according to the vertices (assumes clock-wise order)*/
+  void update() {
+    update_plane();
+    update_edge_normals();
+  }
+
+  /** Updates the normal and "d" value
+   * (such that the equasion representing the plane is x*N=d)
+   *  according to the vertices (assumes clock-wise order)*/
   void update_plane();
+
+  /** Updates the normal according to the vertices (assumes clock-wise order)*/
+  void update_edge_normals();
 
   static int ***default_texture() {
     int ***texture = (int ***)malloc(sizeof(int) * NUM_CHANNELS *
@@ -41,10 +53,10 @@ public:
   }
 
   /** Returns the vertex at the given index */
-  const Vector &operator[](int index) const;
+  const ColoredVector &operator[](int index) const;
 
   /** Returns a mutable reference to the vertex at the given index */
-  Vector &operator[](int index);
+  ColoredVector &operator[](int index);
 };
 
 /** Returns the shifted face by the given position */
@@ -52,20 +64,27 @@ Face operator+(const Face &face, const Vector &pos);
 
 /** Returns the minimal distance of the vertices of the face from the given
  * point */
-double mindist(const Face &face, const Vector &pos);
+SCALAR mindist(const Face &face, const Vector &pos);
 
+/* returns true if the given point is inside the given face.
+assumes that the point is already on the plane. */
 bool is_in(const Vector &p, const Face &face);
 
-double line_line_collision(const Vector *line1, const Vector *line2,
-                           const Vector &v);
-
-bool line_line_collision(const Pixel *line1, const Pixel *line2, Pixel &res);
-
-double point_face_collision(const Vector &p, const Face &face, const Vector &v);
-
-double face_face_collision(const Face &face1, const Face &face2,
+/* returns the portion of the velocity vector that the 1st section travels
+ * before hitting the 2nd section */
+SCALAR line_line_collision(const Vector *line1, const Vector *line2,
                            const Vector &v, Vector &normal);
 
-bool face_face_intersection(const Face &face1, const Face &face2, Vector *line);
+/* returns the portion of the velocity vector that the point travels
+ * before hitting the face */
+SCALAR point_face_collision(const Vector &p, const Face &face, const Vector &v,
+                            Vector &normal);
 
+/* returns the portion of the velocity vector that the 1st face travels
+ * before hitting the 2nd face */
+SCALAR face_face_collision(const Face &face1, const Face &face2,
+                           const Vector &v, Vector &normal);
+
+/* returns the face where each vertex of the given face is multiplied by the
+ * matrix */
 Face operator*(const Face &face, const Matrix &M);

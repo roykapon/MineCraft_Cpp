@@ -9,7 +9,7 @@ using namespace std;
 
 // =========================== Vector ===========================
 
-double Vector::operator[](int index) const {
+SCALAR Vector::operator[](int index) const {
   switch (index) {
   case X_AXIS:
     return x;
@@ -25,7 +25,7 @@ double Vector::operator[](int index) const {
   }
 }
 
-double &Vector::operator[](int index) {
+SCALAR &Vector::operator[](int index) {
   switch (index) {
   case X_AXIS:
     return x;
@@ -43,37 +43,60 @@ double &Vector::operator[](int index) {
 
 Vector operator+(const Vector &v1, const Vector &v2) {
   // sets w to be the same as v1
-  return Vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w,
-                v1.texture_x + v2.texture_x, v1.texture_y + v2.texture_y);
+  return Vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w);
+}
+
+Vector &Vector::operator+=(const Vector &v) {
+  x += v.x;
+  y += v.y;
+  z += v.z;
+  return *this;
 }
 
 Vector operator-(const Vector &v1, const Vector &v2) {
   // sets w to be the same as v1
-  return Vector(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w,
-                v1.texture_x - v2.texture_x, v1.texture_y - v2.texture_y);
+  return Vector(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w);
 }
 
-Vector operator*(const Vector &v, double a) {
+Vector &Vector::operator-=(const Vector &v) {
+  x -= v.x;
+  y -= v.y;
+  z -= v.z;
+  return *this;
+}
+
+Vector operator*(const Vector &v, SCALAR a) {
   // sets w to be the same as v1
-  return Vector(v.x * a, v.y * a, v.z * a, v.w, v.texture_x * a,
-                v.texture_y * a);
+  return Vector(v.x * a, v.y * a, v.z * a, v.w);
 }
 
-Vector operator*(double a, const Vector &v) {
+Vector &Vector::operator*=(SCALAR a) {
+  x *= a;
+  y *= a;
+  z *= a;
+  return *this;
+}
+
+Vector operator*(SCALAR a, const Vector &v) {
   // sets w to be the same as v1
-  return Vector(v.x * a, v.y * a, v.z * a, v.w, v.texture_x * a,
-                v.texture_y * a);
+  return Vector(v.x * a, v.y * a, v.z * a, v.w);
 }
 
-double operator*(const Vector &v1, const Vector &v2) {
+SCALAR operator*(const Vector &v1, const Vector &v2) {
   return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-Vector interpolate(const Vector &v1, const Vector &v2, double ratio) {
+Vector interpolate(const Vector &v1, const Vector &v2, SCALAR ratio) {
   return Vector(INTERPOLATE(v1.x, v2.x, ratio), INTERPOLATE(v1.y, v2.y, ratio),
-                INTERPOLATE(v1.z, v2.z, ratio), v1.w,
-                round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio)),
-                round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio)));
+                INTERPOLATE(v1.z, v2.z, ratio), v1.w);
+}
+
+void interpolate(const Vector &v1, const Vector &v2, SCALAR ratio,
+                 Vector &res) {
+  res.x = INTERPOLATE(v1.x, v2.x, ratio);
+  res.y = INTERPOLATE(v1.y, v2.y, ratio);
+  res.z = INTERPOLATE(v1.z, v2.z, ratio);
+  res.w = v1.w;
 }
 
 ostream &operator<<(ostream &os, const Vector &v) {
@@ -86,15 +109,15 @@ size_t Vector_hash::operator()(const Vector &key) const {
   return hash<string>()(to_string(key.x) + to_string(key.y) + to_string(key.z));
 }
 
-double norm(const Vector &v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
+SCALAR norm(const Vector &v) { return sqrt(v.x * v.x + v.y * v.y + v.z * v.z); }
 
-double distance(const Vector &v1, const Vector &v2) {
+SCALAR distance(const Vector &v1, const Vector &v2) {
   Vector diff = v1 - v2;
   return norm(diff);
 }
 
 Vector normalized(const Vector &v) {
-  double n = norm(v);
+  SCALAR n = norm(v);
   if (n == 0) {
     return v;
   }
@@ -102,7 +125,7 @@ Vector normalized(const Vector &v) {
 }
 
 Vector normalized_horizontal(const Vector &v) {
-  double n = sqrt(v.x * v.x + v.z * v.z);
+  SCALAR n = sqrt(v.x * v.x + v.z * v.z);
   if (n == 0) {
     return v;
   }
@@ -123,10 +146,10 @@ bool Vector::operator!=(const Vector &v2) const {
   return !(x == v2.x && y == v2.y && z == v2.z);
 }
 
-Vector round(Vector &v) {
-  return Vector((double)round(v.x / 2) * 2, (double)round(v.y / 2) * 2,
-                (double)round(v.z / 2) * 2);
-}
+// Vector round(Vector &v) {
+//   return Vector((SCALAR)round(v.x / 2) * 2, (SCALAR)round(v.y / 2) * 2,
+//                 (SCALAR)round(v.z / 2) * 2);
+// }
 
 // =========================== Matrix ===========================
 
@@ -150,7 +173,7 @@ Matrix operator-(const Matrix &M1, const Matrix &M2) {
   return res;
 }
 
-Matrix operator*(const Matrix &M, double a) {
+Matrix operator*(const Matrix &M, SCALAR a) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     res[i] = M[i] * a;
@@ -161,28 +184,24 @@ Matrix operator*(const Matrix &M, double a) {
 Vector operator*(const Matrix &M, const Vector &v) {
   Vector res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
-    double sum = 0.0f;
+    SCALAR sum = 0.0f;
     for (int j = 0; j < EXTENDED_AXES; j++) {
       sum += v[j] * M[i][j];
     }
     res[i] = sum;
   }
-  res.texture_x = v.texture_x;
-  res.texture_y = v.texture_y;
   return res;
 }
 
 Vector operator*(const Vector &v, const Matrix &M) {
   Vector res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
-    double sum = 0.0f;
+    SCALAR sum = 0.0f;
     for (int j = 0; j < EXTENDED_AXES; j++) {
       sum += M[j][i] * v[j];
     }
     res[i] = sum;
   }
-  res.texture_x = v.texture_x;
-  res.texture_y = v.texture_y;
   return res;
 }
 
@@ -190,7 +209,7 @@ Matrix operator*(const Matrix &M1, const Matrix &M2) {
   Matrix res;
   for (int i = 0; i < EXTENDED_AXES; i++) {
     for (int j = 0; j < EXTENDED_AXES; j++) {
-      double sum = 0;
+      SCALAR sum = 0;
       for (int t = 0; t < EXTENDED_AXES; t++) {
         sum += M1[i][t] * M2[t][j];
       }
@@ -210,7 +229,7 @@ ostream &operator<<(ostream &os, const Matrix &M) {
   return os;
 };
 
-Matrix Matrix::rotate(int axis, double angle) {
+Matrix Matrix::rotate(int axis, SCALAR angle) {
   Matrix res;
   res.vectors[3] = Vector(0, 0, 0, 1);
   switch (axis) {
@@ -269,10 +288,10 @@ bool pivot(int i, int len, Matrix &copy, Matrix &res) {
 bool inverse(const Matrix &M, Matrix &res, int len) {
   res = I();
   Matrix copy = M;
-  double a;
+  SCALAR a;
   bool invalid;
   for (int i = 0; i < len; i++) {
-    if (copy[i][i] < EPSILON && copy[i][i > -EPSILON]) {
+    if (copy[i][i] < EPSILON && copy[i][i] > -EPSILON) {
       if (!pivot(i, len, copy, res)) {
         return false;
       }
@@ -291,59 +310,4 @@ bool inverse(const Matrix &M, Matrix &res, int len) {
     // cout << i << ": \n" << res << endl;
   }
   return true;
-}
-
-// =========================== Pixel ===========================
-
-int &Pixel::operator[](int index) {
-  switch (index) {
-  case X_AXIS:
-    return x;
-  case Y_AXIS:
-    return y;
-  default:
-    cout << "Invalid index: " << index;
-    return x;
-  }
-}
-
-Pixel operator+(const Pixel &p1, const Pixel &p2) {
-  Pixel res;
-  res.x = p1.x + p2.x;
-  res.y = p1.y + p2.y;
-  res.source = p1.source + p2.source;
-  return res;
-}
-
-Pixel operator-(const Pixel &p1, const Pixel &p2) {
-  Pixel res;
-  res.x = p1.x - p2.x;
-  res.y = p1.y - p2.y;
-  res.source = p1.source - p2.source;
-  return res;
-}
-
-Pixel operator*(const Pixel &p, double a) {
-  Pixel res;
-  res.x = p.x * a;
-  res.y = p.y * a;
-  res.source = p.source * a;
-  return res;
-}
-
-ostream &operator<<(ostream &os, Pixel &p) {
-  os << "x = " << p.x << ", y = " << p.y << ", source = " << p.source << '\n';
-  return os;
-}
-
-void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
-                  int upper_bound) {
-  extremum[0] = INT_MAX;
-  extremum[1] = INT_MIN;
-  Pixel *p;
-  for (int i = 0; i < len; i++) {
-    p = &pixels[i];
-    extremum[0] = max(min(extremum[0], p->y), lower_bound);
-    extremum[1] = min(max(extremum[1], p->y), upper_bound);
-  }
 }
