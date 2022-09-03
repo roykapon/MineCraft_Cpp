@@ -165,54 +165,26 @@ void Renderer::render(Face &face) {
   free(edges);
 }
 
-SCALAR average_dist(Face &face, Vector &pos) {
-  Vector center =
-      face[0] * (1.0f / 3) + face[1] * (1.0f / 3) + face[2] * (1.0f / 3);
-  return distance(center, pos);
-}
+struct FaceComparator {
+  Vector pos;
 
-struct Comparator {
-  Renderer *renderer;
+  FaceComparator(Vector _pos) { pos = _pos; }
 
-  Comparator(Renderer *_renderer) { renderer = _renderer; }
-
-  bool operator()(Face *f1, Face *f2) {
-    // SCALAR t1, t2;
-    // Face rotated1 = (*f1) * renderer->world;
-    // Pixel projected1[4];
-    // Pixel line1[2];
-    // int len1 = renderer->project(*f1, projected1);
-    // Pixel projected2[4];
-    // Pixel line2[2];
-    // Pixel inter;
-    // int len2 = renderer->project(*f2, projected2);
-    // for (int i = 0; i < len1; i++) {
-    //   line1[0] = projected1[i];
-    //   line1[1] = projected1[(i + 1) % len1];
-    //   for (int j = 0; j < len2; j++) {
-    //     line2[0] = projected2[i];
-    //     line2[1] = projected2[(i + 1) % len1];
-    //     if (line_line_collision(line1, line2, inter)) {
-    //       t1 = (f1->d - *f1->normal);
-    //     }
-    //   }
-    // }
-
-    return average_dist(*f1, renderer->pos) < average_dist(*f2, renderer->pos);
+  bool operator()(FACE_OBJECT &p1, FACE_OBJECT &p2) {
+    return p1.first->average_dist(pos) < p2.first->average_dist(pos);
   }
-
-  int paramA;
 };
 
 void Renderer::render(Env &env) {
   init_picture();
   init_picture_colored();
   init_z_buffer();
-  sort(env.visible_faces.begin(), env.visible_faces.end(), Comparator(this));
-  for (Face *face : env.visible_faces) {
+  sort(env.visible_faces.begin(), env.visible_faces.end(), FaceComparator(pos));
+  for (auto face_object : env.visible_faces) {
+    Face &face = *(face_object.first);
     // should probably filter the faces before sorting
-    if (decide_to_render(*face)) {
-      render(*face);
+    if (decide_to_render(face)) {
+      render(face);
     }
   }
 }

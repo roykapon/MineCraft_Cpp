@@ -57,6 +57,8 @@ public:
 
   /** Returns a mutable reference to the vertex at the given index */
   ColoredVector &operator[](int index);
+
+  SCALAR average_dist(Vector &pos);
 };
 
 /** Returns the shifted face by the given position */

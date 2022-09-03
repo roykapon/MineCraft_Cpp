@@ -18,8 +18,8 @@ public:
   // the closer friction to 1 is, the smaller the friction
   SCALAR friction;
 
-  Object(const Vector &_pos, SCALAR vertical = 0.0, SCALAR horizontal = 0.0,
-         SCALAR friction = FEFAULT_FRICTION);
+  Object(const Vector &_pos = Vector(), SCALAR vertical = 0.0,
+         SCALAR horizontal = 0.0, SCALAR friction = FEFAULT_FRICTION);
 
   Object(const Object &other);
 

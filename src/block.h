@@ -18,3 +18,8 @@ public:
 };
 
 Vector get_block_pos(const Vector &pos);
+
+class ObjectFace : Face {
+public:
+  Vector pos;
+};

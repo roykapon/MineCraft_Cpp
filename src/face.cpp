@@ -20,6 +20,12 @@ const ColoredVector &Face::operator[](int index) const {
   return res;
 }
 
+SCALAR Face::average_dist(Vector &pos) {
+  Vector center = vertices[0] * (1.0f / 3) + vertices[1] * (1.0f / 3) +
+                  vertices[2] * (1.0f / 3);
+  return distance(center, pos);
+}
+
 ColoredVector &Face::operator[](int index) { return vertices[index % 3]; }
 
 Face operator+(const Face &face, const ColoredVector &pos) {
@@ -45,17 +51,16 @@ SCALAR line_line_collision(const Vector *line1, const Vector *line2,
   Vector diff = line2[0] - line1[0];
   Vector t = diff * M_inverse;
 
-  Vector test = line1[0] + t[0] * direction1 + t[2] * v;
-  Vector test2 = line2[0] + t[1] * direction2;
-  if (t[0] < 0 || t[0] > 1 || t[1] < 0 || t[1] > 1 || t[2] < 0 || t[2] >= 1) {
+  if (t[0] <= EPSILON || t[0] >= 1 - EPSILON || t[1] <= EPSILON ||
+      t[1] >= 1 - EPSILON || t[2] < 0 || t[2] >= 1) {
     return 1;
   }
   normal = cross(line1[1] - line1[0], line2[1] - line2[0]);
   SCALAR sign = ((normal * v) > 0) ? -1.0 : 1.0;
   normal *= sign;
   // make the object have some distance from the other object
-  SCALAR dist = EPSILON * t[2] * abs(normal * v) / (norm(v) * norm(v));
-  t[2] = max(t[2] - dist, 0.0f);
+  // SCALAR dist = EPSILON * t[2] * abs(normal * v) / (norm(v) * norm(v));
+  // t[2] = max(t[2] - dist, 0.0f);
   return t[2];
 }
 
@@ -84,7 +89,7 @@ SCALAR point_face_collision(const Vector &p, const Face &face, const Vector &v,
                             Vector &normal) {
   // assumes face.normal * v != 0
   // make the object have some distance from the other object
-  SCALAR t = (face.d + EPSILON - face.normal * p) / (face.normal * v);
+  SCALAR t = (face.d - face.normal * p) / (face.normal * v);
   if (t < 0) {
     return 1;
   }
@@ -101,7 +106,7 @@ bool is_in(const Vector &p, const Face &face) {
   // assumes the point is inside the face's plane
   for (int i = 0; i < 3; i++) {
     // the normals are facing the outside
-    if (face.edge_normals[i] * (p - face[i]) > 0) {
+    if (face.edge_normals[i] * (p - face[i]) > -EPSILON) {
       return false;
     }
   }

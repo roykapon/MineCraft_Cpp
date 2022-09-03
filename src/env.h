@@ -9,19 +9,44 @@
 #define WORLD_SIZE 100
 #define GRAVITY Vector(0, -3.0f, 0)
 #define AIR_FRICTION 0.95
+#define FACE_OBJECT pair<Face *, Object *>
 
 using namespace std;
 
+class Node {
+public:
+  Object *data;
+  Node *next;
+  Node *prev;
+
+  Node();
+
+  Node(Object *_data, Node *_next, Node *_prev);
+
+  ~Node();
+};
+
+/* Add a new element to head of the list and returns the created node
+ * (creating the node is the responsibility of the caller) */
+Node *push(Node *&head, Object *data);
+
+/* Removes the given node from the list */
+void pop(Node *node);
+
 class Env {
 public:
-  unordered_map<Vector, Block, Vector_hash> blocks;
-  vector<Face *> visible_faces;
+  Node *memory;
+  unordered_map<Vector, Node *, Vector_hash> blocks;
+  vector<pair<Face *, Object *>> visible_faces;
   vector<Object> entities;
 
-  Env() {
-    blocks.clear();
-    visible_faces.clear();
-  };
+  Env();
+
+  ~Env();
+
+  void init_memory();
+
+  void delete_memory();
 
   /* creates a block of 2 by 2 by 2 centerd in the given position */
   void create_block(const Vector &pos);

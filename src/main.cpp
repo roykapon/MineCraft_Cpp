@@ -15,7 +15,7 @@ int game() {
   Env env = Env();
   for (SCALAR y = 0.0f; y < 30; y += 2) {
     for (SCALAR x = 0.0f; x < 30; x += 2) {
-      for (SCALAR z = 0.0f; z < 30; z += 2) {
+      for (SCALAR z = 0.0f; z < 2; z += 2) {
         Vector block_pos = Vector(x, y, y);
         env.create_block(block_pos);
       }
