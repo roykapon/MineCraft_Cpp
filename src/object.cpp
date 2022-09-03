@@ -67,8 +67,18 @@ Object::Object(const Object &other) {
 }
 
 void Object::update() {
+  update_direction();
   update_world();
   update_faces();
+}
+
+Vector get_direction(SCALAR horizontal, SCALAR vertical) {
+  return Vector(cos(vertical) * (-sin(horizontal)), sin(vertical),
+                cos(vertical) * cos(horizontal), 0);
+}
+
+void Object::update_direction() {
+  direction = get_direction(horizontal, horizontal);
 }
 
 void Object::update_world() {

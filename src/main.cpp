@@ -88,6 +88,14 @@ int game() {
         isRunning = false;
         break;
 
+      case SDL_MOUSEBUTTONDOWN:
+        switch (event.button.button) {
+        case SDL_BUTTON_LEFT:
+          env.player_interact(player, camera.direction);
+          break;
+        }
+        break;
+
       case SDL_KEYDOWN:
         if (event.key.keysym.sym == SDLK_ESCAPE) {
           isRunning = false;

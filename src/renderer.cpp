@@ -42,10 +42,7 @@ void Renderer::project(ColoredVector &v, Pixel &p) {
 }
 
 void Renderer::update_direction() {
-  direction.x = cos(vertical) * (-sin(horizontal));
-  direction.y = sin(vertical);
-  direction.z = cos(vertical) * cos(horizontal);
-  direction.w = 0;
+  direction = get_direction(horizontal, vertical);
 }
 
 int Renderer::project(Face &face, Pixel *projected) {

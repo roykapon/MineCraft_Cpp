@@ -11,6 +11,7 @@ public:
   Vector pos;
   SCALAR vertical, horizontal;
   Vector v;
+  Vector direction;
   // multiply by world on the right
   Matrix world;
   Face *faces;
@@ -29,6 +30,8 @@ public:
 
   void update();
 
+  void update_direction();
+
   void update_world();
 
   void update_faces();
@@ -38,3 +41,5 @@ public:
 
 SCALAR block_block_collision(const Object &o1, const Object &o2,
                              const Vector &v, Vector &normal);
+
+Vector get_direction(SCALAR horizontal, SCALAR vertical);

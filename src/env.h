@@ -10,7 +10,7 @@
 #define GRAVITY Vector(0, -3.0f, 0)
 #define AIR_FRICTION 0.95
 #define FACE_OBJECT pair<Face *, Object *>
-
+#define REACH_DIST 10
 using namespace std;
 
 class Node {
@@ -58,6 +58,8 @@ public:
    * should be called on any update to the blocks */
   void update_visible_faces();
 
+  void player_interact(Object &player, Vector &direction);
+
   /* moves the object with the given velocity and updates it accordingly */
   void move_object(Object &object, Vector &v);
 
@@ -65,6 +67,9 @@ public:
    * before colliding with something */
   SCALAR object_env_collision(Object &object, Vector &v, Vector &normal,
                               Object *&collision);
+
+  SCALAR point_env_collision(const Vector &pos, const Vector &v, Vector &normal,
+                             Object *&collision);
 
   /* moves all entities following some physics rules */
   void apply_physics(SCALAR frame_time);

@@ -84,17 +84,13 @@ void Env::update_visible_faces() {
 
 SCALAR Env::object_env_collision(Object &object, Vector &v, Vector &normal,
                                  Object *&collision) {
-  SCALAR n = norm(v);
-  if (n < EPSILON) {
-    return 1;
-  }
-  SCALAR min_t = 1;
+  SCALAR min_t = SCALAR_MAX;
   SCALAR t;
   Vector curr_normal;
   for (auto face_object : visible_faces) {
     Face &face = *face_object.first;
 
-    if (face.average_dist(object.pos) > n + 2 ||
+    if (face.average_dist(object.pos) > norm(v) + 2 ||
         face_object.second == &object) {
       continue;
     }
@@ -107,7 +103,38 @@ SCALAR Env::object_env_collision(Object &object, Vector &v, Vector &normal,
       }
     }
   }
-  //
+  return min_t;
+}
+
+void Env::player_interact(Object &player, Vector &direction) {
+  Vector normal;
+  Object *collision = nullptr;
+  if (point_env_collision(player.pos, (direction * REACH_DIST), normal,
+                          collision) < SCALAR_MAX) {
+    Vector block_pos = collision->pos + 2 * normal;
+    create_block(block_pos);
+    update_visible_faces();
+  }
+}
+
+SCALAR Env::point_env_collision(const Vector &pos, const Vector &v,
+                                Vector &normal, Object *&collision) {
+  SCALAR min_t = SCALAR_MAX;
+  SCALAR t;
+  Vector curr_normal;
+  for (auto face_object : visible_faces) {
+    Face &face = *face_object.first;
+
+    if (face.average_dist(pos) > norm(v) + 2) {
+      continue;
+    }
+    t = point_face_collision(pos, face, v, curr_normal);
+    if (t < min_t) {
+      min_t = t;
+      normal = curr_normal;
+      collision = face_object.second;
+    }
+  }
   return min_t;
 }
 
@@ -183,12 +210,11 @@ void Env::move_object(Object &object, Vector &v) {
   while (t < 1) {
     object.pos = object.pos + v * t;
     SCALAR force = (normal * v) * (t - 1);
-    // v = ((1 - t) * v + force * normal) * (collision->friction / (force + 1));
     v = ((1 - t) * v + force * normal) * (collision->friction / (force + 1));
     t = object_env_collision(object, v, normal, collision);
   }
   object.pos = object.pos + v;
-  object.v = object.v * AIR_FRICTION;
+  object.v *= AIR_FRICTION;
   object.update();
 }
 

@@ -20,7 +20,7 @@ const ColoredVector &Face::operator[](int index) const {
   return res;
 }
 
-SCALAR Face::average_dist(Vector &pos) {
+SCALAR Face::average_dist(const Vector &pos) {
   Vector center = vertices[0] * (1.0f / 3) + vertices[1] * (1.0f / 3) +
                   vertices[2] * (1.0f / 3);
   return distance(center, pos);
@@ -46,14 +46,14 @@ SCALAR line_line_collision(const Vector *line1, const Vector *line2,
   Matrix M = Matrix(direction1, (-1) * direction2, v);
   Matrix M_inverse;
   if (!inverse(M, M_inverse)) {
-    return 1;
+    return SCALAR_MAX;
   }
   Vector diff = line2[0] - line1[0];
   Vector t = diff * M_inverse;
 
   if (t[0] <= EPSILON || t[0] >= 1 - EPSILON || t[1] <= EPSILON ||
       t[1] >= 1 - EPSILON || t[2] < 0 || t[2] >= 1) {
-    return 1;
+    return SCALAR_MAX;
   }
   normal = cross(line1[1] - line1[0], line2[1] - line2[0]);
   SCALAR sign = ((normal * v) > 0) ? -1.0 : 1.0;
@@ -87,16 +87,18 @@ SCALAR line_line_collision(const Vector *line1, const Vector *line2,
 
 SCALAR point_face_collision(const Vector &p, const Face &face, const Vector &v,
                             Vector &normal) {
-  // assumes face.normal * v != 0
+  if (face.normal * v >= 0) {
+    return SCALAR_MAX;
+  }
   // make the object have some distance from the other object
   SCALAR t = (face.d - face.normal * p) / (face.normal * v);
   if (t < 0) {
-    return 1;
+    return SCALAR_MAX;
   }
 
   Vector res = p + (t * v);
   if (!is_in(res, face)) {
-    return 1;
+    return SCALAR_MAX;
   }
   normal = face.normal;
   return t;
@@ -113,15 +115,29 @@ bool is_in(const Vector &p, const Face &face) {
   return true;
 }
 
+bool can_collide(const Face &face1, const Face &face2, const Vector &v) {
+  if (face1.normal * v <= 0 || face2.normal * v >= 0) {
+    return false;
+  }
+  // SCALAR max_angle = SCALAR_MIN;
+  // for (int i = 0; i < 3; i++) {
+  //   for (int j = 0; j < 3; j++) {
+  //     max_angle = max(max_angle, ((Vector)face2[j] - (Vector)face1[i]) * v);
+  //   }
+  // }
+  // return max_angle > 0;
+  return true;
+}
+
 SCALAR face_face_collision(const Face &face1, const Face &face2,
                            const Vector &v, Vector &normal) {
-  if (face1.normal * v <= EPSILON || face2.normal * v >= -EPSILON) {
-    return 1;
+  if (!can_collide(face1, face2, v)) {
+    return SCALAR_MAX;
   }
   Vector line1[2];
   Vector line2[2];
   Vector curr_normal;
-  SCALAR min_t = 1;
+  SCALAR min_t = SCALAR_MAX;
   SCALAR t;
   for (int i = 0; i < 3; i++) {
     line1[0] = face1[i];
