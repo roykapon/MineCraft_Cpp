@@ -2,7 +2,7 @@
 
 Block::Block(const Vector &_pos) : Object(_pos) {}
 
-Block::Block() : Object(Vector()) {}
+Block::Block() : Object(Vector(0, 0, 0)) {}
 
 Block::Block(const Block &other) : Object((Object &)other) {}
 

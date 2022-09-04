@@ -10,14 +10,8 @@ public:
   int texture_x, texture_y;
 
   ColoredVector(SCALAR _x = 0, SCALAR _y = 0, SCALAR _z = 0, SCALAR _w = 1,
-                int _texture_x = 0, int _texture_y = 0) {
-    x = _x;
-    y = _y;
-    z = _z;
-    w = _w;
-    texture_x = _texture_x;
-    texture_y = _texture_y;
-  }
+                int _texture_x = 0, int _texture_y = 0)
+      : Vector(_x, _y, _z, _w), texture_x(_texture_x), texture_y(_texture_y) {}
 
   /** Adds the given vector in-place */
   ColoredVector &operator+=(const ColoredVector &v);
@@ -62,11 +56,8 @@ public:
   int y;
   ColoredVector source;
 
-  Pixel(int _x = 0, int _y = 0, ColoredVector _source = ColoredVector()) {
-    x = _x;
-    y = _y;
-    source = _source;
-  }
+  Pixel(int _x = 0, int _y = 0, ColoredVector _source = ColoredVector())
+      : x(_x), y(_y), source(_source) {}
 
   /** Returns the value a the given axis*/
   int &operator[](int index);

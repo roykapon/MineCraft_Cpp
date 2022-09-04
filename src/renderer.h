@@ -25,18 +25,13 @@ public:
   SCALAR *z_buffer;
   int *picture_colored;
 
-  Renderer(Vector _pos = Vector(), SCALAR _vertical = 0, SCALAR _horizontal = 0,
-           SCALAR _ffd = DEFAULT_FFD, int _width = DEFAULT_WIDTH,
-           int _height = DEFAULT_HEIGHT) {
-    pos = _pos;
-    vertical = _vertical;
-    horizontal = _horizontal;
+  Renderer(Vector _pos = Vector(0, 0, 0), SCALAR _vertical = 0,
+           SCALAR _horizontal = 0, SCALAR _ffd = DEFAULT_FFD,
+           int _width = DEFAULT_WIDTH, int _height = DEFAULT_HEIGHT)
+      : pos(_pos), vertical(_vertical), horizontal(_horizontal), width(_width),
+        height(_height), ffd(_ffd) {
     update_direction();
     update_world();
-
-    width = _width;
-    height = _height;
-    ffd = _ffd;
     picture_colored = (int *)malloc(sizeof(int) * width * height);
     z_buffer = (SCALAR *)malloc(sizeof(SCALAR) * width * height);
 

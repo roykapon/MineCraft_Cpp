@@ -11,62 +11,55 @@
 #define AIR_FRICTION 0.95
 #define FACE_OBJECT pair<Face *, Object *>
 #define REACH_DIST 10
+#define SPEED 20.0f
+#define JUMP_HEIGHT 2.0f
+
 using namespace std;
 
-class Node {
-public:
-  Object *data;
-  Node *next;
-  Node *prev;
-
-  Node();
-
-  Node(Object *_data, Node *_next, Node *_prev);
-
-  ~Node();
-};
-
-/* Add a new element to head of the list and returns the created node
- * (creating the node is the responsibility of the caller) */
-Node *push(Node *&head, Object *data);
-
-/* Removes the given node from the list */
-void pop(Node *node);
+enum PlayerInteraction { ADD_BLOCK, REMOVE_BLOCK };
 
 class Env {
 public:
-  Node *memory;
-  unordered_map<Vector, Node *, Vector_hash> blocks;
-  vector<pair<Face *, Object *>> visible_faces;
-  vector<Object> entities;
+  unordered_map<Vector, Block *, Vector_hash> blocks;
+  unordered_map<Face *, Object *> visible_faces;
+  unordered_set<Object *> entities;
 
   Env();
 
   ~Env();
 
-  void init_memory();
+  void free_blocks();
 
-  void delete_memory();
+  void free_entities();
 
-  /* creates a block of 2 by 2 by 2 centerd in the given position */
+  /* Creates a block of 2 by 2 by 2 centerd in the given position */
   void create_block(const Vector &pos);
 
-  /* creates an entity of 2 by 2 by 2 centerd in the given position */
-  void create_entity(const Vector &pos);
+  /** Creates an entity in the environment at the given position
+   * (returns the created entity) */
+  void remove_block(const Vector &pos);
 
-  /* updates the visible_faces vector.
+  /* Creates an entity of 2 by 2 by 2 centerd in the given position */
+  Object &create_entity(const Vector &pos);
+
+  /* Removes the given entity from the environment
+   (also deletes the entity's data) */
+  void remove_entity(Object *&entity);
+
+  /* updates the visible_faces map.
    * should be called on any update to the blocks */
   void update_visible_faces();
 
-  void player_interact(Object &player, Vector &direction);
+  void player_interact(Object &player, Vector &direction,
+                       PlayerInteraction interaction);
 
   /* moves the object with the given velocity and updates it accordingly */
   void move_object(Object &object, Vector &v);
 
   /* returns the ratio of the velocity vector in which the object can move
    * before colliding with something */
-  SCALAR object_env_collision(Object &object, Vector &v, Vector &normal,
-                              Object *&collision);
+  SCALAR object_env_collision(const Object &object, const Vector &v,
+                              Vector &normal, Object *&collision);
 
   SCALAR point_env_collision(const Vector &pos, const Vector &v, Vector &normal,
                              Object *&collision);

@@ -44,28 +44,6 @@ Face default_faces[NUM_TRIANGLES_IN_BOX] = {
          ColoredVector(-1, -1, 1, 1, 0, TEXTURE_RES),
          ColoredVector(-1, -1, -1, 1, 0, 0))};
 
-Object::Object(const Vector &_pos, SCALAR _vertical, SCALAR _horizontal,
-               SCALAR _friction) {
-  pos = _pos;
-  vertical = _vertical;
-  horizontal = _horizontal;
-  friction = _friction;
-  v = Vector(0, 0, 0, 0);
-  faces_len = 12;
-  faces = new Face[faces_len];
-  update();
-}
-
-Object::Object(const Object &other) {
-  pos = other.pos;
-  vertical = other.vertical;
-  horizontal = other.horizontal;
-  v = other.v;
-  faces_len = other.faces_len;
-  faces = new Face[faces_len];
-  update();
-}
-
 void Object::update() {
   update_direction();
   update_world();
@@ -82,11 +60,11 @@ void Object::update_direction() {
 }
 
 void Object::update_world() {
-  Matrix rotate_x = Matrix::rotate(X_AXIS, vertical);
-  Matrix rotate_y = Matrix::rotate(Y_AXIS, horizontal);
-  Matrix shift = Matrix::shift(pos);
+  Matrix rotate_x = rotate(X_AXIS, vertical);
+  Matrix rotate_y = rotate(Y_AXIS, horizontal);
+  Matrix shift_pos = shift(pos);
   world = rotate_x * rotate_y;
-  world = world * shift;
+  world = world * shift_pos;
 }
 
 void Object::update_faces() {
@@ -133,3 +111,5 @@ SCALAR block_block_collision(const Object &o1, const Object &o2,
 }
 
 Face &Object::operator[](int index) { return faces[index]; }
+
+const Face &Object::operator[](int index) const { return faces[index]; }

@@ -229,46 +229,31 @@ ostream &operator<<(ostream &os, const Matrix &M) {
   return os;
 };
 
-Matrix Matrix::rotate(int axis, SCALAR angle) {
-  Matrix res;
-  res.vectors[3] = Vector(0, 0, 0, 1);
+Matrix rotate(int axis, SCALAR angle) {
   switch (axis) {
   case X_AXIS:
-    res.vectors[0] = Vector(1, 0, 0, 0);
-    res.vectors[1] = Vector(0, cos(angle), -sin(angle), 0);
-    res.vectors[2] = Vector(0, sin(angle), cos(angle), 0);
-    return res;
+    return Matrix(Vector(1, 0, 0, 0), Vector(0, cos(angle), -sin(angle), 0),
+                  Vector(0, sin(angle), cos(angle), 0), Vector(0, 0, 0, 1));
   case Y_AXIS:
-    res.vectors[0] = Vector(cos(angle), 0, sin(angle), 0);
-    res.vectors[1] = Vector(0, 1, 0, 0);
-    res.vectors[2] = Vector(-sin(angle), 0, cos(angle), 0);
-    return res;
+    return Matrix(Vector(cos(angle), 0, sin(angle), 0), Vector(0, 1, 0, 0),
+                  Vector(-sin(angle), 0, cos(angle), 0), Vector(0, 0, 0, 1));
   case Z_AXIS:
-    res.vectors[0] = Vector(cos(angle), -sin(angle), 0, 0);
-    res.vectors[1] = Vector(sin(angle), cos(angle), 0, 0);
-    res.vectors[2] = Vector(0, 0, 1, 0);
-    return res;
+    return Matrix(Vector(cos(angle), -sin(angle), 0, 0),
+                  Vector(sin(angle), cos(angle), 0, 0), Vector(0, 0, 1, 0),
+                  Vector(0, 0, 0, 1));
   }
   cout << "Invalid axis: " << axis;
-  return res;
+  return Matrix();
 };
 
-Matrix Matrix::shift(const Vector &pos) {
-  Matrix res;
-  res.vectors[0] = Vector(1, 0, 0, 0);
-  res.vectors[1] = Vector(0, 1, 0, 0);
-  res.vectors[2] = Vector(0, 0, 1, 0);
-  res.vectors[3] = pos;
-  return res;
+Matrix shift(const Vector &pos) {
+  return Matrix(Vector(1, 0, 0, 0), Vector(0, 1, 0, 0), Vector(0, 0, 1, 0),
+                pos);
 }
 
 Matrix I() {
-  Matrix res;
-  res.vectors[0] = Vector(1, 0, 0, 0);
-  res.vectors[1] = Vector(0, 1, 0, 0);
-  res.vectors[2] = Vector(0, 0, 1, 0);
-  res.vectors[3] = Vector(0, 0, 0, 0);
-  return res;
+  return Matrix(Vector(1, 0, 0, 0), Vector(0, 1, 0, 0), Vector(0, 0, 1, 0),
+                Vector(0, 0, 0, 0));
 }
 
 /** helper function for finding a pivot row.

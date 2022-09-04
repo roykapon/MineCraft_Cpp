@@ -19,10 +19,18 @@ public:
   // the closer friction to 1 is, the smaller the friction
   SCALAR friction;
 
-  Object(const Vector &_pos = Vector(), SCALAR vertical = 0.0,
-         SCALAR horizontal = 0.0, SCALAR friction = FEFAULT_FRICTION);
+  Object(const Vector &_pos = Vector(0, 0, 0), SCALAR _vertical = 0.0,
+         SCALAR _horizontal = 0.0, SCALAR _friction = FEFAULT_FRICTION,
+         const Vector &_v = Vector(0, 0, 0, 0))
+      : pos(_pos), vertical(_vertical), horizontal(_horizontal),
+        friction(_friction), v(_v), faces_len(12) {
+    faces = new Face[faces_len];
+    update();
+  }
 
-  Object(const Object &other);
+  Object(const Object &other)
+      : Object(other.pos, other.vertical, other.horizontal, other.friction,
+               other.v) {}
 
   ~Object();
 
@@ -36,7 +44,11 @@ public:
 
   void update_faces();
 
+  /* Returns a mutable reference to face at the given index */
   Face &operator[](int index);
+
+  /* Returns a const reference to face at the given index */
+  const Face &operator[](int index) const;
 };
 
 SCALAR block_block_collision(const Object &o1, const Object &o2,

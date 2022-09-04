@@ -52,7 +52,7 @@ public:
     return texture;
   }
 
-  /** Returns the vertex at the given index */
+  /** Returns a const reference to the vertex at the given index */
   const ColoredVector &operator[](int index) const;
 
   /** Returns a mutable reference to the vertex at the given index */

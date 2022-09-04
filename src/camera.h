@@ -20,9 +20,10 @@ public:
   Uint32 *picture;
   SCALAR distance;
 
-  Camera(Vector _pos = Vector(), SCALAR _vertical = 0, SCALAR _horizontal = 0,
-         SCALAR _ffd = DEFAULT_FFD, int _width = DEFAULT_WIDTH,
-         int _height = DEFAULT_HEIGHT, SCALAR _distance = DEFAULT_DISTANCE) {
+  Camera(Vector _pos = Vector(0, 0, 0), SCALAR _vertical = 0,
+         SCALAR _horizontal = 0, SCALAR _ffd = DEFAULT_FFD,
+         int _width = DEFAULT_WIDTH, int _height = DEFAULT_HEIGHT,
+         SCALAR _distance = DEFAULT_DISTANCE) {
     pos = _pos;
     vertical = _vertical;
     horizontal = _horizontal;

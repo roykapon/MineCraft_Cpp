@@ -35,12 +35,13 @@ class Vector {
 
 public:
   SCALAR x, y, z, w;
-  Vector(SCALAR _x = 0, SCALAR _y = 0, SCALAR _z = 0, SCALAR _w = 1) {
-    x = _x;
-    y = _y;
-    z = _z;
-    w = _w;
-  }
+
+  Vector() {}
+
+  Vector(SCALAR _x, SCALAR _y, SCALAR _z, SCALAR _w = 1)
+      : x(_x), y(_y), z(_z), w(_w) {}
+
+  Vector(const Vector &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
 
   /** Returns the value at the given index (or axis)*/
   SCALAR operator[](int index) const;
@@ -119,30 +120,27 @@ class Matrix {
 public:
   Vector vectors[4];
 
-  Matrix(Vector v1 = Vector(0, 0, 0, 0), Vector v2 = Vector(0, 0, 0, 0),
-         Vector v3 = Vector(0, 0, 0, 0), Vector v4 = Vector(0, 0, 0, 0)) {
-    vectors[0] = v1;
-    vectors[1] = v2;
-    vectors[2] = v3;
-    vectors[3] = v4;
-  }
+  Matrix(const Vector &v1 = Vector(0, 0, 0, 0),
+         const Vector &v2 = Vector(0, 0, 0, 0),
+         const Vector &v3 = Vector(0, 0, 0, 0),
+         const Vector &v4 = Vector(0, 0, 0, 0))
+      : vectors{v1, v2, v3, v4} {}
 
   /** Returns a mutable reference to the row at the given index */
   const Vector &operator[](int index) const;
 
   /** Returns the row at the given index */
   Vector &operator[](int index);
-
-  /** Returns the rotation matrix around the given axis
-   *  (when applied on the RIGHT)
-   *  The rotation direction is clockwise when looking towards the given axis
-   */
-  static Matrix rotate(int axis, SCALAR angle);
-
-  /** Returns the shifting matrix, assuming w=1
-   *  (when applied on the RIGHT) */
-  static Matrix shift(const Vector &offset);
 };
+/** Returns the rotation matrix around the given axis
+ *  (when applied on the RIGHT)
+ *  The rotation direction is clockwise when looking towards the given axis
+ */
+Matrix rotate(int axis, SCALAR angle);
+
+/** Returns the shifting matrix, assuming w=1
+ *  (when applied on the RIGHT) */
+Matrix shift(const Vector &offset);
 
 /** Prints the matrix */
 ostream &operator<<(ostream &os, const Matrix &M);

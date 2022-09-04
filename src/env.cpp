@@ -2,88 +2,81 @@
 
 using namespace std;
 
-Node::Node() {
-  data = nullptr;
-  next = this;
-  prev = this;
-}
-
-Node::Node(Object *_data, Node *_next, Node *_prev) {
-  data = _data;
-  next = _next;
-  prev = _prev;
-}
-
-Node::~Node() {
-  prev->next = next;
-  next->prev = prev;
-  delete data;
-}
-
-Node *push(Node *&head, Object *data) {
-  Node *res = new Node(data, head->prev, head);
-  head->prev->next = res;
-  head->prev = res;
-  return res;
-}
-
-void pop(Node *node) { delete node; }
-
-void delete_list(Node *head) {
-  Node *next = nullptr;
-  while (next != head) {
-    next = head->next;
-    delete head;
-    head = next;
-  }
-}
-
 Env::Env() {
-  init_memory();
   blocks.clear();
   visible_faces.clear();
+  entities.clear();
 };
 
-Env::~Env() { delete_memory(); }
-
-void Env::init_memory() { memory = new Node(); }
-
-void Env::delete_memory() { delete_list(memory); }
-
-/** creates a block in the environment at the given position */
 void Env::create_block(const Vector &pos) {
-  Node *address = push(memory, new Block(pos));
-  blocks[pos] = address;
+  if (blocks.find(pos) == blocks.end()) {
+    Block *block = new Block(pos);
+    blocks[pos] = block;
+    update_visible_faces();
+  }
 }
 
-void Env::create_entity(const Vector &pos) {
-  //
-  entities.push_back(Object(pos));
+void Env::remove_block(const Vector &pos) {
+  if (blocks.find(pos) != blocks.end()) {
+    Block *&block = blocks[pos];
+    delete block;
+    blocks.erase(pos);
+    update_visible_faces();
+  }
 }
 
-/** Updates visible faces list */
+Object &Env::create_entity(const Vector &pos) {
+  Object *entity = new Object(pos);
+  entities.insert(entity);
+  update_visible_faces();
+  return *entity;
+}
+
+void Env::remove_entity(Object *&entity) {
+  delete entity;
+  entities.erase(entity);
+}
+
 void Env::update_visible_faces() {
-  Node *node;
+  // should be optimized so that we only update the necessary faces
   visible_faces.clear();
-  for (auto &pos_block : blocks) {
+  for (const auto &pos_block : blocks) {
     const Vector &pos = pos_block.first;
-    Node *node = pos_block.second;
-    Block &block = *((Block *)(node->data));
+    Block &block = *(pos_block.second);
     for (int i = 0; i < block.faces_len; i++) {
-      if (blocks.count(pos + block[i].normal * 2) == 0)
-        visible_faces.push_back(FACE_OBJECT(&block[i], &block));
+      if (blocks.find(pos + block[i].normal * 2) == blocks.end())
+        visible_faces[&block[i]] = &block;
     }
   }
 
-  for (Object &entity : entities) {
+  for (Object *const &entity_ptr : entities) {
+    Object &entity = *entity_ptr;
     for (int i = 0; i < entity.faces_len; i++) {
-      visible_faces.push_back(FACE_OBJECT(&entity[i], &entity));
+      visible_faces[&entity[i]] = &entity;
     }
   }
 }
 
-SCALAR Env::object_env_collision(Object &object, Vector &v, Vector &normal,
-                                 Object *&collision) {
+Env::~Env() {
+  free_blocks();
+  free_entities();
+}
+
+void Env::free_blocks() {
+  for (auto &pos_block : blocks) {
+    Block *block = pos_block.second;
+    delete block;
+  }
+}
+
+void Env::free_entities() {
+  for (Object *const &entity : entities) {
+    delete entity;
+  }
+}
+
+SCALAR Env::object_env_collision(const Object &object, const Vector &v,
+                                 Vector &normal, Object *&collision) {
   SCALAR min_t = SCALAR_MAX;
   SCALAR t;
   Vector curr_normal;
@@ -106,14 +99,23 @@ SCALAR Env::object_env_collision(Object &object, Vector &v, Vector &normal,
   return min_t;
 }
 
-void Env::player_interact(Object &player, Vector &direction) {
+void Env::player_interact(Object &player, Vector &direction,
+                          PlayerInteraction interaction) {
   Vector normal;
   Object *collision = nullptr;
   if (point_env_collision(player.pos, (direction * REACH_DIST), normal,
                           collision) < SCALAR_MAX) {
-    Vector block_pos = collision->pos + 2 * normal;
-    create_block(block_pos);
-    update_visible_faces();
+    Vector block_pos;
+    switch (interaction) {
+    case ADD_BLOCK:
+      block_pos = collision->pos + 2 * normal;
+      create_block(block_pos);
+      break;
+    case REMOVE_BLOCK:
+      block_pos = collision->pos;
+      remove_block(block_pos);
+      break;
+    }
   }
 }
 
@@ -220,8 +222,9 @@ void Env::move_object(Object &object, Vector &v) {
 
 void Env::apply_physics(SCALAR frame_time) {
   Vector gravity = GRAVITY * frame_time;
-  for (Object &entity : entities) {
-    entity.v = entity.v + gravity;
+  for (Object *const &entity_ptr : entities) {
+    Object &entity = *entity_ptr;
+    entity.v += gravity;
     move_object(entity, entity.v);
   }
 }

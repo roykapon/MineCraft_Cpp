@@ -9,10 +9,10 @@ using namespace std;
 
 void Renderer::update_world() {
   Vector offset = pos * (-1);
-  Matrix shift = Matrix::shift(offset);
-  Matrix rotate_x = Matrix::rotate(X_AXIS, -vertical);
-  Matrix rotate_y = Matrix::rotate(Y_AXIS, -horizontal);
-  world = shift * rotate_y;
+  Matrix shift_pos = shift(offset);
+  Matrix rotate_x = rotate(X_AXIS, -vertical);
+  Matrix rotate_y = rotate(Y_AXIS, -horizontal);
+  world = shift_pos * rotate_y;
   world = world * rotate_x;
 }
 
@@ -167,8 +167,8 @@ struct FaceComparator {
 
   FaceComparator(Vector _pos) { pos = _pos; }
 
-  bool operator()(FACE_OBJECT &p1, FACE_OBJECT &p2) {
-    return p1.first->average_dist(pos) < p2.first->average_dist(pos);
+  bool operator()(Face &face1, Face &face2) {
+    return face1.average_dist(pos) < face2.average_dist(pos);
   }
 };
 
@@ -176,8 +176,8 @@ void Renderer::render(Env &env) {
   init_picture();
   init_picture_colored();
   init_z_buffer();
-  sort(env.visible_faces.begin(), env.visible_faces.end(), FaceComparator(pos));
-  for (auto face_object : env.visible_faces) {
+
+  for (const auto &face_object : env.visible_faces) {
     Face &face = *(face_object.first);
     // should probably filter the faces before sorting
     if (decide_to_render(face)) {
