@@ -13,6 +13,7 @@ class Face {
 
 public:
   ColoredVector vertices[3];
+  Vector rotated[3];
   Vector edge_normals[3];
   Vector normal;
   SCALAR d;

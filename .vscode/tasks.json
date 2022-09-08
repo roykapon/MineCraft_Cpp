@@ -10,14 +10,14 @@
                 "src\\*.cpp",
                 "-o",
                 "build\\game.exe",
-                "-IC:\\Users\\royka\\Documents\\Projects\\MineCraft_Cpp\\src\\SDL2\\x86_64-w64-mingw32\\include",
-                "-LC:\\Users\\royka\\Documents\\Projects\\MineCraft_Cpp\\src\\SDL2\\x86_64-w64-mingw32\\lib",
+                "-Isrc\\include",
+                "-Lsrc\\lib",
                 "-lmingw32",
                 "-lSDL2main",
                 "-lSDL2",
                 "-mwindows",
                 // // remember to remove the following line!!!!
-                "-mconsole"
+                // "-mconsole"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

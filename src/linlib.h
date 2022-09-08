@@ -1,12 +1,13 @@
 #pragma once
 
-#include <bits/stdc++.h>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <limits.h>
+#include <limits>
 #include <math.h>
+#include <string>
 
-#define SCALAR float
+typedef float SCALAR;
 // #define INT_MAX numeric_limits<int>::max()
 // #define INT_MIN numeric_limits<int>::min()
 #define SCALAR_MAX numeric_limits<SCALAR>::max()
@@ -23,7 +24,7 @@
 #define EXTENDED_AXES 4
 #define MAX_NUM_LENGTH 13
 #define PI (SCALAR)3.14159265
-#define EPSILON (SCALAR)0.0001
+#define EPSILON (SCALAR)0.00001
 
 #define INTERPOLATE(X1, X2, RATIO)                                             \
   ((((SCALAR)X1) * RATIO) + (((SCALAR)X2) * (1.0f - RATIO)))

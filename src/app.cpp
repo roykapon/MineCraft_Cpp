@@ -4,7 +4,7 @@ void App::init_terrain() {
   for (SCALAR x = 0.0f; x < 30; x += 2) {
     for (SCALAR y = 0.0f; y < 2; y += 2) {
       for (SCALAR z = 0.0f; z < 30; z += 2) {
-        Vector block_pos = Vector(x, y, z);
+        Vector block_pos = Vector(x, z, z);
         env.create_block(block_pos);
       }
     }
@@ -36,15 +36,13 @@ void App::init_screen() {
   // library code
   SDL_Init(SDL_INIT_EVERYTHING);
 
-  window =
-      SDL_CreateWindow("Shady MineCraft", SDL_WINDOWPOS_CENTERED,
-                       SDL_WINDOWPOS_CENTERED, camera.width, camera.height, 0);
+  window = SDL_CreateWindow("Shady MineCraft", SDL_WINDOWPOS_CENTERED,
+                            SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
   // hack the mouse (muhahahaha)
   SDL_SetRelativeMouseMode(SDL_TRUE);
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
-                             SDL_TEXTUREACCESS_STREAMING, camera.width,
-                             camera.height);
+                             SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 
   is_running = true;
 }
@@ -52,8 +50,7 @@ void App::init_screen() {
 void App::render() {
   camera.render(env);
 
-  SDL_UpdateTexture(screen, NULL, camera.picture,
-                    camera.width * sizeof(Uint32));
+  SDL_UpdateTexture(screen, NULL, camera.picture, WIDTH * sizeof(Uint32));
   SDL_RenderCopy(renderer, screen, NULL, NULL);
   SDL_RenderPresent(renderer);
 }
@@ -141,11 +138,11 @@ void App::poll_input(Vector &player_direction) {
         break;
       }
       case SDLK_SPACE: {
-        player_direction += Vector(0, JUMP_HEIGHT, 0, 0);
+        player_direction += JUMP;
         break;
       }
       case SDLK_LSHIFT: {
-        player_direction -= Vector(0, -JUMP_HEIGHT, 0, 0);
+        player_direction -= JUMP;
         break;
       }
       }
@@ -155,8 +152,8 @@ void App::poll_input(Vector &player_direction) {
       int mouseX = event.motion.x;
       int mouseY = event.motion.y;
 
-      camera.horizontal = -mouseX * 2 * PI / camera.width + PI;
-      camera.vertical = -mouseY * 2 * PI / camera.height - PI;
+      camera.horizontal = -mouseX * 2 * PI / WIDTH + PI;
+      camera.vertical = -mouseY * 2 * PI / HEIGHT - PI;
 
       break;
     }

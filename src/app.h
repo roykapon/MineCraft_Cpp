@@ -1,6 +1,10 @@
-#include "camera.h"
+#pragma once
 
-#define SPAWN_POINT Vector(0.0f, 10.0f, 0.0f)
+#include "camera.h"
+#include <sstream>
+
+const Vector spawn_point = Vector(0.0f, 10.0f, 0.0f);
+
 class App {
   Env env;
   Camera camera;
@@ -22,7 +26,7 @@ class App {
   void poll_input(Vector &player_direction);
 
 public:
-  App() : env(), camera(), player(env.create_entity(SPAWN_POINT)) {
+  App() : env(), camera(), player(env.create_entity(spawn_point)) {
     init_terrain();
     init_screen();
   }

@@ -7,8 +7,8 @@
 #include <iomanip>
 #include <iostream>
 
-#define DEFAULT_WIDTH 1080
-#define DEFAULT_HEIGHT 540
+#define WIDTH 1024
+#define HEIGHT 512
 
 #define DEFAULT_FFD 1.0f
 
@@ -19,21 +19,18 @@ public:
   SCALAR vertical, horizontal;
   Vector direction;
   SCALAR ffd;
-  int width, height;
   Matrix world;
   // a 2d array that holds the offset to the next unpainted pixel
-  SCALAR *z_buffer;
-  int *picture_colored;
+  SCALAR (*z_buffer)[WIDTH];
+  int (*picture_colored)[WIDTH];
 
   Renderer(Vector _pos = Vector(0, 0, 0), SCALAR _vertical = 0,
-           SCALAR _horizontal = 0, SCALAR _ffd = DEFAULT_FFD,
-           int _width = DEFAULT_WIDTH, int _height = DEFAULT_HEIGHT)
-      : pos(_pos), vertical(_vertical), horizontal(_horizontal), width(_width),
-        height(_height), ffd(_ffd) {
+           SCALAR _horizontal = 0, SCALAR _ffd = DEFAULT_FFD)
+      : pos(_pos), vertical(_vertical), horizontal(_horizontal), ffd(_ffd) {
     update_direction();
     update_world();
-    picture_colored = (int *)malloc(sizeof(int) * width * height);
-    z_buffer = (SCALAR *)malloc(sizeof(SCALAR) * width * height);
+    picture_colored = new int[HEIGHT][WIDTH];
+    z_buffer = new SCALAR[HEIGHT][WIDTH];
 
     init_picture_colored();
     init_z_buffer();
@@ -43,7 +40,7 @@ public:
   virtual void init_picture() {}
 
   /** paints a single pixel (to be implemented)*/
-  virtual void paint_pixel(Pixel &left, Pixel &right, int x, int y,
+  virtual void paint_pixel(const Pixel &left, const Pixel &right, int x, int y,
                            SCALAR ratio) {}
 
   /** initialize picture_colored by setting each pixel to point to the
@@ -67,16 +64,16 @@ public:
   void update();
 
   /** given x coordinate, returns the x index of the pixel*/
-#define COORD_TO_PIXEL_X(x) round(height *x) + width / 2;
+#define COORD_TO_PIXEL_X(x) lround(HEIGHT *x) + WIDTH / 2;
 
   /** given y coordinate, returns the y index of the pixel*/
-#define COORD_TO_PIXEL_Y(y) round(height *y) + height / 2;
+#define COORD_TO_PIXEL_Y(y) lround(HEIGHT *y) + HEIGHT / 2;
 
   /** given pixel y , returns the y coordinate of the pixel  in 3d world*/
-#define PIXEL_TO_COORD_Y(x) (SCALAR)(x - height / 2) / height;
+#define PIXEL_TO_COORD_Y(x) (SCALAR)(x - HEIGHT / 2) / HEIGHT;
 
 /** given pixel x , returns the x coordinate of the pixel in 3d world*/
-#define PIXEL_TO_COORD_X(x) (SCALAR)(x - width / 2) / height;
+#define PIXEL_TO_COORD_X(x) (SCALAR)(x - WIDTH / 2) / HEIGHT;
 
   /** updates the projected array with the pixels of a face when projected onto
    * the camera. Returns the legnth of the projected array*/
@@ -99,14 +96,14 @@ public:
   bool decide_to_render2(Pixel *projected, int len);
 
   /** Given a list of edges, updates the pixture */
-  void paint_face(Pixel *edges, int *extremum);
+  void paint_face(Pixel (*edges)[2], int *extremum);
 
   /** update the line in the edges array */
-  void save_line(Pixel *line, Pixel *edges, int *extremum);
+  void save_line(Pixel line[2], Pixel (*edges)[2], int *extremum);
   /** Returns true if the first face is closer to the camera than the second
    * one */
   bool compare(Face *face1, Face *face2);
 
   /** Returns interpolation of the pixels in the specified y pixel-index */
-  Pixel interpolate_by_y(Pixel &p1, Pixel &p2, int y);
+  Pixel interpolate_by_y(const Pixel &p1, const Pixel &p2, int y);
 };

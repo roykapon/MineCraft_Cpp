@@ -7,8 +7,8 @@ Block::Block() : Object(Vector(0, 0, 0)) {}
 Block::Block(const Block &other) : Object((Object &)other) {}
 
 Vector get_block_pos(const Vector &pos) {
-  return Vector(round(pos.x / 2) * 2.0, round(pos.y / 2) * 2.0,
-                round(pos.z / 2) * 2.0);
+  return Vector(round(pos.x / 2) * 2.0f, round(pos.y / 2) * 2.0f,
+                round(pos.z / 2) * 2.0f);
 }
 
 Block::~Block() {}

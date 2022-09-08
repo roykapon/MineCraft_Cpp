@@ -1,19 +1,14 @@
 #include "renderer.h"
 #include <iomanip>
 #include <iostream>
-// remove
-#include <unistd.h>
+#include <omp.h>
 using namespace std;
 
 // =========================== Renderer ===========================
 
 void Renderer::update_world() {
-  Vector offset = pos * (-1);
-  Matrix shift_pos = shift(offset);
-  Matrix rotate_x = rotate(X_AXIS, -vertical);
-  Matrix rotate_y = rotate(Y_AXIS, -horizontal);
-  world = shift_pos * rotate_y;
-  world = world * rotate_x;
+  world = shift(pos * (-1)) * rotate(Y_AXIS, -horizontal) *
+          rotate(X_AXIS, -vertical);
 }
 
 void Renderer::update() {
@@ -22,13 +17,13 @@ void Renderer::update() {
 }
 
 void Renderer::init_picture_colored() {
-  memset(picture_colored, 0, sizeof(int) * width * height);
+  memset(picture_colored, 0, sizeof(int) * WIDTH * HEIGHT);
 }
 
 void Renderer::init_z_buffer() {
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      z_buffer[y * width + x] = SCALAR_MAX;
+  for (int y = 0; y < HEIGHT; y++) {
+    for (int x = 0; x < WIDTH; x++) {
+      z_buffer[y][x] = SCALAR_MAX;
     }
   }
 }
@@ -36,7 +31,7 @@ void Renderer::init_z_buffer() {
 void Renderer::project(ColoredVector &v, Pixel &p) {
   // assumes the point was already rotated
   p.source = v;
-  SCALAR ratio = ffd / v.z;
+  const SCALAR ratio = ffd / v.z;
   p.x = COORD_TO_PIXEL_X(v.x * ratio);
   p.y = COORD_TO_PIXEL_Y(v.y * ratio);
 }
@@ -61,8 +56,8 @@ int Renderer::project(Face &face, Pixel *projected) {
     if ((rotated[(i + 1) % 3].z <= EPSILON && rotated[i].z > EPSILON) ||
         (rotated[i].z <= EPSILON && rotated[(i + 1) % 3].z > EPSILON)) {
       // find intersection
-      SCALAR ratio = (EPSILON - rotated[(i + 1) % 3].z) /
-                     (rotated[i].z - rotated[(i + 1) % 3].z);
+      const SCALAR ratio = (EPSILON - rotated[(i + 1) % 3].z) /
+                           (rotated[i].z - rotated[(i + 1) % 3].z);
       ColoredVector inter;
       interpolate(rotated[i], rotated[(i + 1) % 3], ratio, inter);
       // can be optimized (x and y pixel coordinates can be easily calculated)
@@ -74,38 +69,38 @@ int Renderer::project(Face &face, Pixel *projected) {
   return j;
 }
 
-void update_edges(Pixel &p, Pixel *edges, int *extremum) {
-  if (p.x < edges[2 * (p.y - extremum[0]) + 0].x) {
-    edges[2 * (p.y - extremum[0]) + 0] = p;
+void update_edges(const Pixel &p, Pixel (*edges)[2], int relative_y) {
+  if (p.x < edges[relative_y][0].x) {
+    edges[relative_y][0] = p;
   }
-  if (p.x > edges[2 * (p.y - extremum[0]) + 1].x) {
-    edges[2 * (p.y - extremum[0]) + 1] = p;
+  if (p.x > edges[relative_y][1].x) {
+    edges[relative_y][1] = p;
   }
 }
 
-void Renderer::save_line(Pixel *line, Pixel *edges, int *extremum) {
+void Renderer::save_line(Pixel line[2], Pixel (*edges)[2], int extremum[2]) {
   int line_extremum[2];
-  get_extremum(line, 2, line_extremum, 0, height);
-  Pixel &p1 = line[0];
-  Pixel &p2 = line[1];
+  get_extremum(line, 2, line_extremum, 0, HEIGHT);
+  const Pixel &p1 = line[0];
+  const Pixel &p2 = line[1];
   // handle "edge" cases (get the joke?)
   if (p1.y >= extremum[0] && p1.y <= extremum[1]) {
-    update_edges(p1, edges, extremum);
+    update_edges(p1, edges, p1.y - extremum[0]);
   }
   if (p2.y >= extremum[0] && p2.y <= extremum[1]) {
-    update_edges(p2, edges, extremum);
+    update_edges(p2, edges, p2.y - extremum[0]);
   }
-  Pixel curr;
   for (int y = line_extremum[0] + 1; y < line_extremum[1]; y++) {
-    curr = interpolate_by_y(p1, p2, y);
-    update_edges(curr, edges, extremum);
+    const Pixel curr = interpolate_by_y(p1, p2, y);
+    update_edges(curr, edges, y - extremum[0]);
   }
 }
 
-void init_edges(Pixel *edges, int *extremum) {
-  for (int y = extremum[0]; y <= extremum[1]; y++) {
-    edges[2 * (y - extremum[0]) + 0] = Pixel(INT_MAX, y);
-    edges[2 * (y - extremum[0]) + 1] = Pixel(INT_MIN, y);
+void init_edges(Pixel (*edges)[2], int *extremum) {
+  for (int relative_y = 0; relative_y <= extremum[1] - extremum[0];
+       relative_y++) {
+    edges[relative_y][0] = Pixel(INT_MAX, relative_y);
+    edges[relative_y][1] = Pixel(INT_MIN, relative_y);
   }
 }
 
@@ -115,22 +110,12 @@ bool Renderer::decide_to_render2(Pixel *projected, int len) {
   bool temp_left = false, temp_right = false, temp_bottom = false,
        temp_top = false, temp_forward = false;
   for (int i = 0; i < len; i++) {
-    Pixel &p = projected[i];
-    if (p.x >= 0) {
-      temp_left = true;
-    }
-    if (p.x < width) {
-      temp_right = true;
-    }
-    if (p.y >= 0) {
-      temp_bottom = true;
-    }
-    if (p.y < height) {
-      temp_top = true;
-    }
-    if (p.source.z > EPSILON) {
-      temp_forward = true;
-    }
+    const Pixel &p = projected[i];
+    temp_left |= (p.x >= 0);
+    temp_right |= (p.x < WIDTH);
+    temp_bottom |= (p.y >= 0);
+    temp_top |= (p.y < HEIGHT);
+    temp_forward |= (p.source.z > EPSILON);
   }
   return temp_left && temp_right && temp_bottom && temp_top && temp_forward;
 }
@@ -142,14 +127,13 @@ void Renderer::render(Face &face) {
     return;
   }
   int extremum[2];
-  get_extremum(projected, len, extremum, 0, height - 1);
+  get_extremum(projected, len, extremum, 0, HEIGHT - 1);
   if (extremum[1] - extremum[0] <= 0) {
     // happens only if all points are under the view or above the view
     return;
   }
   // Array of the pixels of the edges of the face on every y coordinate
-  Pixel *edges =
-      (Pixel *)malloc((2 * (extremum[1] - extremum[0] + 1)) * sizeof(Pixel));
+  Pixel(*edges)[2] = new Pixel[extremum[1] - extremum[0] + 1][2];
   init_edges(edges, extremum);
   Pixel line[2];
   for (int i = 0; i < len; i++) {
@@ -159,7 +143,7 @@ void Renderer::render(Face &face) {
   }
 
   paint_face(edges, extremum);
-  free(edges);
+  delete[] edges;
 }
 
 struct FaceComparator {
@@ -167,8 +151,8 @@ struct FaceComparator {
 
   FaceComparator(Vector _pos) { pos = _pos; }
 
-  bool operator()(Face &face1, Face &face2) {
-    return face1.average_dist(pos) < face2.average_dist(pos);
+  bool operator()(Face *face1, Face *face2) {
+    return face1->average_dist(pos) < face2->average_dist(pos);
   }
 };
 
@@ -177,11 +161,16 @@ void Renderer::render(Env &env) {
   init_picture_colored();
   init_z_buffer();
 
+  vector<Face *> faces;
   for (const auto &face_object : env.visible_faces) {
-    Face &face = *(face_object.first);
+    faces.push_back(face_object.first);
+  }
+
+  // sort(faces.begin(), faces.end(), FaceComparator(pos));
+  for (Face *face : faces) {
     // should probably filter the faces before sorting
-    if (decide_to_render(face)) {
-      render(face);
+    if (decide_to_render(*face)) {
+      render(*face);
     }
   }
 }
@@ -196,52 +185,56 @@ bool Renderer::decide_to_render(Face &face) {
    */
   // should be changed (it is not enough to look only at a single vertex)
   // SCALAR relative_direction2 = direction * face_direction;
-  return relative_direction < -100 * EPSILON; //&& relative_direction2 > 0;
+  return relative_direction < 0; //&& relative_direction2 > 0;
 }
 
 int bound(int i, int upper_bound, int lower_bound) {
   return max(min(i, upper_bound), lower_bound);
 }
 
-void Renderer::paint_face(Pixel *edges, int *extremum) {
-  int texture_x, texture_y;
-  SCALAR x_coord, ratio, diff_x, diff_z, z;
-  for (int y = max(extremum[0], 0); y <= min(extremum[1], height - 1); y++) {
-    Pixel &left = edges[2 * (y - extremum[0]) + 0];
-    Pixel &right = edges[2 * (y - extremum[0]) + 1];
+void Renderer::paint_face(Pixel (*edges)[2], int *extremum) {
+  // #pragma omp parallel for
+  for (int y = max(extremum[0], 0); y <= min(extremum[1], HEIGHT - 1); y++) {
+    const int relative_y = y - extremum[0];
+    const Pixel &left = edges[relative_y][0];
+    const Pixel &right = edges[relative_y][1];
     // actual work:
-    diff_x = left.source.x - right.source.x;
-    diff_z = left.source.z - right.source.z;
+    const SCALAR diff_x = left.source.x - right.source.x;
+    const SCALAR diff_z = left.source.z - right.source.z;
     // paint a single horizontal line
-    for (int x = max(left.x, 0); x <= min(right.x, width - 2);) {
-      x_coord = PIXEL_TO_COORD_X(x);
-      // assumes ffd = 1!!!
-      ratio = (right.source.x - right.source.z * x_coord) /
-              ((diff_z)*x_coord - diff_x);
-      z = INTERPOLATE(left.source.z, right.source.z, ratio);
+    int final_x = min(right.x, WIDTH - 2);
+    for (int x = max(left.x, 0); x <= final_x; x++) {
       // check the z_buffer
-      if (z < z_buffer[y * width + x] - EPSILON) {
+      SCALAR &old_z = z_buffer[y][x];
+      int &next_x = picture_colored[y][x];
+      const SCALAR x_coord = PIXEL_TO_COORD_X(x);
+      // assumes ffd = 1!!!
+      const SCALAR ratio = (right.source.x - right.source.z * x_coord) /
+          ((diff_z)*x_coord - diff_x);
+      const SCALAR z = INTERPOLATE(left.source.z, right.source.z, ratio);
+
+      if (z < old_z) {
         // paint the pixel
         paint_pixel(left, right, x, y, ratio);
         // set the pixel colored
-        picture_colored[y * width + x] = (right.x - x);
-        z_buffer[y * width + x] = z;
-        x++;
-      } else {
-        x += (1 + picture_colored[y * width + x]);
+        next_x = (right.x - x);
+        old_z = z;
+      } else if (z < old_z - EPSILON) {
+        x += next_x;
       }
     }
   }
 }
 
-Renderer::~Renderer() { free(picture_colored); }
+Renderer::~Renderer() {
+  delete[] picture_colored;
+  delete[] z_buffer;
+}
 
-Pixel Renderer::interpolate_by_y(Pixel &p1, Pixel &p2, int y) {
-  Pixel res;
+Pixel Renderer::interpolate_by_y(const Pixel &p1, const Pixel &p2, int y) {
   // assumes p2.y - p1.y != 0
   SCALAR ratio = (SCALAR)(p2.y - y) / (SCALAR)(p2.y - p1.y);
-  res.x = round(INTERPOLATE(p1.x, p2.x, ratio));
-  res.y = y;
+  Pixel res = Pixel(lround(INTERPOLATE(p1.x, p2.x, ratio)), y);
 
   SCALAR y_coord = PIXEL_TO_COORD_Y(y);
   // assumes ffd = 1 !!!

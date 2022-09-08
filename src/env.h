@@ -5,6 +5,8 @@
 #include <vector>
 
 #include <unordered_map>
+#include <unordered_set>
+
 
 #define WORLD_SIZE 100
 #define GRAVITY Vector(0, -3.0f, 0)
@@ -13,6 +15,7 @@
 #define REACH_DIST 10
 #define SPEED 20.0f
 #define JUMP_HEIGHT 2.0f
+#define JUMP Vector(0, JUMP_HEIGHT, 0, 0);
 
 using namespace std;
 

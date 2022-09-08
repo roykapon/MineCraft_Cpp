@@ -140,7 +140,7 @@ ostream &operator<<(ostream &os, Pixel &p) {
   return os;
 }
 
-void get_extremum(Pixel *pixels, int len, int *extremum, int lower_bound,
+void get_extremum(Pixel *pixels, int len, int extremum[2], int lower_bound,
                   int upper_bound) {
   extremum[0] = INT_MAX;
   extremum[1] = INT_MIN;

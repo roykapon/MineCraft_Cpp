@@ -52,7 +52,7 @@ SCALAR line_line_collision(const Vector *line1, const Vector *line2,
   Vector t = diff * M_inverse;
 
   if (t[0] <= EPSILON || t[0] >= 1 - EPSILON || t[1] <= EPSILON ||
-      t[1] >= 1 - EPSILON || t[2] < 0 || t[2] >= 1) {
+      t[1] >= 1 - EPSILON || t[2] < -EPSILON || t[2] >= 1) {
     return SCALAR_MAX;
   }
   normal = cross(line1[1] - line1[0], line2[1] - line2[0]);
