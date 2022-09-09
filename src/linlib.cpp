@@ -274,7 +274,6 @@ bool inverse(const Matrix &M, Matrix &res, int len) {
   res = I();
   Matrix copy = M;
   SCALAR a;
-  bool invalid;
   for (int i = 0; i < len; i++) {
     if (copy[i][i] < EPSILON && copy[i][i] > -EPSILON) {
       if (!pivot(i, len, copy, res)) {

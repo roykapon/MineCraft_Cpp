@@ -27,7 +27,7 @@ typedef float SCALAR;
 #define EPSILON (SCALAR)0.00001
 
 #define INTERPOLATE(X1, X2, RATIO)                                             \
-  ((((SCALAR)X1) * RATIO) + (((SCALAR)X2) * (1.0f - RATIO)))
+  ((((SCALAR)X1 - (SCALAR)X2) * RATIO) + (SCALAR)X2)
 
 using namespace std;
 

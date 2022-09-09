@@ -56,7 +56,7 @@ SCALAR line_line_collision(const Vector *line1, const Vector *line2,
     return SCALAR_MAX;
   }
   normal = cross(line1[1] - line1[0], line2[1] - line2[0]);
-  SCALAR sign = ((normal * v) > 0) ? -1.0 : 1.0;
+  SCALAR sign = ((normal * v) > 0) ? -1.0f : 1.0f;
   normal *= sign;
   // make the object have some distance from the other object
   // SCALAR dist = EPSILON * t[2] * abs(normal * v) / (norm(v) * norm(v));
@@ -87,7 +87,7 @@ SCALAR line_line_collision(const Vector *line1, const Vector *line2,
 
 SCALAR point_face_collision(const Vector &p, const Face &face, const Vector &v,
                             Vector &normal) {
-  if (face.normal * v >= 0) {
+  if (face.normal * v > -EPSILON) {
     return SCALAR_MAX;
   }
   // make the object have some distance from the other object
@@ -116,7 +116,7 @@ bool is_in(const Vector &p, const Face &face) {
 }
 
 bool can_collide(const Face &face1, const Face &face2, const Vector &v) {
-  if (face1.normal * v <= 0 || face2.normal * v >= 0) {
+  if (face1.normal * v < EPSILON || face2.normal * v > -EPSILON) {
     return false;
   }
   // SCALAR max_angle = SCALAR_MIN;

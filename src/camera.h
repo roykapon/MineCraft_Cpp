@@ -1,6 +1,5 @@
 #pragma once
 
-#include "include\SDL.h"
 #include "renderer.h"
 
 #define DEFAULT_WIDTH 1080
@@ -18,20 +17,14 @@ class Camera : public Renderer {
 
 public:
   Uint32 (*picture)[WIDTH];
+  // the distance from the player in 3d person mode
   SCALAR distance;
 
   Camera(Vector _pos = Vector(0, 0, 0), SCALAR _vertical = 0,
          SCALAR _horizontal = 0, SCALAR _ffd = DEFAULT_FFD,
-         SCALAR _distance = DEFAULT_DISTANCE) {
-    pos = _pos;
-    vertical = _vertical;
-    horizontal = _horizontal;
-    update_direction();
-    update_world();
-    ffd = _ffd;
+         SCALAR _distance = DEFAULT_DISTANCE) : Renderer(_pos, _vertical, _horizontal, _ffd) {
+    
     distance = _distance;
-    picture_colored = new int[HEIGHT][WIDTH];
-    init_picture_colored();
     picture = new Uint32[HEIGHT][WIDTH];
   }
 

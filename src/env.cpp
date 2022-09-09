@@ -1,143 +1,155 @@
 #include "env.h"
 
+#define DEFAULT_TEXTURE "texture_map.bmp"
+
 using namespace std;
 
-Env::Env() {
-  blocks.clear();
-  visible_faces.clear();
-  entities.clear();
+Env::Env() :SDL_texture_map(NULL), texture_map(NULL) {
+	blocks.clear();
+	visible_faces.clear();
+	entities.clear();
+	load_texture(DEFAULT_TEXTURE);
 };
 
-void Env::create_block(const Vector &pos) {
-  if (blocks.find(pos) == blocks.end()) {
-    Block *block = new Block(pos);
-    blocks[pos] = block;
-    update_visible_faces();
-  }
+void Env::load_texture(const char* image_path) {
+	SDL_texture_map = IMG_Load(image_path);
+	if (SDL_texture_map == NULL) {
+		exit(1);
+	}
+	texture_map = (Uint32(*)[TEXTURE_WIDTH]) SDL_texture_map->pixels;
 }
 
-void Env::remove_block(const Vector &pos) {
-  if (blocks.find(pos) != blocks.end()) {
-    Block *&block = blocks[pos];
-    delete block;
-    blocks.erase(pos);
-    update_visible_faces();
-  }
+void Env::create_block(const Vector& pos) {
+	if (blocks.find(pos) == blocks.end()) {
+		Block* block = new Block(pos);
+		blocks[pos] = block;
+		update_visible_faces();
+	}
 }
 
-Object &Env::create_entity(const Vector &pos) {
-  Object *entity = new Object(pos);
-  entities.insert(entity);
-  update_visible_faces();
-  return *entity;
+void Env::remove_block(const Vector& pos) {
+	if (blocks.find(pos) != blocks.end()) {
+		Block*& block = blocks[pos];
+		delete block;
+		blocks.erase(pos);
+		update_visible_faces();
+	}
 }
 
-void Env::remove_entity(Object *&entity) {
-  delete entity;
-  entities.erase(entity);
+Object& Env::create_entity(const Vector& pos) {
+	Object* entity = new Object(pos);
+	entities.insert(entity);
+	update_visible_faces();
+	return *entity;
+}
+
+void Env::remove_entity(Object*& entity) {
+	delete entity;
+	entities.erase(entity);
 }
 
 void Env::update_visible_faces() {
-  // should be optimized so that we only update the necessary faces
-  visible_faces.clear();
-  for (const auto &pos_block : blocks) {
-    const Vector &pos = pos_block.first;
-    Block &block = *(pos_block.second);
-    for (int i = 0; i < block.faces_len; i++) {
-      if (blocks.find(pos + block[i].normal * 2) == blocks.end())
-        visible_faces[&block[i]] = &block;
-    }
-  }
+	// should be optimized so that we only update the necessary faces
+	visible_faces.clear();
+	for (const auto& pos_block : blocks) {
+		const Vector& pos = pos_block.first;
+		Block& block = *(pos_block.second);
+		for (int i = 0; i < block.faces_len; i++) {
+			if (blocks.find(pos + block[i].normal * 2) == blocks.end())
+				visible_faces[&block[i]] = &block;
+		}
+	}
 
-  for (Object *const &entity_ptr : entities) {
-    Object &entity = *entity_ptr;
-    for (int i = 0; i < entity.faces_len; i++) {
-      visible_faces[&entity[i]] = &entity;
-    }
-  }
+	for (Object* const& entity_ptr : entities) {
+		Object& entity = *entity_ptr;
+		for (int i = 0; i < entity.faces_len; i++) {
+			visible_faces[&entity[i]] = &entity;
+		}
+	}
 }
 
 Env::~Env() {
-  free_blocks();
-  free_entities();
+	free_blocks();
+	free_entities();
 }
 
 void Env::free_blocks() {
-  for (auto &pos_block : blocks) {
-    Block *block = pos_block.second;
-    delete block;
-  }
+	for (auto& pos_block : blocks) {
+		Block* block = pos_block.second;
+		delete block;
+	}
 }
 
 void Env::free_entities() {
-  for (Object *const &entity : entities) {
-    delete entity;
-  }
+	for (Object* const& entity : entities) {
+		delete entity;
+	}
 }
 
-SCALAR Env::object_env_collision(const Object &object, const Vector &v,
-                                 Vector &normal, Object *&collision) {
-  SCALAR min_t = SCALAR_MAX;
-  SCALAR t;
-  Vector curr_normal;
-  for (auto face_object : visible_faces) {
-    Face &face = *face_object.first;
+SCALAR Env::object_env_collision(const Object& object, const Vector& v,
+	Vector& normal, Object*& collision) {
+	SCALAR min_t = SCALAR_MAX;
+	SCALAR t;
+	Vector curr_normal;
+	for (auto face_object : visible_faces) {
+		Face& face = *face_object.first;
+		Object& other = *face_object.second;
 
-    if (face.average_dist(object.pos) > norm(v) + 2 ||
-        face_object.second == &object) {
-      continue;
-    }
-    for (int i = 0; i < object.faces_len; i++) {
-      t = face_face_collision(object[i], face, v, curr_normal);
-      if (t < min_t) {
-        min_t = t;
-        normal = curr_normal;
-        collision = face_object.second;
-      }
-    }
-  }
-  return min_t;
+		if (distance(object.pos, other.pos) > norm(v) + 4 ||
+			face_object.second == &object) {
+			continue;
+		}
+		for (int i = 0; i < object.faces_len; i++) {
+			t = face_face_collision(object[i], face, v, curr_normal);
+			if (t < min_t) {
+				min_t = t;
+				normal = curr_normal;
+				collision = face_object.second;
+			}
+		}
+	}
+	return min_t;
 }
 
-void Env::player_interact(Object &player, Vector &direction,
-                          PlayerInteraction interaction) {
-  Vector normal;
-  Object *collision = nullptr;
-  if (point_env_collision(player.pos, (direction * REACH_DIST), normal,
-                          collision) < SCALAR_MAX) {
-    Vector block_pos;
-    switch (interaction) {
-    case ADD_BLOCK:
-      block_pos = collision->pos + 2 * normal;
-      create_block(block_pos);
-      break;
-    case REMOVE_BLOCK:
-      block_pos = collision->pos;
-      remove_block(block_pos);
-      break;
-    }
-  }
+void Env::player_interact(Object& player, Vector& direction,
+	PlayerInteraction interaction) {
+	Vector normal;
+	Object* collision = nullptr;
+	if (point_env_collision(player.pos, (direction * REACH_DIST), normal,
+		collision) < SCALAR_MAX) {
+		Vector block_pos;
+		switch (interaction) {
+		case ADD_BLOCK:
+			block_pos = collision->pos + 2 * normal;
+			create_block(block_pos);
+			break;
+		case REMOVE_BLOCK:
+			block_pos = collision->pos;
+			remove_block(block_pos);
+			break;
+		}
+	}
 }
 
-SCALAR Env::point_env_collision(const Vector &pos, const Vector &v,
-                                Vector &normal, Object *&collision) {
-  SCALAR min_t = SCALAR_MAX;
-  SCALAR t;
-  Vector curr_normal;
-  for (auto face_object : visible_faces) {
-    Face &face = *face_object.first;
+SCALAR Env::point_env_collision(const Vector& pos, const Vector& v,
+	Vector& normal, Object*& collision) {
+	SCALAR min_t = SCALAR_MAX;
+	SCALAR t;
+	Vector curr_normal;
+	for (auto face_object : visible_faces) {
+		Face& face = *face_object.first;
 
-    if (face.average_dist(pos) > norm(v) + 2) {
-      continue;
-    }
-    t = point_face_collision(pos, face, v, curr_normal);
-    if (t < min_t) {
-      min_t = t;
-      normal = curr_normal;
-      collision = face_object.second;
-    }
-  }
-  return min_t;
+		if (face.average_dist(pos) > norm(v) + 2) {
+			continue;
+		}
+		t = point_face_collision(pos, face, v, curr_normal);
+		if (t < min_t) {
+			min_t = t;
+			normal = curr_normal;
+			collision = face_object.second;
+		}
+	}
+	return min_t;
 }
 
 // Vector offset;
@@ -205,26 +217,26 @@ SCALAR Env::point_env_collision(const Vector &pos, const Vector &v,
 // }
 
 // may replace v with object.v
-void Env::move_object(Object &object, Vector &v) {
-  Vector normal;
-  Object *collision = nullptr;
-  SCALAR t = object_env_collision(object, v, normal, collision);
-  while (t < 1) {
-    object.pos = object.pos + v * t;
-    SCALAR force = (normal * v) * (t - 1);
-    v = ((1 - t) * v + force * normal) * (collision->friction / (force + 1));
-    t = object_env_collision(object, v, normal, collision);
-  }
-  object.pos = object.pos + v;
-  object.v *= AIR_FRICTION;
-  object.update();
+void Env::move_object(Object& object, Vector& v) {
+	Vector normal;
+	Object* collision = nullptr;
+	SCALAR t = object_env_collision(object, v, normal, collision);
+	while (t < 1) {
+		object.pos = object.pos + v * t;
+		SCALAR force = (normal * v) * (t - 1);
+		v = ((1 - t) * v + force * normal) * (collision->friction / (force + 1));
+		t = object_env_collision(object, v, normal, collision);
+	}
+	object.pos = object.pos + v;
+	object.v *= AIR_FRICTION;
+	object.update();
 }
 
 void Env::apply_physics(SCALAR frame_time) {
-  Vector gravity = GRAVITY * frame_time;
-  for (Object *const &entity_ptr : entities) {
-    Object &entity = *entity_ptr;
-    entity.v += gravity;
-    move_object(entity, entity.v);
-  }
+	Vector gravity = GRAVITY * frame_time;
+	for (Object* const& entity_ptr : entities) {
+		Object& entity = *entity_ptr;
+		entity.v += gravity;
+		move_object(entity, entity.v);
+	}
 }

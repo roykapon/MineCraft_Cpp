@@ -6,6 +6,7 @@
 #include "pixel.h"
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 
 #define WIDTH 1024
 #define HEIGHT 512

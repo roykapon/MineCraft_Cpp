@@ -33,8 +33,8 @@ ColoredVector &ColoredVector::operator-=(const ColoredVector &v) {
 
 ColoredVector operator*(const ColoredVector &v, SCALAR a) {
   // sets w to be the same as v1
-  return ColoredVector(v.x * a, v.y * a, v.z * a, v.w, v.texture_x * a,
-                       v.texture_y * a);
+  return ColoredVector(v.x * a, v.y * a, v.z * a, v.w, lround(v.texture_x * a),
+                       lround(v.texture_y * a));
 }
 
 ColoredVector &ColoredVector::operator*=(SCALAR a) {
@@ -46,8 +46,8 @@ ColoredVector &ColoredVector::operator*=(SCALAR a) {
 
 ColoredVector operator*(SCALAR a, const ColoredVector &v) {
   // sets w to be the same as v1
-  return ColoredVector(v.x * a, v.y * a, v.z * a, v.w, v.texture_x * a,
-                       v.texture_y * a);
+  return ColoredVector(v.x * a, v.y * a, v.z * a, v.w, lround(v.texture_x * a),
+                       lround(v.texture_y * a));
 }
 
 ColoredVector interpolate(const ColoredVector &v1, const ColoredVector &v2,
@@ -55,8 +55,8 @@ ColoredVector interpolate(const ColoredVector &v1, const ColoredVector &v2,
   return ColoredVector(INTERPOLATE(v1.x, v2.x, ratio),
                        INTERPOLATE(v1.y, v2.y, ratio),
                        INTERPOLATE(v1.z, v2.z, ratio), v1.w,
-                       round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio)),
-                       round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio)));
+                       lround(INTERPOLATE(v1.texture_x, v2.texture_x, ratio)),
+                       lround(INTERPOLATE(v1.texture_y, v2.texture_y, ratio)));
 }
 
 void interpolate(const ColoredVector &v1, const ColoredVector &v2, SCALAR ratio,
@@ -65,8 +65,8 @@ void interpolate(const ColoredVector &v1, const ColoredVector &v2, SCALAR ratio,
   res.y = INTERPOLATE(v1.y, v2.y, ratio);
   res.z = INTERPOLATE(v1.z, v2.z, ratio);
   res.w = v1.w;
-  res.texture_x = round(INTERPOLATE(v1.texture_x, v2.texture_x, ratio));
-  res.texture_y = round(INTERPOLATE(v1.texture_y, v2.texture_y, ratio));
+  res.texture_x = lround(INTERPOLATE(v1.texture_x, v2.texture_x, ratio));
+  res.texture_y = lround(INTERPOLATE(v1.texture_y, v2.texture_y, ratio));
 }
 
 ColoredVector operator*(const Matrix &M, const ColoredVector &v) {
@@ -129,8 +129,8 @@ Pixel operator-(const Pixel &p1, const Pixel &p2) {
 
 Pixel operator*(const Pixel &p, SCALAR a) {
   Pixel res;
-  res.x = p.x * a;
-  res.y = p.y * a;
+  res.x = lround(p.x * a);
+  res.y = lround(p.y * a);
   res.source = p.source * a;
   return res;
 }

@@ -2,6 +2,8 @@
 
 #include "linlib.h"
 #include "pixel.h"
+#include "SDL.h"
+
 
 #define NUM_CHANNELS 3
 #define TEXTURE_WIDTH 10
@@ -17,10 +19,10 @@ public:
   Vector edge_normals[3];
   Vector normal;
   SCALAR d;
-  int ***texture;
+  Uint32 (*texture)[TEXTURE_WIDTH];
 
-  Face(ColoredVector v1 = ColoredVector(), ColoredVector v2 = ColoredVector(),
-       ColoredVector v3 = ColoredVector(), int ***_texture = NULL) {
+  Face(const ColoredVector v1 = ColoredVector(), const ColoredVector v2 = ColoredVector(),
+       const ColoredVector v3 = ColoredVector(), Uint32(*_texture)[TEXTURE_WIDTH] = NULL) {
     vertices[0] = v1;
     vertices[1] = v2;
     vertices[2] = v3;
